@@ -1,0 +1,105 @@
+// File: app/(public)/cookies/page.tsx
+
+/**
+ * Asancha Cookies Page
+ *
+ * Purpose:
+ * Provides public cookie and browser storage guidance for Asancha Web Public.
+ *
+ * Security note:
+ * This page must not expose actual cookie values, token values, session
+ * secrets, API keys, or private browser-stored data.
+ */
+
+import type { Metadata } from "next";
+
+import { JsonLd } from "@/src/components/seo/json-ld";
+import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+
+export const metadata: Metadata = {
+  title: "Cookies | Asancha",
+  description:
+    "Learn how Asancha may use cookies and browser storage for public experience, sessions, preferences, analytics, and security-supporting behaviour.",
+  alternates: {
+    canonical: "/cookies",
+  },
+};
+
+const cookieItems = [
+  {
+    title: "Essential cookies",
+    description:
+      "Used where needed to support sign-in, session continuity, and safe platform behaviour.",
+  },
+  {
+    title: "Preference storage",
+    description:
+      "May support browser-safe preferences such as interface choices or public user experience hints.",
+  },
+  {
+    title: "Analytics",
+    description:
+      "Browser-safe analytics may be enabled to understand public page performance without exposing secrets.",
+  },
+  {
+    title: "Security note",
+    description:
+      "Cookie values, tokens, and session secrets must never be displayed on public pages.",
+  },
+] as const;
+
+/**
+ * Renders the public cookies page.
+ */
+export default function CookiesPage() {
+  const jsonLd = createPublicPageJsonLdBundle({
+    path: "/cookies",
+    name: "Asancha Cookies",
+    description:
+      "Learn how Asancha may use cookies and browser storage for public experience, sessions, preferences, analytics, and security-supporting behaviour.",
+    breadcrumbs: [
+      { name: "Home", path: "/" },
+      { name: "Cookies", path: "/cookies" },
+    ],
+  });
+
+  return (
+    <>
+      <JsonLd data={jsonLd} id="cookies-json-ld" />
+
+      <main>
+        <article className="asancha-page-container py-16 sm:py-24">
+          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+            Legal
+          </p>
+
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+            Cookies
+          </h1>
+
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+            Asancha may use cookies and browser storage to support public
+            browsing, sessions, preferences, security-supporting flows, and
+            browser-safe analytics where enabled.
+          </p>
+
+          <section className="mt-10 grid gap-5 md:grid-cols-2">
+            {cookieItems.map((item) => (
+              <article
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                key={item.title}
+              >
+                <h2 className="text-lg font-bold text-gray-950">
+                  {item.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-gray-600">
+                  {item.description}
+                </p>
+              </article>
+            ))}
+          </section>
+        </article>
+      </main>
+    </>
+  );
+}

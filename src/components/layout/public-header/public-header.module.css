@@ -1,0 +1,161 @@
+/* File: src/components/layout/public-header/public-header.module.css */
+
+/**
+ * Asancha Public Header Styles
+ *
+ * Purpose:
+ * Provides responsive and accessible styling for the public Asancha header.
+ *
+ * Important Asancha Web Public rule:
+ * Header styling must support public/user navigation only.
+ * Admin/staff styling assumptions must not be added here.
+ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid #e5e7eb;
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(14px);
+}
+
+.inner {
+  width: min(100% - 2rem, 76rem);
+  min-height: 4rem;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.625rem;
+  color: #111827;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.logoMark {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logoName {
+  font-size: 1rem;
+}
+
+.logoSubtext {
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.navItem {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.navItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.navItemActive {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.actions {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobileButton {
+  display: inline-flex;
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.625rem;
+  background: #ffffff;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.mobilePanel {
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.mobilePanelInner {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+  padding-block: 1rem;
+}
+
+.mobileNav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mobileActions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@media (min-width: 1024px) {
+  .desktopNav {
+    display: flex;
+  }
+
+  .actions {
+    display: flex;
+  }
+
+  .mobileButton {
+    display: none;
+  }
+
+  .mobilePanel {
+    display: none;
+  }
+}

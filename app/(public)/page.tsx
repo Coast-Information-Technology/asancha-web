@@ -1,0 +1,284 @@
+// File: app/page.tsx
+
+/**
+ * Asancha Public Home Page
+ *
+ * Purpose:
+ * Provides the main public homepage for Asancha Web Public.
+ *
+ * Main responsibilities:
+ * - Introduce Asancha clearly as a UK-focused property platform
+ * - Explain who the platform serves
+ * - Drive users toward marketplace browsing, signup, and API partner application
+ * - Build trust without exposing restricted/private platform data
+ * - Render homepage JSON-LD for SEO
+ *
+ * Accessibility note:
+ * This page uses semantic sections, one H1, descriptive links, clear CTAs,
+ * readable heading hierarchy, and public-safe copy.
+ *
+ * SEO note:
+ * This page renders Organization, WebSite, and WebPage JSON-LD through the
+ * reusable Asancha JSON-LD component and builders.
+ *
+ * Security note:
+ * This public page must not expose backend URLs, admin/staff URLs,
+ * private deal packs, private documents, payment data, API keys,
+ * MongoDB ObjectIds, private KYC notes, or internal admin notes.
+ */
+
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import { JsonLd } from "@/src/components/seo/json-ld";
+import { createHomePageJsonLdBundle } from "@/src/lib/seo/json-ld";
+
+export const metadata: Metadata = {
+  title: "Asancha | UK Property Platform for Public Users and Partners",
+  description:
+    "Asancha is a UK-focused property platform for investors, property owners, property agents, property sourcers, service providers, and approved API partners.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Asancha | UK Property Platform",
+    description:
+      "Discover a structured property platform for marketplace discovery, role-based onboarding, trusted workflows, and controlled API partner access.",
+    url: "/",
+    type: "website",
+  },
+};
+
+const audienceCards = [
+  {
+    title: "Investors",
+    description:
+      "Explore property opportunities, save listings, manage preferences, and continue into verified workflows when required.",
+    href: "/solutions/investors",
+  },
+  {
+    title: "Property Owners",
+    description:
+      "Prepare property information, create listings, manage documents, and connect with suitable platform users.",
+    href: "/solutions/property-owners",
+  },
+  {
+    title: "Property Agents",
+    description:
+      "Represent properties with clearer agency context, authority documents, and structured listing workflows.",
+    href: "/solutions/property-agents",
+  },
+  {
+    title: "Property Sourcers",
+    description:
+      "Submit sourced opportunities, prepare deal packs, and work through compliance-aware platform flows.",
+    href: "/solutions/property-sourcers",
+  },
+  {
+    title: "Service Providers",
+    description:
+      "Present property-related services, manage bookings, and support platform users through structured workflows.",
+    href: "/solutions/service-providers",
+  },
+  {
+    title: "API Partners",
+    description:
+      "Apply for controlled API access and connect approved property workflows through partner-safe integration.",
+    href: "/api-partners",
+  },
+] as const;
+
+const trustItems = [
+  "Role-specific onboarding",
+  "Verification-aware workflows",
+  "Safe public marketplace previews",
+  "Payment proof review without false approval",
+  "AI guidance with clear disclaimers",
+  "Controlled API partner access",
+] as const;
+
+/**
+ * Renders the Asancha public homepage.
+ */
+export default function HomePage() {
+  const homepageJsonLd = createHomePageJsonLdBundle();
+
+  return (
+    <>
+      <JsonLd data={homepageJsonLd} id="homepage-json-ld" />
+
+      <main>
+        <section className="bg-white">
+          <div className="asancha-page-container py-16 sm:py-24">
+            <div className="max-w-4xl">
+              <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+                Asancha Web Public
+              </p>
+
+              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-6xl">
+                A structured UK property platform for serious users and approved
+                partners.
+              </h1>
+
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+                Asancha helps public users discover property opportunities,
+                understand the right next step, complete role-specific setup,
+                and move through trusted property workflows with clearer
+                guidance.
+              </p>
+
+              <div
+                aria-label="Homepage primary actions"
+                className="mt-8 flex flex-col gap-3 sm:flex-row"
+              >
+                <Link
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  href="/marketplace"
+                >
+                  Browse Marketplace
+                </Link>
+
+                <Link
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  href="/auth/sign-up"
+                >
+                  Get Started
+                </Link>
+
+                <Link
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  href="/api-partner/apply"
+                >
+                  Apply for API Access
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="homepage-audience-heading"
+          className="bg-gray-50"
+        >
+          <div className="asancha-page-container py-16">
+            <div className="max-w-3xl">
+              <h2
+                className="text-3xl font-extrabold tracking-tight text-gray-950"
+                id="homepage-audience-heading"
+              >
+                Built around the way different property users actually work.
+              </h2>
+
+              <p className="mt-4 text-base leading-7 text-gray-600">
+                Asancha separates account identity from role-specific business
+                profiles, so users can operate with clearer context and fewer
+                confusing workflows.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {audienceCards.map((card) => (
+                <article
+                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                  key={card.href}
+                >
+                  <h3 className="text-lg font-bold text-gray-950">
+                    {card.title}
+                  </h3>
+
+                  <p className="mt-3 text-sm leading-6 text-gray-600">
+                    {card.description}
+                  </p>
+
+                  <Link
+                    className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    href={card.href}
+                  >
+                    Learn more about {card.title}
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="homepage-trust-heading" className="bg-white">
+          <div className="asancha-page-container py-16">
+            <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+                  Trust and clarity
+                </p>
+
+                <h2
+                  className="mt-3 text-3xl font-extrabold tracking-tight text-gray-950"
+                  id="homepage-trust-heading"
+                >
+                  Public discovery first. Sensitive actions only when the user
+                  is ready.
+                </h2>
+
+                <p className="mt-4 text-base leading-7 text-gray-600">
+                  Guests can browse public-safe pages and listing previews.
+                  Higher-trust actions may require account setup, profile
+                  completion, verification, payment review, approval, or API
+                  partner access.
+                </p>
+              </div>
+
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {trustItems.map((item) => (
+                  <li
+                    className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm font-bold text-gray-800"
+                    key={item}
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="homepage-final-cta-heading"
+          className="bg-gray-950"
+        >
+          <div className="asancha-page-container py-16 text-white">
+            <h2
+              className="max-w-3xl text-3xl font-extrabold tracking-tight"
+              id="homepage-final-cta-heading"
+            >
+              Start with public discovery, then continue into the right
+              role-specific flow.
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300">
+              Browse the marketplace, understand how Asancha works, or create a
+              public account when you are ready to continue.
+            </p>
+
+            <div
+              aria-label="Homepage final actions"
+              className="mt-8 flex flex-col gap-3 sm:flex-row"
+            >
+              <Link
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                href="/marketplace"
+              >
+                Browse Marketplace
+              </Link>
+
+              <Link
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 px-6 py-3 text-sm font-bold text-white hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                href="/how-it-works"
+              >
+                See How It Works
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
