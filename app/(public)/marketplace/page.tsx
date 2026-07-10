@@ -4,23 +4,26 @@
  * Asancha Public Marketplace Page
  *
  * Purpose:
- * Shows safe public marketplace previews for guests and public users.
+ * Provides the server-rendered entry point for public marketplace discovery.
  *
- * Main responsibilities:
- * - Support public marketplace discovery
- * - Show only public-safe sample listing previews
- * - Explain that higher-trust actions require account/profile/approval states
- * - Render CollectionPage and BreadcrumbList JSON-LD
+ * Responsibilities:
+ * - Define marketplace metadata and canonical URL.
+ * - Render CollectionPage and BreadcrumbList JSON-LD.
+ * - Explain public marketplace visibility and restricted actions.
+ * - Mount the interactive marketplace browser.
  *
- * Security note:
- * Public marketplace cards must not show private deal packs, seller private
- * details, investor private data, sensitive documents, internal notes,
- * restricted AI analysis, payment data, or ObjectIds.
+ * Security notes:
+ * - Public marketplace responses must contain public-safe listing data only.
+ * - Private deal packs, seller contact details, sensitive documents,
+ *   restricted AI analysis, payment information, internal notes, storage
+ *   keys, and MongoDB ObjectIds must never be rendered.
+ * - Frontend visibility controls are UX guidance only.
+ * - Backend publication and access-control rules remain final.
  */
 
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { MarketplaceBrowser } from "@/src/components/marketplace/marketplace-browser";
 import { JsonLd } from "@/src/components/seo/json-ld";
 import {
   createBreadcrumbJsonLd,
@@ -28,50 +31,36 @@ import {
 } from "@/src/lib/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: "Marketplace | Asancha",
+  title: "Property Marketplace | Asancha",
   description:
-    "Browse safe public property previews on Asancha before continuing into account, profile, verification, reservation, booking, or payment workflows.",
+    "Browse public property and investment opportunity previews across the UK on Asancha.",
   alternates: {
     canonical: "/marketplace",
   },
+  openGraph: {
+    title: "Property Marketplace | Asancha",
+    description:
+      "Discover public property and investment opportunity previews across the UK.",
+    url: "/marketplace",
+    type: "website",
+  },
 };
 
-const listings = [
-  {
-    slug: "sample-investment-opportunity-manchester",
-    title: "Investment Opportunity • Manchester",
-    location: "Manchester, UK",
-    summary:
-      "A public-safe sample listing preview. Full details may require account setup and approval.",
-    category: "Investor suitable",
-  },
-  {
-    slug: "family-home-birmingham-preview",
-    title: "Family Home • Birmingham",
-    location: "Birmingham, UK",
-    summary:
-      "Preview public listing information before continuing into protected workflows.",
-    category: "Residential",
-  },
-  {
-    slug: "service-ready-property-leeds",
-    title: "Service-Ready Property • Leeds",
-    location: "Leeds, UK",
-    summary:
-      "A safe public preview for marketplace discovery and role education.",
-    category: "Property services",
-  },
-] as const;
-
 /**
- * Renders the public marketplace page.
+ * Renders the public marketplace discovery page.
  */
 export default function MarketplacePage() {
   const jsonLd = [
     createMarketplaceCollectionJsonLd(),
     createBreadcrumbJsonLd([
-      { name: "Home", path: "/" },
-      { name: "Marketplace", path: "/marketplace" },
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Marketplace",
+        path: "/marketplace",
+      },
     ]),
   ] as const;
 
@@ -80,65 +69,47 @@ export default function MarketplacePage() {
       <JsonLd data={jsonLd} id="marketplace-json-ld" />
 
       <main>
-        <section className="asancha-page-container py-16 sm:py-24">
+        <section
+          aria-labelledby="marketplace-heading"
+          className="asancha-page-container py-12 sm:py-16 lg:py-20"
+        >
           <div className="max-w-4xl">
             <p className="text-sm font-bold uppercase tracking-wide text-primary">
-              Marketplace
+              Property Marketplace
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-              Browse public-safe property previews.
+            <h1
+              className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl"
+              id="marketplace-heading"
+            >
+              Find property opportunities that fit your strategy.
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Marketplace previews help guests and public users understand
-              available opportunities without exposing sensitive deal data,
-              private documents, or restricted internal information.
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
+              Search public property previews by location, property type,
+              budget, investment strategy, yield, and below-market-value
+              preferences.
             </p>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-accent bg-accent p-5">
+          <div
+            className="mt-8 rounded-2xl border border-accent bg-accent p-5"
+            role="note"
+          >
             <h2 className="text-base font-bold text-accent-foreground">
-              Some actions require setup
+              Some deal information requires a verified account
             </h2>
+
             <p className="mt-2 text-sm leading-6 text-accent-foreground">
-              Saving, reserving, booking, requesting private information, or
-              accessing deal-sensitive details may require sign in, profile
-              completion, verification, payment review, or approval.
+              Public previews do not include private deal packs, sensitive
+              documents, seller contact details, or restricted analysis. Saving,
+              reserving, messaging, and accessing protected deal information may
+              require sign-in, profile completion, verification, payment, or
+              approval.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <article
-                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
-                key={listing.slug}
-              >
-                <p className="text-xs font-bold uppercase tracking-wide text-primary">
-                  {listing.category}
-                </p>
-
-                <h2 className="mt-3 text-xl font-bold text-foreground">
-                  {listing.title}
-                </h2>
-
-                <p className="mt-2 text-sm font-semibold text-muted-foreground">
-                  {listing.location}
-                </p>
-
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {listing.summary}
-                </p>
-
-                <Link
-                  className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
-                  href={`/marketplace/${listing.slug}`}
-                >
-                  View public preview
-                </Link>
-              </article>
-            ))}
-          </div>
+          <MarketplaceBrowser />
         </section>
       </main>
     </>
