@@ -9,7 +9,7 @@
  * Main responsibilities:
  * - Use Asancha global design tokens
  * - Support public/user navigation only
- * - Provide accessible hover, active, and focus states
+ * - Provide accessible hover, active, dropdown, and focus states
  * - Support light and dark theme variables
  *
  * Important Asancha Web Public rule:
@@ -55,35 +55,6 @@
   outline-offset: 3px;
 }
 
-.logoMark {
-  display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  place-items: center;
-  border-radius: var(--asancha-radius-lg);
-  background: var(--primary);
-  color: var(--primary-foreground);
-  font-size: 0.9rem;
-  font-weight: 900;
-}
-
-.logoText {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.logoName {
-  font-size: 1rem;
-  color: var(--asancha-foreground);
-}
-
-.logoSubtext {
-  color: var(--asancha-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .desktopNav {
   display: none;
   align-items: center;
@@ -120,6 +91,128 @@
   color: var(--primary);
 }
 
+.dropdown {
+  position: relative;
+}
+
+.dropdownTrigger {
+  cursor: pointer;
+  list-style: none;
+}
+
+.dropdownTrigger::-webkit-details-marker {
+  display: none;
+}
+
+.dropdownChevron {
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+
+.dropdown[open] .dropdownChevron {
+  transform: rotate(180deg);
+}
+
+.dropdownPanel {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 50%;
+  z-index: 50;
+  width: min(28rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  border: 1px solid var(--asancha-border);
+  border-radius: var(--asancha-radius-xl);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow:
+    0 20px 45px color-mix(in srgb, var(--foreground) 16%, transparent),
+    0 8px 20px color-mix(in srgb, var(--foreground) 10%, transparent);
+  overflow: hidden;
+}
+
+.dropdownPanel::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 50%;
+  width: 0.875rem;
+  height: 0.875rem;
+  transform: translateX(-50%) rotate(45deg);
+  border-left: 1px solid var(--asancha-border);
+  border-top: 1px solid var(--asancha-border);
+  background: var(--popover);
+}
+
+.dropdownHeader {
+  position: relative;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--asancha-border);
+  background: var(--accent);
+}
+
+.dropdownTitle {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.dropdownDescription {
+  margin: 0.25rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.dropdownList {
+  position: relative;
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+}
+
+.dropdownItem {
+  display: grid;
+  gap: 0.2rem;
+  border-radius: var(--asancha-radius-md);
+  padding: 0.75rem;
+  color: var(--popover-foreground);
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.dropdownItem:hover {
+  background: var(--accent);
+  color: var(--primary);
+}
+
+.dropdownItem:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 2px;
+}
+
+.dropdownItemActive {
+  background: var(--accent);
+  color: var(--primary);
+}
+
+.dropdownItemLabel {
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.dropdownItemDescription {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
 .actions {
   display: none;
   align-items: center;
@@ -131,17 +224,15 @@
   min-height: 2.5rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
   border-radius: var(--asancha-radius-md);
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
   transition:
     background-color 150ms ease,
     border-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
+    color 150ms ease;
 }
 
 .actionLink:focus-visible {
@@ -150,25 +241,26 @@
 }
 
 .actionLinkPrimary {
+  border: 1px solid var(--primary);
   background: var(--primary);
   color: var(--primary-foreground);
 }
 
 .actionLinkPrimary:hover {
+  border-color: var(--primary-hover);
   background: var(--primary-hover);
-  color: var(--primary-foreground);
 }
 
 .actionLinkSecondary {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+  border: 1px solid var(--secondary);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
 }
 
 .actionLinkSecondary:hover {
   border-color: var(--primary);
   background: var(--accent);
-  color: var(--accent-foreground);
+  color: var(--primary);
 }
 
 .mobileButton {
@@ -210,6 +302,63 @@
   gap: 0.25rem;
 }
 
+.mobileNavGroup {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mobileNavTrigger {
+  width: 100%;
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mobileNavChevron {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+
+.mobileNavChevronOpen {
+  transform: rotate(180deg);
+}
+
+.mobileChildNav {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 1rem;
+}
+
+.mobileChildNavItem {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  border-radius: var(--asancha-radius-md);
+  padding: 0.45rem 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobileChildNavItem:hover {
+  background: var(--accent);
+  color: var(--primary);
+}
+
+.mobileChildNavItem:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 2px;
+}
+
+.mobileChildNavItemActive {
+  background: var(--accent);
+  color: var(--primary);
+}
+
 .mobileActions {
   display: grid;
   gap: 0.75rem;
@@ -219,7 +368,7 @@
 }
 
 .mobileActionLink {
-  min-height: 2.75rem;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {

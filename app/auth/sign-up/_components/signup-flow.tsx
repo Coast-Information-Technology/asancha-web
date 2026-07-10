@@ -1,0 +1,158 @@
+"use client";
+
+// File: app/auth/sign-up/_components/signup-flow.tsx
+
+/**
+ * Asancha Signup Flow
+ *
+ * Purpose:
+ * Coordinates the ordinary public-user signup flow for Asancha Web Public.
+ *
+ * Main responsibilities:
+ * - Keep signup as one multi-step route at /auth/sign-up
+ * - Restrict ordinary signup to public signup roles only
+ * - Collect account details and policy acknowledgements
+ * - Show safe email verification next-step guidance
+ *
+ * Important Asancha Web Public rule:
+ * API partner access is separate from ordinary signup.
+ * Admin/staff accounts must not be created from public signup.
+ *
+ * Security note:
+ * This component does not replace backend validation, policy versioning,
+ * email verification, password hashing, account status checks, or audit logs.
+ */
+
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+import { Button } from "@/src/components/ui/button/button";
+import type { PublicSignupRole } from "@/src/lib/auth/role-guards";
+import { getRoleLabel } from "@/src/lib/auth/role-guards";
+
+import {
+  AccountDetailsStep,
+  SignupAccountDetails,
+} from "./account-details-step";
+import { EmailVerificationStep } from "./email-verification-step";
+import { RoleSelectionStep } from "./role-selection-step";
+
+type SignupStep = "role" | "account" | "verify";
+
+const emptyAccountDetails: SignupAccountDetails = {
+  fullName: "",
+  email: "",
+  phoneNumber: "",
+  password: "",
+  confirmPassword: "",
+  policies: {
+    termsAccepted: false,
+    privacyAccepted: false,
+    platformRulesAccepted: false,
+  },
+};
+
+/**
+ * Renders the multi-step public signup flow.
+ */
+export function SignupFlow() {
+  const [step, setStep] = useState<SignupStep>("role");
+  const [selectedRole, setSelectedRole] = useState<PublicSignupRole | null>(
+    null,
+  );
+  const [accountDetails, setAccountDetails] =
+    useState<SignupAccountDetails>(emptyAccountDetails);
+
+  const stepNumber = useMemo(() => {
+    if (step === "role") {
+      return 1;
+    }
+
+    if (step === "account") {
+      return 2;
+    }
+
+    return 3;
+  }, [step]);
+
+  function handleRoleContinue() {
+    if (!selectedRole) {
+      return;
+    }
+
+    setStep("account");
+  }
+
+  function handleAccountSubmit(value: SignupAccountDetails) {
+    setAccountDetails(value);
+    setStep("verify");
+  }
+
+  function handleStartOver() {
+    setSelectedRole(null);
+    setAccountDetails(emptyAccountDetails);
+    setStep("role");
+  }
+
+  return (
+    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <div className="mb-8">
+        <p className="text-sm font-bold uppercase tracking-wide text-primary">
+          Create public account
+        </p>
+
+        <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
+          Join Asancha
+        </h1>
+
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          Step {stepNumber} of 3. Ordinary signup is for investors, property
+          owners, property agents, property sourcers, and service providers.
+        </p>
+
+        {selectedRole ? (
+          <p className="mt-3 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-primary">
+            Selected role: {getRoleLabel(selectedRole)}
+          </p>
+        ) : null}
+      </div>
+
+      {step === "role" ? (
+        <>
+          <RoleSelectionStep
+            onSelectRole={setSelectedRole}
+            selectedRole={selectedRole}
+          />
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Link
+              className="text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
+              href="/api-partner/apply"
+            >
+              Applying as an API partner?
+            </Link>
+
+            <Button disabled={!selectedRole} onClick={handleRoleContinue}>
+              Continue
+            </Button>
+          </div>
+        </>
+      ) : null}
+
+      {step === "account" ? (
+        <AccountDetailsStep
+          initialValue={accountDetails}
+          onBack={() => setStep("role")}
+          onSubmit={handleAccountSubmit}
+        />
+      ) : null}
+
+      {step === "verify" ? (
+        <EmailVerificationStep
+          email={accountDetails.email}
+          onStartOver={handleStartOver}
+        />
+      ) : null}
+    </div>
+  );
+}

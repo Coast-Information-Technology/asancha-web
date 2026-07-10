@@ -263,7 +263,7 @@ export default function HomePage() {
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-card px-6 py-3 text-sm font-bold text-foreground hover:bg-accent focus:outline-none focus:ring-4 focus:ring-ring/40"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-foreground hover:bg-foreground-accent focus:outline-none focus:ring-4 focus:ring-ring/40"
                 href="/marketplace"
               >
                 Browse Marketplace

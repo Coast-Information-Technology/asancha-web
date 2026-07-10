@@ -10,12 +10,14 @@
  *
  * Main responsibilities:
  * - Render public navigation
+ * - Render public navigation dropdowns from PUBLIC_HEADER_NAVIGATION children
  * - Render guest/authenticated public actions
  * - Support mobile navigation
  * - Keep admin/staff navigation out of asancha-web
  *
  * Accessibility note:
- * Uses semantic header/nav markup and exposes menu expanded state.
+ * Uses semantic header/nav markup, exposes mobile menu expanded state,
+ * and uses native details/summary for keyboard-friendly desktop dropdowns.
  *
  * Security note:
  * Navigation is frontend guidance only.
@@ -23,21 +25,187 @@
  * document, API partner, and resource checks remain final.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import {
   PUBLIC_GUEST_ACTIONS,
   PUBLIC_HEADER_NAVIGATION,
   isActiveNavigationItem,
+  type NavigationItem,
 } from "@/src/lib/navigation/public-navigation";
 
 import styles from "./public-header.module.css";
-import Image from "next/image";
 
 interface PublicHeaderProps {
   isAuthenticated?: boolean;
+}
+
+interface DesktopNavigationItemProps {
+  item: NavigationItem;
+  pathname: string;
+}
+
+/**
+ * Renders one desktop navigation item, including dropdown children when present.
+ */
+function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
+  const hasChildren = Boolean(item.children && item.children.length > 0);
+  const isActive =
+    isActiveNavigationItem(item, pathname) ||
+    Boolean(
+      item.children?.some((child) => isActiveNavigationItem(child, pathname)),
+    );
+
+  if (!hasChildren) {
+    return (
+      <Link
+        aria-current={isActive ? "page" : undefined}
+        className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+        href={item.href}
+      >
+        {item.label}
+      </Link>
+    );
+  }
+
+  return (
+    <details className={styles.dropdown}>
+      <summary
+        aria-current={isActive ? "page" : undefined}
+        className={`${styles.navItem} ${styles.dropdownTrigger} ${
+          isActive ? styles.navItemActive : ""
+        }`}
+      >
+        <span>{item.label}</span>
+        <span aria-hidden="true" className={styles.dropdownChevron}>
+          {"\u25be"}
+        </span>
+      </summary>
+
+      <div className={styles.dropdownPanel}>
+        <div className={styles.dropdownHeader}>
+          <p className={styles.dropdownTitle}>{item.label}</p>
+          {item.description ? (
+            <p className={styles.dropdownDescription}>{item.description}</p>
+          ) : null}
+        </div>
+
+        <ul className={styles.dropdownList}>
+          {item.children?.map((child) => {
+            const childActive = isActiveNavigationItem(child, pathname);
+
+            return (
+              <li key={child.href}>
+                <Link
+                  aria-current={childActive ? "page" : undefined}
+                  className={`${styles.dropdownItem} ${
+                    childActive ? styles.dropdownItemActive : ""
+                  }`}
+                  href={child.href}
+                >
+                  <span className={styles.dropdownItemLabel}>
+                    {child.label}
+                  </span>
+                  {child.description ? (
+                    <span className={styles.dropdownItemDescription}>
+                      {child.description}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </details>
+  );
+}
+
+interface MobileNavigationItemProps {
+  item: NavigationItem;
+  pathname: string;
+  onNavigate: () => void;
+}
+
+/**
+ * Renders one mobile navigation item, including nested children when present.
+ */
+function MobileNavigationItem({
+  item,
+  onNavigate,
+  pathname,
+}: MobileNavigationItemProps) {
+  const hasChildren = Boolean(item.children && item.children.length > 0);
+  const isActive =
+    isActiveNavigationItem(item, pathname) ||
+    Boolean(
+      item.children?.some((child) => isActiveNavigationItem(child, pathname)),
+    );
+  const [isOpen, setIsOpen] = useState(isActive);
+  const childNavigationId = `mobile-navigation-${item.href.replace(/[^a-z0-9]/gi, "-")}`;
+
+  if (!hasChildren) {
+    return (
+      <Link
+        aria-current={isActive ? "page" : undefined}
+        className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+        href={item.href}
+        onClick={onNavigate}
+      >
+        {item.label}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={styles.mobileNavGroup}>
+      <button
+        aria-controls={childNavigationId}
+        aria-current={isActive ? "page" : undefined}
+        aria-expanded={isOpen}
+        className={`${styles.navItem} ${styles.mobileNavTrigger} ${
+          isActive ? styles.navItemActive : ""
+        }`}
+        onClick={() => setIsOpen((current) => !current)}
+        type="button"
+      >
+        <span>{item.label}</span>
+        <span
+          aria-hidden="true"
+          className={`${styles.mobileNavChevron} ${
+            isOpen ? styles.mobileNavChevronOpen : ""
+          }`}
+        >
+          {"\u25be"}
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div className={styles.mobileChildNav} id={childNavigationId}>
+          {item.children?.map((child) => {
+            const childActive = isActiveNavigationItem(child, pathname);
+
+            return (
+              <Link
+                aria-current={childActive ? "page" : undefined}
+                className={`${styles.mobileChildNavItem} ${
+                  childActive ? styles.mobileChildNavItemActive : ""
+                }`}
+                href={child.href}
+                key={child.href}
+                onClick={onNavigate}
+              >
+                {child.label}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 /**
@@ -58,6 +226,10 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
       ]
     : PUBLIC_GUEST_ACTIONS;
 
+  function closeMobileMenu() {
+    setMobileMenuOpen(false);
+  }
+
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
@@ -65,27 +237,22 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           aria-label="Asancha home"
           className={styles.logoLink}
           href="/"
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={closeMobileMenu}
         >
-          <Image src="/logo.png" alt="Asancha logo" width={80} height={80} />
+          <Image
+            alt="Asancha logo"
+            height={80}
+            priority
+            src="/logo.png"
+            width={80}
+          />
         </Link>
 
         <nav aria-label="Primary navigation" className={styles.desktopNav}>
           {PUBLIC_HEADER_NAVIGATION.map((item) => (
-            <Link
-              aria-current={
-                isActiveNavigationItem(item, pathname) ? "page" : undefined
-              }
-              className={`${styles.navItem} ${
-                isActiveNavigationItem(item, pathname)
-                  ? styles.navItemActive
-                  : ""
-              }`}
-              href={item.href}
-              key={item.href}
-            >
-              {item.label}
-            </Link>
+            <Fragment key={item.href}>
+              <DesktopNavigationItem item={item} pathname={pathname} />
+            </Fragment>
           ))}
         </nav>
 
@@ -115,7 +282,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           onClick={() => setMobileMenuOpen((current) => !current)}
           type="button"
         >
-          <span aria-hidden="true">{mobileMenuOpen ? "×" : "☰"}</span>
+          <span aria-hidden="true">{mobileMenuOpen ? "×" : "?"}</span>
         </button>
       </div>
 
@@ -130,21 +297,12 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
               className={styles.mobileNav}
             >
               {PUBLIC_HEADER_NAVIGATION.map((item) => (
-                <Link
-                  aria-current={
-                    isActiveNavigationItem(item, pathname) ? "page" : undefined
-                  }
-                  className={`${styles.navItem} ${
-                    isActiveNavigationItem(item, pathname)
-                      ? styles.navItemActive
-                      : ""
-                  }`}
-                  href={item.href}
+                <MobileNavigationItem
+                  item={item}
                   key={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
+                  onNavigate={closeMobileMenu}
+                  pathname={pathname}
+                />
               ))}
             </nav>
 
@@ -154,7 +312,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
                   className={`${styles.actionLink} ${styles.actionLinkPrimary} ${styles.mobileActionLink}`}
                   href={item.href}
                   key={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {item.label}
                 </Link>
