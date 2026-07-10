@@ -94,8 +94,8 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
             <Link
               className={
                 index === actionItems.length - 1
-                  ? "inline-flex min-h-10 items-center justify-center rounded-lg bg-gray-950 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
-                  : "inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  ? `${styles.actionLink} ${styles.actionLinkPrimary}`
+                  : `${styles.actionLink} ${styles.actionLinkSecondary}`
               }
               href={item.href}
               key={item.href}
@@ -151,7 +151,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
             <div className={styles.mobileActions}>
               {actionItems.map((item) => (
                 <Link
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-gray-950 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className={`${styles.actionLink} ${styles.actionLinkPrimary} ${styles.mobileActionLink}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileMenuOpen(false)}

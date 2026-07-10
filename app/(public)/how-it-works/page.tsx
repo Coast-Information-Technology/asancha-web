@@ -88,16 +88,16 @@ export default function HowItWorksPage() {
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
           <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">
               How it works
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Start with public discovery. Continue with the right verified
               flow.
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Asancha guides users from public browsing into the correct
               account, onboarding, verification, payment, booking, conversation,
               recommendation, or API partner workflow when needed.
@@ -107,18 +107,18 @@ export default function HowItWorksPage() {
           <ol className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {steps.map((step, index) => (
               <li
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={step.title}
               >
-                <p className="text-sm font-bold text-blue-700">
+                <p className="text-sm font-bold text-primary">
                   Step {index + 1}
                 </p>
 
-                <h2 className="mt-3 text-lg font-bold text-gray-950">
+                <h2 className="mt-3 text-lg font-bold text-foreground">
                   {step.title}
                 </h2>
 
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {step.description}
                 </p>
               </li>
@@ -128,18 +128,18 @@ export default function HowItWorksPage() {
 
         <section
           aria-labelledby="trust-verification-heading"
-          className="border-y border-gray-200 bg-gray-50"
+          className="border-y border-border bg-muted"
           id="trust-verification"
         >
           <div className="asancha-page-container py-16">
             <h2
-              className="text-3xl font-extrabold tracking-tight text-gray-950"
+              className="text-3xl font-extrabold tracking-tight text-foreground"
               id="trust-verification-heading"
             >
               Trust and verification are built into the journey.
             </h2>
 
-            <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
               Dashboard access does not automatically mean full action approval.
               Some actions may remain locked until the correct profile,
               verification, document, payment, or approval state is complete.
@@ -149,18 +149,18 @@ export default function HowItWorksPage() {
 
         <section
           aria-labelledby="ai-property-intelligence-heading"
-          className="bg-white"
+          className="bg-card"
           id="ai-property-intelligence"
         >
           <div className="asancha-page-container py-16">
             <h2
-              className="text-3xl font-extrabold tracking-tight text-gray-950"
+              className="text-3xl font-extrabold tracking-tight text-foreground"
               id="ai-property-intelligence-heading"
             >
               AI guidance should be explainable, not magical.
             </h2>
 
-            <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
               Asancha may use AI-assisted recommendations to explain matches,
               confidence levels, and mismatch warnings. These recommendations
               are guidance only and should not be treated as guaranteed
@@ -168,7 +168,7 @@ export default function HowItWorksPage() {
             </p>
 
             <Link
-              className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+              className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
               href="/auth/sign-up"
             >
               Start your setup

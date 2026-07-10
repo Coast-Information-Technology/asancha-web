@@ -47,23 +47,23 @@ export default function TermsPage() {
 
       <main>
         <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Terms of Use
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             These terms explain expected use of Asancha public pages, accounts,
             role-specific workflows, marketplace previews, and partner access.
             Final production legal wording should be reviewed by the appropriate
             legal adviser before launch.
           </p>
 
-          <section className="mt-10 space-y-6 text-sm leading-7 text-gray-700">
-            <h2 className="text-2xl font-bold text-gray-950">
+          <section className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
+            <h2 className="text-2xl font-bold text-foreground">
               Use of the platform
             </h2>
             <p>
@@ -72,7 +72,7 @@ export default function TermsPage() {
               payment, or partner information.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-950">
+            <h2 className="text-2xl font-bold text-foreground">
               Restricted actions
             </h2>
             <p>
@@ -81,7 +81,7 @@ export default function TermsPage() {
               Frontend access does not replace backend enforcement.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-950">No guarantees</h2>
+            <h2 className="text-2xl font-bold text-foreground">No guarantees</h2>
             <p>
               Marketplace previews and AI-assisted guidance do not guarantee
               financial, legal, investment, rental, resale, or completion

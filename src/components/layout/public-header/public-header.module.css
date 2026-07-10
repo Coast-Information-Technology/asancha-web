@@ -6,23 +6,33 @@
  * Purpose:
  * Provides responsive and accessible styling for the public Asancha header.
  *
+ * Main responsibilities:
+ * - Use Asancha global design tokens
+ * - Support public/user navigation only
+ * - Provide accessible hover, active, and focus states
+ * - Support light and dark theme variables
+ *
  * Important Asancha Web Public rule:
  * Header styling must support public/user navigation only.
  * Admin/staff styling assumptions must not be added here.
+ *
+ * Security note:
+ * CSS must not reference private document URLs, internal admin assets,
+ * restricted API resources, or environment-specific sensitive endpoints.
  */
 
 .header {
   position: sticky;
   top: 0;
   z-index: 40;
-  border-bottom: 1px solid #e5e7eb;
-  background: rgb(255 255 255 / 92%);
+  border-bottom: 1px solid var(--asancha-border);
+  background: color-mix(in srgb, var(--asancha-background) 92%, transparent);
   backdrop-filter: blur(14px);
 }
 
 .inner {
   width: min(100% - 2rem, 76rem);
-  min-height: 4rem;
+  min-height: var(--asancha-header-height);
   margin-inline: auto;
   display: flex;
   align-items: center;
@@ -34,10 +44,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
-  border-radius: 0.625rem;
-  color: #111827;
+  border-radius: var(--asancha-radius-md);
+  color: var(--asancha-foreground);
   font-weight: 800;
   text-decoration: none;
+}
+
+.logoLink:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 3px;
 }
 
 .logoMark {
@@ -45,9 +60,9 @@
   width: 2.25rem;
   height: 2.25rem;
   place-items: center;
-  border-radius: 0.75rem;
-  background: #111827;
-  color: #ffffff;
+  border-radius: var(--asancha-radius-lg);
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 0.9rem;
   font-weight: 900;
 }
@@ -60,10 +75,11 @@
 
 .logoName {
   font-size: 1rem;
+  color: var(--asancha-foreground);
 }
 
 .logoSubtext {
-  color: #6b7280;
+  color: var(--asancha-muted);
   font-size: 0.72rem;
   font-weight: 700;
 }
@@ -78,9 +94,9 @@
   display: inline-flex;
   align-items: center;
   min-height: 2.5rem;
-  border-radius: 0.625rem;
+  border-radius: var(--asancha-radius-md);
   padding: 0.5rem 0.75rem;
-  color: #374151;
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   font-weight: 700;
   text-decoration: none;
@@ -90,13 +106,18 @@
 }
 
 .navItem:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--accent);
+  color: var(--primary);
+}
+
+.navItem:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 3px;
 }
 
 .navItemActive {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--accent);
+  color: var(--primary);
 }
 
 .actions {
@@ -105,22 +126,77 @@
   gap: 0.75rem;
 }
 
+.actionLink {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--asancha-radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.actionLink:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 3px;
+}
+
+.actionLinkPrimary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.actionLinkPrimary:hover {
+  background: var(--primary-hover);
+  color: var(--primary-foreground);
+}
+
+.actionLinkSecondary {
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+.actionLinkSecondary:hover {
+  border-color: var(--primary);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
 .mobileButton {
   display: inline-flex;
   min-height: 2.5rem;
   min-width: 2.5rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d1d5db;
-  border-radius: 0.625rem;
-  background: #ffffff;
-  color: #111827;
+  border: 1px solid var(--asancha-border);
+  border-radius: var(--asancha-radius-md);
+  background: var(--card);
+  color: var(--card-foreground);
   font-size: 1.25rem;
 }
 
+.mobileButton:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.mobileButton:focus-visible {
+  outline: 3px solid var(--asancha-focus-ring);
+  outline-offset: 3px;
+}
+
 .mobilePanel {
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-top: 1px solid var(--asancha-border);
+  background: var(--asancha-background);
 }
 
 .mobilePanelInner {
@@ -139,7 +215,11 @@
   gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--asancha-border);
+}
+
+.mobileActionLink {
+  min-height: 2.75rem;
 }
 
 @media (min-width: 1024px) {

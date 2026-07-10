@@ -47,22 +47,22 @@ export default function PrivacyPage() {
 
       <main>
         <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Privacy Policy
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             This page explains public privacy principles for Asancha. Final
             production privacy wording should be reviewed by the appropriate
             legal adviser before launch.
           </p>
 
-          <section className="mt-10 space-y-6 text-sm leading-7 text-gray-700">
-            <h2 className="text-2xl font-bold text-gray-950">
+          <section className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
+            <h2 className="text-2xl font-bold text-foreground">
               Information users provide
             </h2>
             <p>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
               partner information depending on the workflow they use.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-950">
+            <h2 className="text-2xl font-bold text-foreground">
               Sensitive information
             </h2>
             <p>
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
               records must not be exposed on public pages.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-950">User choices</h2>
+            <h2 className="text-2xl font-bold text-foreground">User choices</h2>
             <p>
               Users should be able to access relevant account settings,
               notification preferences, support routes, and policy pages where

@@ -108,19 +108,19 @@ export default function HomePage() {
       <JsonLd data={homepageJsonLd} id="homepage-json-ld" />
 
       <main>
-        <section className="bg-white">
+        <section className="bg-card">
           <div className="asancha-page-container py-16 sm:py-24">
             <div className="max-w-4xl">
-              <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
                 Asancha Web Public
               </p>
 
-              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-6xl">
+              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
                 A structured UK property platform for serious users and approved
                 partners.
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
                 Asancha helps public users discover property opportunities,
                 understand the right next step, complete role-specific setup,
                 and move through trusted property workflows with clearer
@@ -132,21 +132,21 @@ export default function HomePage() {
                 className="mt-8 flex flex-col gap-3 sm:flex-row"
               >
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                   href="/marketplace"
                 >
                   Browse Marketplace
                 </Link>
 
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                   href="/auth/sign-up"
                 >
                   Get Started
                 </Link>
 
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                   href="/api-partner/apply"
                 >
                   Apply for API Access
@@ -158,18 +158,18 @@ export default function HomePage() {
 
         <section
           aria-labelledby="homepage-audience-heading"
-          className="bg-gray-50"
+          className="bg-muted"
         >
           <div className="asancha-page-container py-16">
             <div className="max-w-3xl">
               <h2
-                className="text-3xl font-extrabold tracking-tight text-gray-950"
+                className="text-3xl font-extrabold tracking-tight text-foreground"
                 id="homepage-audience-heading"
               >
                 Built around the way different property users actually work.
               </h2>
 
-              <p className="mt-4 text-base leading-7 text-gray-600">
+              <p className="mt-4 text-base leading-7 text-muted-foreground">
                 Asancha separates account identity from role-specific business
                 profiles, so users can operate with clearer context and fewer
                 confusing workflows.
@@ -179,19 +179,19 @@ export default function HomePage() {
             <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {audienceCards.map((card) => (
                 <article
-                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                  className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                   key={card.href}
                 >
-                  <h3 className="text-lg font-bold text-gray-950">
+                  <h3 className="text-lg font-bold text-foreground">
                     {card.title}
                   </h3>
 
-                  <p className="mt-3 text-sm leading-6 text-gray-600">
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
                     {card.description}
                   </p>
 
                   <Link
-                    className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                     href={card.href}
                   >
                     Learn more about {card.title}
@@ -202,23 +202,23 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section aria-labelledby="homepage-trust-heading" className="bg-white">
+        <section aria-labelledby="homepage-trust-heading" className="bg-card">
           <div className="asancha-page-container py-16">
             <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start">
               <div>
-                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+                <p className="text-sm font-bold uppercase tracking-wide text-primary">
                   Trust and clarity
                 </p>
 
                 <h2
-                  className="mt-3 text-3xl font-extrabold tracking-tight text-gray-950"
+                  className="mt-3 text-3xl font-extrabold tracking-tight text-foreground"
                   id="homepage-trust-heading"
                 >
                   Public discovery first. Sensitive actions only when the user
                   is ready.
                 </h2>
 
-                <p className="mt-4 text-base leading-7 text-gray-600">
+                <p className="mt-4 text-base leading-7 text-muted-foreground">
                   Guests can browse public-safe pages and listing previews.
                   Higher-trust actions may require account setup, profile
                   completion, verification, payment review, approval, or API
@@ -229,7 +229,7 @@ export default function HomePage() {
               <ul className="grid gap-3 sm:grid-cols-2">
                 {trustItems.map((item) => (
                   <li
-                    className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm font-bold text-gray-800"
+                    className="rounded-xl border border-border bg-muted p-4 text-sm font-bold text-foreground"
                     key={item}
                   >
                     {item}
@@ -242,9 +242,9 @@ export default function HomePage() {
 
         <section
           aria-labelledby="homepage-final-cta-heading"
-          className="bg-gray-950"
+          className="bg-primary"
         >
-          <div className="asancha-page-container py-16 text-white">
+          <div className="asancha-page-container py-16 text-primary-foreground">
             <h2
               className="max-w-3xl text-3xl font-extrabold tracking-tight"
               id="homepage-final-cta-heading"
@@ -253,7 +253,7 @@ export default function HomePage() {
               role-specific flow.
             </h2>
 
-            <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/75">
               Browse the marketplace, understand how Asancha works, or create a
               public account when you are ready to continue.
             </p>
@@ -263,14 +263,14 @@ export default function HomePage() {
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-card px-6 py-3 text-sm font-bold text-foreground hover:bg-accent focus:outline-none focus:ring-4 focus:ring-ring/40"
                 href="/marketplace"
               >
                 Browse Marketplace
               </Link>
 
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 px-6 py-3 text-sm font-bold text-white hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/30 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-card/10 focus:outline-none focus:ring-4 focus:ring-ring/40"
                 href="/how-it-works"
               >
                 See How It Works

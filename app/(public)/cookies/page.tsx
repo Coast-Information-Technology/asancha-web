@@ -69,15 +69,15 @@ export default function CookiesPage() {
 
       <main>
         <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Cookies
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             Asancha may use cookies and browser storage to support public
             browsing, sessions, preferences, security-supporting flows, and
             browser-safe analytics where enabled.
@@ -86,13 +86,13 @@ export default function CookiesPage() {
           <section className="mt-10 grid gap-5 md:grid-cols-2">
             {cookieItems.map((item) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={item.title}
               >
-                <h2 className="text-lg font-bold text-gray-950">
+                <h2 className="text-lg font-bold text-foreground">
                   {item.title}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {item.description}
                 </p>
               </article>

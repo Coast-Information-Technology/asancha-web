@@ -82,26 +82,26 @@ export default function MarketplacePage() {
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
           <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">
               Marketplace
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Browse public-safe property previews.
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Marketplace previews help guests and public users understand
               available opportunities without exposing sensitive deal data,
               private documents, or restricted internal information.
             </p>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-            <h2 className="text-base font-bold text-amber-950">
+          <div className="mt-10 rounded-2xl border border-accent bg-accent p-5">
+            <h2 className="text-base font-bold text-accent-foreground">
               Some actions require setup
             </h2>
-            <p className="mt-2 text-sm leading-6 text-amber-900">
+            <p className="mt-2 text-sm leading-6 text-accent-foreground">
               Saving, reserving, booking, requesting private information, or
               accessing deal-sensitive details may require sign in, profile
               completion, verification, payment review, or approval.
@@ -111,27 +111,27 @@ export default function MarketplacePage() {
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={listing.slug}
               >
-                <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">
                   {listing.category}
                 </p>
 
-                <h2 className="mt-3 text-xl font-bold text-gray-950">
+                <h2 className="mt-3 text-xl font-bold text-foreground">
                   {listing.title}
                 </h2>
 
-                <p className="mt-2 text-sm font-semibold text-gray-700">
+                <p className="mt-2 text-sm font-semibold text-muted-foreground">
                   {listing.location}
                 </p>
 
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {listing.summary}
                 </p>
 
                 <Link
-                  className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                   href={`/marketplace/${listing.slug}`}
                 >
                   View public preview

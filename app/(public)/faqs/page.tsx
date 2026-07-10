@@ -75,25 +75,25 @@ export default function FaqsPage() {
 
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             FAQs
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Common questions about using Asancha.
           </h1>
 
           <div className="mt-10 space-y-4">
             {faqs.map((faq) => (
               <details
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={faq.question}
               >
-                <summary className="cursor-pointer text-lg font-bold text-gray-950">
+                <summary className="cursor-pointer text-lg font-bold text-foreground">
                   {faq.question}
                 </summary>
 
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {faq.answer}
                 </p>
               </details>
@@ -101,7 +101,7 @@ export default function FaqsPage() {
           </div>
 
           <Link
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
             href="/support"
           >
             Still need help?

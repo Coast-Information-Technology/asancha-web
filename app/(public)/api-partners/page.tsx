@@ -47,15 +47,15 @@ export default function ApiPartnersPage() {
 
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             API partners
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Controlled API access for approved property partners.
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             API partner access is separate from ordinary public signup. Partners
             apply through a controlled flow, receive review, and access
             partner-safe tools only after approval.
@@ -68,11 +68,11 @@ export default function ApiPartnersPage() {
               "Use approved scopes, keys, usage, and webhooks safely",
             ].map((item) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={item}
               >
-                <h2 className="text-lg font-bold text-gray-950">{item}</h2>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <h2 className="text-lg font-bold text-foreground">{item}</h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   API keys, webhook secrets, usage, billing, and partner
                   documentation are controlled by backend approval and partner
                   permission checks.
@@ -82,7 +82,7 @@ export default function ApiPartnersPage() {
           </div>
 
           <Link
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
             href="/api-partner/apply"
           >
             Apply for API access

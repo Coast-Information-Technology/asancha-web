@@ -47,15 +47,15 @@ export default function PricingPage() {
 
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Pricing
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Transparent guidance before payment-sensitive actions.
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             Asancha pricing and payment actions should be clear, traceable, and
             tied to backend-generated references where required. Public pricing
             information is guidance only until the correct workflow confirms the
@@ -69,11 +69,11 @@ export default function PricingPage() {
               "API partner access",
             ].map((item) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={item}
               >
-                <h2 className="text-lg font-bold text-gray-950">{item}</h2>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <h2 className="text-lg font-bold text-foreground">{item}</h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   Fees, payment references, proof review, and approvals should
                   be confirmed through the relevant backend-controlled workflow.
                 </p>
@@ -81,14 +81,14 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <p className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+          <p className="mt-8 rounded-xl border border-accent bg-accent p-4 text-sm leading-6 text-accent-foreground">
             Submitting payment proof does not mean payment approval. Payment
             status must be reviewed and confirmed through Asancha-controlled
             workflows.
           </p>
 
           <Link
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
             href="/contact"
           >
             Contact Asancha

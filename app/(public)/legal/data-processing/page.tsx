@@ -47,23 +47,23 @@ export default function DataProcessingPage() {
 
       <main>
         <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Data Processing
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             Asancha may process information needed to support account setup,
             role-specific profiles, marketplace workflows, verification,
             documents, payments, bookings, conversations, notifications,
             recommendations, and API partner access.
           </p>
 
-          <section className="mt-10 space-y-6 text-sm leading-7 text-gray-700">
-            <h2 className="text-2xl font-bold text-gray-950">
+          <section className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
+            <h2 className="text-2xl font-bold text-foreground">
               Processing purposes
             </h2>
             <p>
@@ -72,7 +72,7 @@ export default function DataProcessingPage() {
               support controlled partner access.
             </p>
 
-            <h2 className="text-2xl font-bold text-gray-950">
+            <h2 className="text-2xl font-bold text-foreground">
               Public-safe presentation
             </h2>
             <p>

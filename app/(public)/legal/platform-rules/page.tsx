@@ -56,15 +56,15 @@ export default function PlatformRulesPage() {
 
       <main>
         <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Platform Rules
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             Asancha is designed to keep property workflows clear, safe,
             role-aware, and verification-aware.
           </p>
@@ -72,10 +72,10 @@ export default function PlatformRulesPage() {
           <section className="mt-10 grid gap-5 md:grid-cols-2">
             {rules.map((rule) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={rule}
               >
-                <h2 className="text-base font-bold text-gray-950">{rule}</h2>
+                <h2 className="text-base font-bold text-foreground">{rule}</h2>
               </article>
             ))}
           </section>

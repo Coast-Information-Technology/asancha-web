@@ -74,15 +74,15 @@ export default function AboutPage() {
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
           <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">
               About Asancha
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               A property platform built for clarity, structure, and trust.
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Asancha is a UK-focused property technology platform designed for
               public users who need a clearer way to discover opportunities,
               submit property information, manage service workflows, and connect
@@ -91,14 +91,14 @@ export default function AboutPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                 href="/marketplace"
               >
                 Browse Marketplace
               </Link>
 
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                 href="/how-it-works"
               >
                 See How It Works
@@ -109,17 +109,17 @@ export default function AboutPage() {
 
         <section
           aria-labelledby="about-principles-heading"
-          className="bg-gray-50"
+          className="bg-muted"
         >
           <div className="asancha-page-container py-16">
             <h2
-              className="text-3xl font-extrabold tracking-tight text-gray-950"
+              className="text-3xl font-extrabold tracking-tight text-foreground"
               id="about-principles-heading"
             >
               What guides the platform
             </h2>
 
-            <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
               Asancha keeps public discovery simple while sensitive actions
               remain controlled by account, profile, verification, payment,
               approval, or partner access requirements.
@@ -128,14 +128,14 @@ export default function AboutPage() {
             <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {principles.map((principle) => (
                 <article
-                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                  className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                   key={principle}
                 >
-                  <h3 className="text-base font-bold text-gray-950">
+                  <h3 className="text-base font-bold text-foreground">
                     {principle}
                   </h3>
 
-                  <p className="mt-3 text-sm leading-6 text-gray-600">
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
                     The public app explains what users can do, what may be
                     locked, and what needs verification or approval before
                     sensitive actions continue.

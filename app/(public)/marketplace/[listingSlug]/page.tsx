@@ -119,7 +119,7 @@ export default async function ListingPreviewPage({
         <section className="asancha-page-container py-16 sm:py-24">
           <nav aria-label="Breadcrumb" className="mb-8">
             <Link
-              className="text-sm font-bold text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-100"
+              className="text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
               href="/marketplace"
             >
               Back to marketplace
@@ -127,28 +127,28 @@ export default async function ListingPreviewPage({
           </nav>
 
           <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+            <p className="text-sm font-bold uppercase tracking-wide text-primary">
               Public listing preview
             </p>
 
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               {listing.title}
             </h1>
 
-            <p className="mt-3 text-base font-semibold text-gray-700">
+            <p className="mt-3 text-base font-semibold text-muted-foreground">
               {listing.location}
             </p>
 
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               {listing.description}
             </p>
 
-            <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-gray-950">
+            <div className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-foreground">
                 What public visitors can see
               </h2>
 
-              <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-600">
+              <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
                 <li>General title and location summary.</li>
                 <li>Basic listing category and safe public description.</li>
                 <li>
@@ -162,14 +162,14 @@ export default async function ListingPreviewPage({
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-gray-950 px-6 py-3 text-sm font-bold text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                 href="/auth/sign-up"
               >
                 Create account to continue
               </Link>
 
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-gray-950 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                 href="/support"
               >
                 Ask a question

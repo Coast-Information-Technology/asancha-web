@@ -75,15 +75,15 @@ export default function LegalPage() {
 
       <main>
         <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
             Legal
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Legal and policy information.
           </h1>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
             These public legal pages support transparency around Asancha terms,
             privacy, platform rules, data processing, and cookies.
           </p>
@@ -91,17 +91,17 @@ export default function LegalPage() {
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {legalLinks.map((item) => (
               <article
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
                 key={item.href}
               >
-                <h2 className="text-lg font-bold text-gray-950">
+                <h2 className="text-lg font-bold text-foreground">
                   {item.label}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {item.description}
                 </p>
                 <Link
-                  className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                  className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                   href={item.href}
                 >
                   Open {item.label}
