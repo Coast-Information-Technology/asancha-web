@@ -1,0 +1,871 @@
+/* File: src/components/business-profiles/business-profiles.module.css */
+
+/**
+ * Asancha Business Profile Component Styles
+ *
+ * Purpose:
+ * Provides responsive, accessible styling for the business-profile switcher,
+ * profile modal, profile cards, switch confirmation, and add-profile drawer.
+ *
+ * Security notes:
+ * - Styling must not be relied upon for role or permission enforcement.
+ * - Hidden or disabled visual states are UX guidance only.
+ */
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+}
+
+.switcherButton {
+    display: inline-flex;
+    min-width: 13rem;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.375rem 0.625rem;
+    color: var(--foreground);
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-md);
+    cursor: pointer;
+    transition:
+        border-color 160ms ease,
+        background-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.switcherButton:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--primary);
+}
+
+.switcherButton:focus-visible,
+.closeButton:focus-visible,
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible,
+.textAction:focus-visible,
+.addProfileButton:focus-visible,
+.profileOption:focus-visible {
+    outline: 3px solid var(--asancha-focus-ring);
+    outline-offset: 2px;
+}
+
+.switcherButton:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.switcherCompact {
+    min-width: 0;
+    width: 2.75rem;
+    padding: 0.25rem;
+    justify-content: center;
+}
+
+.switcherAvatar,
+.profileAvatar,
+.profileOptionIcon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--primary-foreground);
+    background: var(--primary);
+}
+
+.switcherAvatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+}
+
+.switcherAvatarImage,
+.profileAvatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.switcherAvatarFallback {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.switcherContent {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+}
+
+.switcherLabel {
+    color: var(--muted-foreground);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+}
+
+.switcherName {
+    overflow: hidden;
+    color: var(--card-foreground);
+    font-size: 0.875rem;
+    font-weight: 650;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.switcherPendingBadge,
+.pendingActionBadge,
+.profileGroupCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 999px;
+}
+
+.switcherPendingBadge {
+    min-width: 1.375rem;
+    height: 1.375rem;
+    padding-inline: 0.375rem;
+    color: var(--primary-foreground);
+    background: var(--primary);
+}
+
+.switcherChevron {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+}
+
+.switcherCompact .switcherChevron {
+    display: none;
+}
+
+.modalBackdrop,
+.drawerBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    background: color-mix(in srgb,
+            var(--foreground) 55%,
+            transparent);
+    backdrop-filter: blur(2px);
+}
+
+.modalBackdrop {
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modalPanel {
+    position: relative;
+    display: flex;
+    width: min(100%, 46rem);
+    max-height: min(90vh, 55rem);
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--popover-foreground);
+    background: var(--popover);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-xl);
+    box-shadow:
+        0 1.5rem 4rem color-mix(in srgb,
+            var(--foreground) 20%,
+            transparent);
+}
+
+.modalHeader,
+.drawerHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.modalEyebrow {
+    margin: 0 0 0.25rem;
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.modalTitle,
+.drawerTitle {
+    margin: 0;
+    color: var(--popover-foreground);
+    font-size: clamp(1.25rem, 3vw, 1.625rem);
+    line-height: 1.2;
+}
+
+.modalDescription,
+.drawerDescription {
+    max-width: 38rem;
+    margin: 0.5rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.closeButton {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-foreground);
+    font-size: 1.75rem;
+    line-height: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.closeButton:hover {
+    color: var(--foreground);
+    background: var(--muted);
+    border-color: var(--border);
+}
+
+.modalContent,
+.drawerContent {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.modalContent {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.25rem;
+}
+
+.modalFooter {
+    padding: 1rem 1.25rem;
+    background: var(--muted);
+    border-top: 1px solid var(--border);
+}
+
+.errorMessage,
+.successMessage {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border: 1px solid;
+    border-radius: var(--asancha-radius-md);
+}
+
+.errorMessage {
+    color: var(--destructive);
+    background: color-mix(in srgb,
+            var(--destructive) 8%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--destructive) 32%,
+            var(--border));
+}
+
+.successMessage {
+    color: var(--foreground);
+    background: color-mix(in srgb,
+            var(--secondary) 12%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--secondary) 36%,
+            var(--border));
+}
+
+.emptyProfiles {
+    padding: 2rem 1rem;
+    text-align: center;
+    background: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: var(--asancha-radius-lg);
+}
+
+.emptyProfiles h3 {
+    margin: 0;
+    color: var(--foreground);
+    font-size: 1rem;
+}
+
+.emptyProfiles p {
+    margin: 0.5rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+}
+
+.profileGroupSection {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.profileGroupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.profileGroupTitle {
+    margin: 0;
+    color: var(--foreground);
+    font-size: 0.875rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+}
+
+.profileGroupCount {
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.375rem;
+    color: var(--muted-foreground);
+    background: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.profileList {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.profileCard {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--card-foreground);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-lg);
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.profileCard:hover {
+    border-color: color-mix(in srgb,
+            var(--primary) 45%,
+            var(--border));
+}
+
+.profileCardActive {
+    background: color-mix(in srgb,
+            var(--primary) 5%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--primary) 55%,
+            var(--border));
+    box-shadow: inset 0.1875rem 0 var(--primary);
+}
+
+.profileCardHeader,
+.profileIdentity,
+.profileTypeRow,
+.profileCardActions {
+    display: flex;
+    align-items: center;
+}
+
+.profileCardHeader {
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.profileIdentity {
+    min-width: 0;
+    gap: 0.75rem;
+}
+
+.profileAvatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--asancha-radius-md);
+}
+
+.profileAvatarFallback {
+    font-size: 0.875rem;
+    font-weight: 750;
+}
+
+.profileIdentityText {
+    min-width: 0;
+}
+
+.profileTypeRow {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.profileType {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+}
+
+.activeBadge {
+    padding: 0.1875rem 0.5rem;
+    color: var(--primary);
+    font-size: 0.6875rem;
+    font-weight: 750;
+    background: color-mix(in srgb,
+            var(--primary) 10%,
+            var(--card));
+    border: 1px solid color-mix(in srgb,
+            var(--primary) 30%,
+            var(--border));
+    border-radius: 999px;
+}
+
+.profileName {
+    margin: 0.2rem 0 0;
+    overflow: hidden;
+    color: var(--card-foreground);
+    font-size: 1rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pendingActionBadge {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    padding-inline: 0.45rem;
+    color: var(--primary-foreground);
+    background: var(--primary);
+}
+
+.profileStatusList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.profileStatusItem {
+    display: grid;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.profileStatusItem dt {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+}
+
+.profileStatusItem dd {
+    margin: 0;
+}
+
+.statusBadge {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 0.25rem 0.5rem;
+    overflow: hidden;
+    font-size: 0.75rem;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+}
+
+.statusSuccess {
+    color: var(--foreground);
+    background: color-mix(in srgb,
+            var(--secondary) 12%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--secondary) 38%,
+            var(--border));
+}
+
+.statusPending {
+    color: var(--foreground);
+    background: color-mix(in srgb,
+            var(--primary) 8%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--primary) 28%,
+            var(--border));
+}
+
+.statusWarning {
+    color: var(--foreground);
+    background: var(--muted);
+    border-color: var(--border);
+}
+
+.statusDanger {
+    color: var(--destructive);
+    background: color-mix(in srgb,
+            var(--destructive) 7%,
+            var(--card));
+    border-color: color-mix(in srgb,
+            var(--destructive) 28%,
+            var(--border));
+}
+
+.statusNeutral {
+    color: var(--muted-foreground);
+    background: var(--muted);
+}
+
+.profileLockedReason {
+    margin: 0;
+    padding: 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    background: var(--muted);
+    border-radius: var(--asancha-radius-md);
+}
+
+.profileCardActions {
+    flex-wrap: wrap;
+    gap: 0.625rem;
+}
+
+.primaryAction,
+.secondaryAction,
+.textAction,
+.addProfileButton {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.875rem;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: var(--asancha-radius-md);
+    cursor: pointer;
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+}
+
+.primaryAction {
+    color: var(--primary-foreground);
+    background: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.primaryAction:hover:not(:disabled) {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.primaryAction:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.secondaryAction {
+    color: var(--foreground);
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+.secondaryAction:hover {
+    background: var(--accent);
+    border-color: var(--primary);
+}
+
+.textAction {
+    min-height: auto;
+    padding-inline: 0.375rem;
+    color: var(--primary);
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.textAction:hover {
+    text-decoration: underline;
+}
+
+.addProfileButton {
+    width: 100%;
+    color: var(--foreground);
+    background: var(--card);
+    border: 1px dashed var(--primary);
+}
+
+.addProfileButton:hover {
+    color: var(--primary);
+    background: color-mix(in srgb,
+            var(--primary) 6%,
+            var(--card));
+}
+
+.addProfileIcon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.confirmationOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: color-mix(in srgb,
+            var(--foreground) 48%,
+            transparent);
+}
+
+.confirmationDialog {
+    width: min(100%, 28rem);
+    padding: 1.25rem;
+    background: var(--popover);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-lg);
+    box-shadow:
+        0 1rem 3rem color-mix(in srgb,
+            var(--foreground) 20%,
+            transparent);
+}
+
+.confirmationTitle {
+    margin: 0;
+    color: var(--foreground);
+    font-size: 1.125rem;
+}
+
+.confirmationDescription {
+    margin: 0.75rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.confirmationActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+}
+
+.drawerBackdrop {
+    align-items: stretch;
+    justify-content: flex-end;
+}
+
+.drawerPanel {
+    display: flex;
+    width: min(100%, 31rem);
+    height: 100%;
+    flex-direction: column;
+    color: var(--popover-foreground);
+    background: var(--popover);
+    border-left: 1px solid var(--border);
+    box-shadow:
+        -1rem 0 3rem color-mix(in srgb,
+            var(--foreground) 16%,
+            transparent);
+    animation: drawerEnter 180ms ease-out;
+}
+
+.drawerHeader {
+    padding: 1.25rem;
+}
+
+.drawerContent {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.25rem;
+}
+
+.profileOptionList {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.profileOption {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem;
+    color: var(--card-foreground);
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-lg);
+    cursor: pointer;
+    transition:
+        border-color 160ms ease,
+        background-color 160ms ease,
+        transform 160ms ease;
+}
+
+.profileOption:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.profileOptionDisabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+}
+
+.profileOptionIcon {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 0.75rem;
+    font-weight: 750;
+    border-radius: var(--asancha-radius-md);
+}
+
+.profileOptionContent {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+    gap: 0.25rem;
+}
+
+.profileOptionTitle {
+    color: var(--card-foreground);
+    font-size: 0.9375rem;
+    font-weight: 750;
+}
+
+.profileOptionDescription {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+.profileOptionReason {
+    margin-top: 0.25rem;
+    color: var(--destructive);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.profileOptionArrow {
+    margin-top: 0.6rem;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.drawerNotice {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--asancha-radius-md);
+}
+
+.drawerNotice strong {
+    color: var(--foreground);
+}
+
+@keyframes drawerEnter {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 40rem) {
+    .modalBackdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modalPanel {
+        width: 100%;
+        max-height: 94vh;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius:
+            var(--asancha-radius-xl) var(--asancha-radius-xl) 0 0;
+    }
+
+    .modalHeader,
+    .drawerHeader,
+    .modalContent,
+    .drawerContent {
+        padding: 1rem;
+    }
+
+    .modalFooter {
+        padding: 0.875rem 1rem;
+    }
+
+    .profileStatusList {
+        grid-template-columns: 1fr;
+    }
+
+    .profileCardActions,
+    .confirmationActions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .primaryAction,
+    .secondaryAction {
+        width: 100%;
+    }
+
+    .drawerPanel {
+        width: 100%;
+    }
+
+    .switcherButton:not(.switcherCompact) {
+        min-width: 0;
+        max-width: 12rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .switcherButton,
+    .profileCard,
+    .profileOption,
+    .primaryAction,
+    .secondaryAction,
+    .textAction,
+    .addProfileButton,
+    .drawerPanel {
+        transition: none;
+        animation: none;
+    }
+}
