@@ -19,31 +19,50 @@
  */
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/src/components/ui/button/button";
 import { Input } from "@/src/components/ui/input/input";
+import { useAuthSession } from "@/src/features/auth/hooks/use-auth-session";
 
 interface SignInErrors {
   email?: string;
   password?: string;
+  form?: string;
+}
+
+/**
+ * Returns a local-only post-authentication redirect path.
+ */
+function getSafeRedirectPath(value: string | null | undefined): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return null;
+  }
+
+  return value;
 }
 
 /**
  * Renders the public sign-in page.
  */
 export default function SignInPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { signIn } = useAuthSession();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<SignInErrors>({});
-  const [safeMessage, setSafeMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextErrors: SignInErrors = {};
+    const normalizedEmail = email.trim();
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       nextErrors.email = "Enter a valid email address.";
     }
 
@@ -57,9 +76,33 @@ export default function SignInPage() {
       return;
     }
 
-    setSafeMessage(
-      "Sign-in will be connected to the backend auth API when the auth feature API layer is added.",
-    );
+    setIsSubmitting(true);
+
+    try {
+      const result = await signIn({
+        email: normalizedEmail,
+        password,
+      });
+
+      const destination =
+        getSafeRedirectPath(searchParams.get("redirect")) ??
+        getSafeRedirectPath(searchParams.get("next")) ??
+        getSafeRedirectPath(searchParams.get("returnTo")) ??
+        getSafeRedirectPath(result.nextPath) ??
+        "/dashboard";
+
+      router.replace(destination);
+      router.refresh();
+    } catch (error) {
+      setErrors({
+        form:
+          error instanceof Error
+            ? error.message
+            : "We could not sign you in. Please check your details and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -81,6 +124,7 @@ export default function SignInPage() {
       <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
         <Input
           autoComplete="email"
+          disabled={isSubmitting}
           errorMessage={errors.email}
           label="Email address"
           onChange={(event) => setEmail(event.target.value)}
@@ -91,6 +135,7 @@ export default function SignInPage() {
 
         <Input
           autoComplete="current-password"
+          disabled={isSubmitting}
           errorMessage={errors.password}
           label="Password"
           onChange={(event) => setPassword(event.target.value)}
@@ -99,13 +144,21 @@ export default function SignInPage() {
           value={password}
         />
 
-        {safeMessage ? (
-          <p className="rounded-xl border border-border bg-muted p-4 text-sm leading-6 text-muted-foreground">
-            {safeMessage}
+        {errors.form ? (
+          <p
+            className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm leading-6 text-destructive"
+            role="alert"
+          >
+            {errors.form}
           </p>
         ) : null}
 
-        <Button fullWidth type="submit">
+        <Button
+          fullWidth
+          isLoading={isSubmitting}
+          loadingLabel="Signing in"
+          type="submit"
+        >
           Sign in
         </Button>
       </form>

@@ -12,7 +12,7 @@
  * Responsibilities:
  * - Load backend-authored dashboard state.
  * - Display the active business profile.
- * - Render investor and property-owner navigation.
+ * - Render role-specific dashboard navigation.
  * - Switch the active business profile through the authenticated profile API.
  * - Refresh dashboard state after a successful profile switch.
  * - Route the user to the selected profile's protected dashboard.
@@ -24,7 +24,7 @@
  * - Backend dashboard state remains the source of truth.
  * - Profile switching must be authorised and audited by the backend.
  * - Switching must not bypass policy, verification, company-membership,
- *   account-status, or lifecycle requirements.
+ *   account-status, assignment, ownership, or lifecycle requirements.
  * - Only public profile IDs may be submitted.
  * - Staff roles must not use this public application.
  */
@@ -56,9 +56,21 @@ import {
     type InvestorNavigationItem,
 } from "../_config/investor-dashboard.config";
 import {
+    PROPERTY_AGENT_NAVIGATION,
+    type PropertyAgentNavigationItem,
+} from "../_config/property-agent-dashboard.config";
+import {
     PROPERTY_OWNER_NAVIGATION,
     type PropertyOwnerNavigationItem,
 } from "../_config/property-owner-dashboard.config";
+import {
+    PROPERTY_SOURCER_NAVIGATION,
+    type PropertySourcerNavigationItem,
+} from "../_config/property-sourcer-dashboard.config";
+import {
+    SERVICE_PROVIDER_NAVIGATION,
+    type ServiceProviderNavigationItem,
+} from "../_config/service-provider-dashboard.config";
 import type {
     DashboardBusinessProfile,
     DashboardState,
@@ -78,13 +90,17 @@ interface SwitchBusinessProfilePayload
 
 interface SwitchBusinessProfileResult {
     activeBusinessProfile:
-    DashboardBusinessProfile;
+        DashboardBusinessProfile;
 
     dashboardPath: string | null;
 
     switched: true;
 
     message: string;
+}
+
+interface DashboardNotificationSummary {
+    unreadNotificationCount: number;
 }
 
 const DASHBOARD_PATHS: Record<
@@ -168,19 +184,31 @@ function toBusinessProfileCardData(
     };
 }
 
+function isNavigationItemActive(
+    pathname: string,
+    href: string,
+    exactMatch: boolean,
+): boolean {
+    if (exactMatch) {
+        return pathname === href;
+    }
+
+    return (
+        pathname === href ||
+        pathname.startsWith(
+            `${href}/`,
+        )
+    );
+}
+
 function isInvestorNavigationItemActive(
     pathname: string,
     item: InvestorNavigationItem,
 ): boolean {
-    if (item.exactMatch) {
-        return pathname === item.href;
-    }
-
-    return (
-        pathname === item.href ||
-        pathname.startsWith(
-            `${item.href}/`,
-        )
+    return isNavigationItemActive(
+        pathname,
+        item.href,
+        item.exactMatch,
     );
 }
 
@@ -188,15 +216,43 @@ function isPropertyOwnerNavigationItemActive(
     pathname: string,
     item: PropertyOwnerNavigationItem,
 ): boolean {
-    if (item.exactMatch) {
-        return pathname === item.href;
-    }
+    return isNavigationItemActive(
+        pathname,
+        item.href,
+        item.exactMatch,
+    );
+}
 
-    return (
-        pathname === item.href ||
-        pathname.startsWith(
-            `${item.href}/`,
-        )
+function isPropertyAgentNavigationItemActive(
+    pathname: string,
+    item: PropertyAgentNavigationItem,
+): boolean {
+    return isNavigationItemActive(
+        pathname,
+        item.href,
+        item.exactMatch,
+    );
+}
+
+function isPropertySourcerNavigationItemActive(
+    pathname: string,
+    item: PropertySourcerNavigationItem,
+): boolean {
+    return isNavigationItemActive(
+        pathname,
+        item.href,
+        item.exactMatch,
+    );
+}
+
+function isServiceProviderNavigationItemActive(
+    pathname: string,
+    item: ServiceProviderNavigationItem,
+): boolean {
+    return isNavigationItemActive(
+        pathname,
+        item.href,
+        item.exactMatch,
     );
 }
 
@@ -238,6 +294,69 @@ function getWorkspaceLabel(
         default:
             return "Dashboard";
     }
+}
+
+function getUnreadNotificationCount(
+    dashboardState: DashboardState | null,
+    activeProfileType:
+        | PublicBusinessProfileType
+        | null
+        | undefined,
+): number {
+    if (!dashboardState) {
+        return 0;
+    }
+
+    let summary:
+        | DashboardNotificationSummary
+        | null
+        | undefined;
+
+    switch (activeProfileType) {
+        case "investor":
+            summary =
+                dashboardState
+                    .investorSummary;
+
+            break;
+
+        case "property_owner":
+            summary =
+                dashboardState
+                    .propertyOwnerSummary;
+
+            break;
+
+        case "property_agent":
+            summary =
+                dashboardState
+                    .propertyAgentSummary;
+
+            break;
+
+        case "property_sourcer":
+            summary =
+                dashboardState
+                    .propertySourcerSummary;
+
+            break;
+
+        case "service_provider":
+            summary =
+                dashboardState
+                    .serviceProviderSummary;
+
+            break;
+
+        case "api_partner":
+        default:
+            summary = null;
+    }
+
+    return (
+        summary?.unreadNotificationCount ??
+        0
+    );
 }
 
 export function DashboardShell({
@@ -379,10 +498,10 @@ export function DashboardShell({
 
     const unreadNotificationCount:
         number =
-        dashboardState
-            ?.investorSummary
-            ?.unreadNotificationCount ??
-        0;
+        getUnreadNotificationCount(
+            dashboardState,
+            activeProfileType,
+        );
 
     const workspaceLabel: string =
         getWorkspaceLabel(
@@ -398,7 +517,7 @@ export function DashboardShell({
                 profile.isActive ||
                 !profile.canSwitch ||
                 switchingProfilePublicId !==
-                null
+                    null
             ) {
                 return;
             }
@@ -427,8 +546,8 @@ export function DashboardShell({
 
                 setSuccessMessage(
                     result.message ||
-                    SAFE_MESSAGES
-                        .profileSwitchSuccess,
+                        SAFE_MESSAGES
+                            .profileSwitchSuccess,
                 );
 
                 const refreshedState =
@@ -443,19 +562,18 @@ export function DashboardShell({
                         .profileType;
 
                 const configuredDashboardPath:
-                    string | undefined =
+                    string =
                     DASHBOARD_PATHS[
-                    resolvedProfileType
+                        resolvedProfileType
                     ];
 
                 const targetPath:
-                    string | null =
+                    string =
                     result.dashboardPath ??
                     refreshedState
                         ?.activeBusinessProfile
                         ?.dashboardPath ??
-                    configuredDashboardPath ??
-                    null;
+                    configuredDashboardPath;
 
                 if (!targetPath) {
                     setErrorMessage(
@@ -500,6 +618,7 @@ export function DashboardShell({
             <div
                 className="grid gap-2"
                 aria-label="Loading dashboard navigation"
+                aria-busy="true"
             >
                 {Array.from({
                     length: 8,
@@ -547,10 +666,11 @@ export function DashboardShell({
                                         ? "page"
                                         : undefined
                                 }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${active
+                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                                    active
                                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                    }`}
+                                }`}
                             >
                                 {item.label}
                             </Link>
@@ -590,16 +710,175 @@ export function DashboardShell({
                                         ? "page"
                                         : undefined
                                 }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${active
+                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                                    active
                                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                    }`}
+                                }`}
                             >
                                 {item.label}
                             </Link>
                         );
                     },
                 )}
+            </nav>
+        );
+
+    const renderPropertyAgentNavigation =
+        (): ReactNode => (
+            <nav
+                aria-label="Property agent workspace"
+                className="grid gap-1"
+            >
+                {PROPERTY_AGENT_NAVIGATION.map(
+                    (
+                        item:
+                            PropertyAgentNavigationItem,
+                    ): ReactNode => {
+                        const active:
+                            boolean =
+                            isPropertyAgentNavigationItemActive(
+                                pathname,
+                                item,
+                            );
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                title={
+                                    item.description
+                                }
+                                aria-current={
+                                    active
+                                        ? "page"
+                                        : undefined
+                                }
+                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                                    active
+                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                }`}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    },
+                )}
+            </nav>
+        );
+
+    const renderPropertySourcerNavigation =
+        (): ReactNode => (
+            <nav
+                aria-label="Property sourcer workspace"
+                className="grid gap-1"
+            >
+                {PROPERTY_SOURCER_NAVIGATION.map(
+                    (
+                        item:
+                            PropertySourcerNavigationItem,
+                    ): ReactNode => {
+                        const active:
+                            boolean =
+                            isPropertySourcerNavigationItemActive(
+                                pathname,
+                                item,
+                            );
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                title={
+                                    item.description
+                                }
+                                aria-current={
+                                    active
+                                        ? "page"
+                                        : undefined
+                                }
+                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                                    active
+                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                }`}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    },
+                )}
+            </nav>
+        );
+
+    const renderServiceProviderNavigation =
+        (): ReactNode => (
+            <nav
+                aria-label="Service provider workspace"
+                className="grid gap-1"
+            >
+                {SERVICE_PROVIDER_NAVIGATION.map(
+                    (
+                        item:
+                            ServiceProviderNavigationItem,
+                    ): ReactNode => {
+                        const active:
+                            boolean =
+                            isServiceProviderNavigationItemActive(
+                                pathname,
+                                item,
+                            );
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                title={
+                                    item.description
+                                }
+                                aria-current={
+                                    active
+                                        ? "page"
+                                        : undefined
+                                }
+                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                                    active
+                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                }`}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    },
+                )}
+            </nav>
+        );
+
+    const renderApiPartnerNavigation =
+        (): ReactNode => (
+            <nav
+                aria-label="API partner workspace"
+                className="grid gap-1"
+            >
+                <Link
+                    href="/api-partner/dashboard"
+                    aria-current={
+                        pathname ===
+                        "/api-partner/dashboard"
+                            ? "page"
+                            : undefined
+                    }
+                    className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
+                        pathname ===
+                        "/api-partner/dashboard"
+                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                    }`}
+                >
+                    API partner dashboard
+                </Link>
             </nav>
         );
 
@@ -617,41 +896,16 @@ export function DashboardShell({
                     return renderPropertyOwnerNavigation();
 
                 case "property_agent":
+                    return renderPropertyAgentNavigation();
+
                 case "property_sourcer":
+                    return renderPropertySourcerNavigation();
+
                 case "service_provider":
-                    return (
-                        <div className="rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                            Navigation for this business
-                            profile will become available
-                            when its dashboard routes are
-                            implemented.
-                        </div>
-                    );
+                    return renderServiceProviderNavigation();
 
                 case "api_partner":
-                    return (
-                        <nav
-                            aria-label="API partner workspace"
-                            className="grid gap-1"
-                        >
-                            <Link
-                                href="/api-partner/dashboard"
-                                aria-current={
-                                    pathname ===
-                                        "/api-partner/dashboard"
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${pathname ===
-                                        "/api-partner/dashboard"
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                    }`}
-                            >
-                                API partner dashboard
-                            </Link>
-                        </nav>
-                    );
+                    return renderApiPartnerNavigation();
 
                 default:
                     return (
@@ -663,6 +917,11 @@ export function DashboardShell({
                     );
             }
         };
+
+    const firstPendingAction =
+        dashboardState
+            ?.pendingActions[0] ??
+        null;
 
     return (
         <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -743,7 +1002,7 @@ export function DashboardShell({
                             className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label={
                                 unreadNotificationCount >
-                                    0
+                                0
                                     ? `${unreadNotificationCount} unread notifications`
                                     : "Notifications"
                             }
@@ -753,7 +1012,7 @@ export function DashboardShell({
                             </span>
 
                             {unreadNotificationCount >
-                                0 ? (
+                            0 ? (
                                 <span
                                     className="absolute right-0.5 top-0.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[var(--destructive)] px-1 text-[0.625rem] font-bold leading-none text-[var(--destructive-foreground)]"
                                     aria-hidden="true"
@@ -792,8 +1051,8 @@ export function DashboardShell({
                     {renderNavigation()}
 
                     {dashboardState &&
-                        dashboardState.pendingActions
-                            .length > 0 ? (
+                    dashboardState.pendingActions
+                        .length > 0 ? (
                         <section
                             className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4"
                             aria-labelledby="dashboard-pending-actions-heading"
@@ -820,23 +1079,19 @@ export function DashboardShell({
                                 attention.
                             </p>
 
-                            {dashboardState
-                                .pendingActions[0]
+                            {firstPendingAction
                                 ?.actionPath &&
-                                dashboardState
-                                    .pendingActions[0]
-                                    ?.actionLabel ? (
+                            firstPendingAction
+                                .actionLabel ? (
                                 <Link
                                     href={
-                                        dashboardState
-                                            .pendingActions[0]
+                                        firstPendingAction
                                             .actionPath
                                     }
                                     className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                                 >
                                     {
-                                        dashboardState
-                                            .pendingActions[0]
+                                        firstPendingAction
                                             .actionLabel
                                     }
                                 </Link>
@@ -932,9 +1187,9 @@ export function DashboardShell({
                         {renderNavigation()}
 
                         {dashboardState &&
-                            dashboardState
-                                .pendingActions
-                                .length > 0 ? (
+                        dashboardState
+                            .pendingActions
+                            .length > 0 ? (
                             <section className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4">
                                 <h2 className="text-sm font-bold">
                                     Pending actions
@@ -954,23 +1209,19 @@ export function DashboardShell({
                                     attention.
                                 </p>
 
-                                {dashboardState
-                                    .pendingActions[0]
+                                {firstPendingAction
                                     ?.actionPath &&
-                                    dashboardState
-                                        .pendingActions[0]
-                                        ?.actionLabel ? (
+                                firstPendingAction
+                                    .actionLabel ? (
                                     <Link
                                         href={
-                                            dashboardState
-                                                .pendingActions[0]
+                                            firstPendingAction
                                                 .actionPath
                                         }
                                         className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                                     >
                                         {
-                                            dashboardState
-                                                .pendingActions[0]
+                                            firstPendingAction
                                                 .actionLabel
                                         }
                                     </Link>
@@ -992,10 +1243,10 @@ export function DashboardShell({
                             >
                                 Notifications
                                 {unreadNotificationCount >
-                                    0
+                                0
                                     ? ` (${getNotificationCountLabel(
-                                        unreadNotificationCount,
-                                    )})`
+                                          unreadNotificationCount,
+                                      )})`
                                     : ""}
                             </Link>
 

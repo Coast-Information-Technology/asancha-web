@@ -98,7 +98,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en-GB">
-      <body>
+      <body suppressHydrationWarning>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>
