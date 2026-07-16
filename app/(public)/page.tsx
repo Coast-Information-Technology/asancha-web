@@ -191,7 +191,7 @@ export default function HomePage() {
                   </p>
 
                   <Link
-                    className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                    className="mt-5 inline-flex text-sm font-bold !text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                     href={card.href}
                   >
                     Learn more about {card.title}
