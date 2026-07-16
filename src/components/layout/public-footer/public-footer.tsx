@@ -19,6 +19,7 @@
  * API keys, private document URLs, or internal platform routes.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { PUBLIC_FOOTER_NAVIGATION } from "@/src/lib/navigation/public-navigation";
@@ -32,10 +33,21 @@ export function PublicFooter() {
       <div className="asancha-page-container py-12">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
           <section aria-labelledby="public-footer-brand-heading">
-            <h2
-              className="text-xl font-extrabold tracking-tight"
-              id="public-footer-brand-heading"
+            <Link
+              aria-label="Asancha home"
+              className="inline-flex rounded-md focus:outline-none focus:ring-4 focus:ring-blue-300"
+              href="/"
             >
+              <Image
+                alt="Asancha logo"
+                className="h-auto w-20"
+                height={80}
+                src="/logo.png"
+                width={80}
+              />
+            </Link>
+
+            <h2 className="sr-only" id="public-footer-brand-heading">
               Asancha
             </h2>
 

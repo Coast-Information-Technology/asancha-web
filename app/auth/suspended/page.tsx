@@ -30,7 +30,7 @@ export const metadata: Metadata = {
  */
 export default function SuspendedPage() {
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <section className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <p className="text-sm font-bold uppercase tracking-wide text-destructive">
         Account restricted
       </p>

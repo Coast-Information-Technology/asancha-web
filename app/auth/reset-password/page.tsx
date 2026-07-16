@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <section className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <p className="text-sm font-bold uppercase tracking-wide text-primary">
         New password
       </p>
@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
       </p>
 
       {completed ? (
-        <div className="mt-8 rounded-2xl border border-border bg-muted p-5">
+        <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
           <h2 className="text-lg font-bold text-foreground">
             Password reset submitted
           </h2>

@@ -95,7 +95,7 @@ export function SignupFlow() {
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <div className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <div className="mb-8">
         <p className="text-sm font-bold uppercase tracking-wide text-primary">
           Create public account
@@ -110,8 +110,40 @@ export function SignupFlow() {
           owners, property agents, property sourcers, and service providers.
         </p>
 
+        <p className="mt-4 text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            className="font-bold !text-primary hover:!text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
+            href="/auth/sign-in"
+          >
+            Sign in
+          </Link>
+        </p>
+
+        <div
+          aria-label={`Signup progress: step ${stepNumber} of 3`}
+          className="mt-5 grid grid-cols-3 gap-2"
+        >
+          {["Role", "Account", "Verify"].map((label, index) => {
+            const active = index + 1 <= stepNumber;
+
+            return (
+              <div
+                className={`rounded-md border px-3 py-2 text-center text-xs font-extrabold ${
+                  active
+                    ? "border-primary bg-accent text-primary"
+                    : "border-border bg-muted/70 text-muted-foreground"
+                }`}
+                key={label}
+              >
+                {label}
+              </div>
+            );
+          })}
+        </div>
+
         {selectedRole ? (
-          <p className="mt-3 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold text-primary">
+          <p className="mt-4 inline-flex rounded-md bg-accent px-3 py-1 text-xs font-bold text-primary">
             Selected role: {getRoleLabel(selectedRole)}
           </p>
         ) : null}

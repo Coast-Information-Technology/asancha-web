@@ -55,6 +55,11 @@
   outline-offset: 3px;
 }
 
+.logoImage {
+  width: 5rem;
+  height: auto;
+}
+
 .desktopNav {
   display: none;
   align-items: center;
@@ -96,7 +101,13 @@
 }
 
 .dropdownTrigger {
+  cursor: default;
   gap: 0.35rem;
+  list-style: none;
+}
+
+.dropdownTrigger::-webkit-details-marker {
+  display: none;
 }
 
 .dropdownChevron {
@@ -105,7 +116,7 @@
   transition: transform 150ms ease;
 }
 
-.dropdownOpen .dropdownChevron,
+.dropdown[open] .dropdownChevron,
 .dropdown:hover .dropdownChevron,
 .dropdown:focus-within .dropdownChevron {
   transform: rotate(180deg);
@@ -134,7 +145,7 @@
     visibility 150ms ease;
 }
 
-.dropdownOpen .dropdownPanel,
+.dropdown[open] .dropdownPanel,
 .dropdown:hover .dropdownPanel,
 .dropdown:focus-within .dropdownPanel {
   opacity: 1;

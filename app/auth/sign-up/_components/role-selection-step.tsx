@@ -67,7 +67,7 @@ export function RoleSelectionStep({
           return (
             <button
               aria-pressed={active}
-              className={`rounded-xl border p-4 text-left transition focus:outline-none focus:ring-4 focus:ring-primary/20 ${
+              className={`rounded-lg border p-4 text-left transition focus:outline-none focus:ring-4 focus:ring-primary/20 ${
                 active
                   ? "border-primary bg-accent text-accent-foreground"
                   : "border-border bg-card text-card-foreground hover:border-primary hover:bg-accent"
@@ -87,7 +87,7 @@ export function RoleSelectionStep({
         })}
       </div>
 
-      <div className="mt-6 rounded-xl border border-border bg-muted p-4">
+      <div className="mt-6 rounded-lg border border-border bg-muted/80 p-4">
         <p className="text-sm leading-6 text-muted-foreground">
           API partner access is not part of ordinary signup. API partners should
           use the controlled API partner application route.

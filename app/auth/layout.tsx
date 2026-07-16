@@ -22,7 +22,11 @@
  * API keys, private KYC notes, internal admin notes, or ObjectIds.
  */
 
+import Image from "next/image";
 import Link from "next/link";
+import { BadgeCheck, LifeBuoy, LockKeyhole, Workflow } from "lucide-react";
+
+import styles from "./auth-layout.module.css";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -33,33 +37,102 @@ interface AuthLayoutProps {
  */
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-background">
-        <div className="asancha-page-container flex min-h-16 items-center justify-between gap-4">
-          <Link
-            className="inline-flex items-center gap-3 rounded-md font-extrabold text-foreground focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href="/"
-          >
-            <span
-              aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground"
-            >
-              A
-            </span>
-            <span>Asancha</span>
+    <div className={styles.shell}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link className={styles.brandLink} href="/">
+            <Image
+              alt="Asancha logo"
+              className={styles.brandLogo}
+              height={80}
+              priority
+              src="/logo.png"
+              width={80}
+            />
           </Link>
 
-          <Link
-            className="rounded-md px-3 py-2 text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href="/support"
-          >
-            Need help?
-          </Link>
+          <nav aria-label="Authentication support" className={styles.headerNav}>
+            <Link className={styles.headerLink} href="/">
+              Home
+            </Link>
+            <Link className={styles.headerLink} href="/support">
+              Help
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <main className="asancha-page-container grid min-h-[calc(100vh-4rem)] place-items-center py-10">
-        <div className="w-full max-w-2xl">{children}</div>
+      <main className={styles.main}>
+        <section
+          aria-label="Asancha account access"
+          className={styles.contextPanel}
+        >
+          <p className={styles.kicker}>Public user access</p>
+          <h1 className={styles.headline}>
+            A clearer account path for property work.
+          </h1>
+          <p className={styles.copy}>
+            Sign in, create an account, verify details, and continue into the
+            right Asancha workspace with focused steps and safe account
+            handling.
+          </p>
+
+          <div className={styles.signalGrid}>
+            <div className={styles.signalItem}>
+              <span aria-hidden="true" className={styles.signalIcon}>
+                <LockKeyhole size={16} strokeWidth={2.5} />
+              </span>
+              <div>
+                <p className={styles.signalTitle}>Secure session handoff</p>
+                <p className={styles.signalCopy}>
+                  Authentication remains backend-controlled with no exposed
+                  token values in the browser UI.
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.signalItem}>
+              <span aria-hidden="true" className={styles.signalIcon}>
+                <Workflow size={16} strokeWidth={2.5} />
+              </span>
+              <div>
+                <p className={styles.signalTitle}>Role-aware onboarding</p>
+                <p className={styles.signalCopy}>
+                  Each account can continue into investor, owner, agent,
+                  sourcer, or service-provider workflows.
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.signalItem}>
+              <span aria-hidden="true" className={styles.signalIcon}>
+                <BadgeCheck size={16} strokeWidth={2.5} />
+              </span>
+              <div>
+                <p className={styles.signalTitle}>Verification ready</p>
+                <p className={styles.signalCopy}>
+                  Email, profile, document, and policy steps stay visible
+                  without exposing private review details.
+                </p>
+              </div>
+            </div>
+
+            <div className={styles.signalItem}>
+              <span aria-hidden="true" className={styles.signalIcon}>
+                <LifeBuoy size={16} strokeWidth={2.5} />
+              </span>
+              <div>
+                <p className={styles.signalTitle}>Support is close</p>
+                <p className={styles.signalCopy}>
+                  Recovery, verification, and access-state pages keep safe
+                  routes back to support.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.formPanel}>{children}</div>
       </main>
     </div>
   );

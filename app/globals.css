@@ -156,6 +156,12 @@ a {
   text-decoration: none;
 }
 
+.text-primary-foreground,
+[class~="text-primary-foreground"],
+[class~="text-[var(--primary-foreground)]"] {
+  color: var(--primary-foreground);
+}
+
 button,
 input,
 select,

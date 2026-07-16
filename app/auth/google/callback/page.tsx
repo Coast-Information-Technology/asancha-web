@@ -31,7 +31,7 @@ export const metadata: Metadata = {
  */
 export default function GoogleCallbackPage() {
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <section className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <p className="text-sm font-bold uppercase tracking-wide text-primary">
         Authentication callback
       </p>
@@ -46,7 +46,7 @@ export default function GoogleCallbackPage() {
         try again.
       </p>
 
-      <div className="mt-8 rounded-2xl border border-border bg-muted p-5">
+      <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
         <h2 className="text-lg font-bold text-foreground">Security note</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           OAuth tokens and provider payloads are not displayed here. Any error

@@ -19,6 +19,7 @@
  */
 
 import Link from "next/link";
+import { KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -106,7 +107,7 @@ export default function SignInPage() {
   }
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <section className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <p className="text-sm font-bold uppercase tracking-wide text-primary">
         Welcome back
       </p>
@@ -116,9 +117,8 @@ export default function SignInPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Access your account, onboarding, dashboard, documents, payments,
-        bookings, conversations, notifications, and approved API partner
-        workspace.
+        Continue into your dashboard, onboarding, documents, bookings,
+        payments, and account workspace.
       </p>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
@@ -146,7 +146,7 @@ export default function SignInPage() {
 
         {errors.form ? (
           <p
-            className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm leading-6 text-destructive"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm leading-6 text-destructive"
             role="alert"
           >
             {errors.form}
@@ -163,18 +163,30 @@ export default function SignInPage() {
         </Button>
       </form>
 
-      <div className="mt-6 flex flex-col gap-3 text-sm sm:flex-row sm:justify-between">
+      <div className="mt-5 grid gap-3">
         <Link
-          className="font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:border-primary hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+          href="/auth/google"
+        >
+          <Mail aria-hidden="true" size={16} strokeWidth={2.5} />
+          Continue with Google
+        </Link>
+      </div>
+
+      <div className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
+        <Link
+          className="inline-flex items-center gap-2 rounded-md px-1 font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
           href="/auth/forgot-password"
         >
+          <KeyRound aria-hidden="true" size={15} strokeWidth={2.5} />
           Forgot password?
         </Link>
 
         <Link
-          className="font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
+          className="inline-flex items-center gap-2 rounded-md px-1 font-bold !text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20 sm:justify-end"
           href="/auth/sign-up"
         >
+          <ShieldCheck aria-hidden="true" size={15} strokeWidth={2.5} />
           Create account
         </Link>
       </div>

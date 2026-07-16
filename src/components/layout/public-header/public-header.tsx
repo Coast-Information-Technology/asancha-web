@@ -73,34 +73,48 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
     );
   }
 
-  function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
+  function preventDesktopToggle(
+    event:
+      | React.MouseEvent<HTMLElement>
+      | React.KeyboardEvent<HTMLElement>,
+  ) {
+    event.preventDefault();
+  }
+
+  function handleBlur(event: React.FocusEvent<HTMLDetailsElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setIsOpen(false);
     }
   }
 
   return (
-    <div
-      className={`${styles.dropdown} ${isOpen ? styles.dropdownOpen : ""}`}
+    <details
+      className={styles.dropdown}
       onBlur={handleBlur}
       onFocus={() => setIsOpen(true)}
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
+      open={isOpen}
     >
-      <Link
+      <summary
         aria-current={isActive ? "page" : undefined}
         aria-expanded={isOpen}
         aria-haspopup="true"
         className={`${styles.navItem} ${styles.dropdownTrigger} ${
           isActive ? styles.navItemActive : ""
         }`}
-        href={item.href}
+        onClick={preventDesktopToggle}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            preventDesktopToggle(event);
+          }
+        }}
       >
         <span>{item.label}</span>
         <span aria-hidden="true" className={styles.dropdownChevron}>
           {"\u25be"}
         </span>
-      </Link>
+      </summary>
 
       <div className={styles.dropdownPanel}>
         <div className={styles.dropdownHeader}>
@@ -137,7 +151,7 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
           })}
         </ul>
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -258,6 +272,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
         >
           <Image
             alt="Asancha logo"
+            className={styles.logoImage}
             height={80}
             priority
             src="/logo.png"
