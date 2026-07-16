@@ -96,22 +96,18 @@
 }
 
 .dropdownTrigger {
-  cursor: pointer;
-  list-style: none;
-}
-
-.dropdownTrigger::-webkit-details-marker {
-  display: none;
+  gap: 0.35rem;
 }
 
 .dropdownChevron {
-  margin-left: 0.35rem;
   font-size: 0.75rem;
   line-height: 1;
   transition: transform 150ms ease;
 }
 
-.dropdown[open] .dropdownChevron {
+.dropdownOpen .dropdownChevron,
+.dropdown:hover .dropdownChevron,
+.dropdown:focus-within .dropdownChevron {
   transform: rotate(180deg);
 }
 
@@ -130,6 +126,20 @@
     0 20px 45px color-mix(in srgb, var(--foreground) 16%, transparent),
     0 8px 20px color-mix(in srgb, var(--foreground) 10%, transparent);
   overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 150ms ease,
+    visibility 150ms ease;
+}
+
+.dropdownOpen .dropdownPanel,
+.dropdown:hover .dropdownPanel,
+.dropdown:focus-within .dropdownPanel {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .dropdownPanel::before {

@@ -53,6 +53,7 @@ interface DesktopNavigationItemProps {
  * Renders one desktop navigation item, including dropdown children when present.
  */
 function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const hasChildren = Boolean(item.children && item.children.length > 0);
   const isActive =
     isActiveNavigationItem(item, pathname) ||
@@ -72,19 +73,34 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
     );
   }
 
+  function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setIsOpen(false);
+    }
+  }
+
   return (
-    <details className={styles.dropdown}>
-      <summary
+    <div
+      className={`${styles.dropdown} ${isOpen ? styles.dropdownOpen : ""}`}
+      onBlur={handleBlur}
+      onFocus={() => setIsOpen(true)}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <Link
         aria-current={isActive ? "page" : undefined}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
         className={`${styles.navItem} ${styles.dropdownTrigger} ${
           isActive ? styles.navItemActive : ""
         }`}
+        href={item.href}
       >
         <span>{item.label}</span>
         <span aria-hidden="true" className={styles.dropdownChevron}>
           {"\u25be"}
         </span>
-      </summary>
+      </Link>
 
       <div className={styles.dropdownPanel}>
         <div className={styles.dropdownHeader}>
@@ -121,7 +137,7 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
           })}
         </ul>
       </div>
-    </details>
+    </div>
   );
 }
 
