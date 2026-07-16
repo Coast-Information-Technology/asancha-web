@@ -36,6 +36,10 @@ import type {
   UseAuthSessionResult,
 } from "../types/auth.types";
 
+interface UseAuthSessionOptions {
+  loadOnMount?: boolean;
+}
+
 /**
  * Default unauthenticated session value.
  */
@@ -198,14 +202,17 @@ function getSnapshot(): AuthSessionState {
  * The server snapshot is deliberately unauthenticated because secure cookie
  * evaluation belongs to server-side auth guards, not this client hook.
  */
-function getServerSnapshot(): AuthSessionState {
-  return {
+const SERVER_AUTH_STATE: AuthSessionState =
+  Object.freeze({
     status: "idle",
     session: null,
     user: null,
     isAuthenticated: false,
     errorMessage: null,
-  };
+  });
+
+function getServerSnapshot(): AuthSessionState {
+  return SERVER_AUTH_STATE;
 }
 
 /**
@@ -215,7 +222,10 @@ function getServerSnapshot(): AuthSessionState {
  * and authentication forms. Sensitive route access must still be enforced by
  * backend endpoints and server-side guards.
  */
-export function useAuthSession(): UseAuthSessionResult {
+export function useAuthSession(
+  options: UseAuthSessionOptions = {},
+): UseAuthSessionResult {
+  const { loadOnMount = true } = options;
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   /**
@@ -308,10 +318,10 @@ export function useAuthSession(): UseAuthSessionResult {
    * Loads the browser session when the first hook consumer mounts.
    */
   useEffect(() => {
-    if (authState.status === "idle") {
+    if (loadOnMount && authState.status === "idle") {
       void loadSharedSession(false);
     }
-  }, []);
+  }, [loadOnMount]);
 
   return {
     ...state,

@@ -38,6 +38,7 @@ import {
 } from "@/src/lib/navigation/public-navigation";
 
 import styles from "./public-header.module.css";
+import { MenuIcon } from "lucide-react";
 
 interface PublicHeaderProps {
   isAuthenticated?: boolean;
@@ -282,7 +283,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           onClick={() => setMobileMenuOpen((current) => !current)}
           type="button"
         >
-          <span aria-hidden="true">{mobileMenuOpen ? "×" : "?"}</span>
+          <span aria-hidden="true">{mobileMenuOpen ? "×" : <MenuIcon />}</span>
         </button>
       </div>
 
