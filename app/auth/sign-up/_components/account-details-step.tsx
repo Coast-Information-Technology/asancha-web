@@ -9,7 +9,7 @@
  * Collects ordinary public signup account details.
  *
  * Main responsibilities:
- * - Collect name, email, phone, password, and confirmation password
+ * - Collect email, password, and confirmation password
  * - Render required account-level policy acceptance checkboxes
  * - Provide accessible inline validation messages
  *
@@ -30,9 +30,7 @@ import {
 } from "./policy-checkbox-list";
 
 export interface SignupAccountDetails {
-  fullName: string;
   email: string;
-  phoneNumber: string;
   password: string;
   confirmPassword: string;
   policies: PolicyAcceptanceValue;
@@ -40,14 +38,13 @@ export interface SignupAccountDetails {
 
 interface AccountDetailsStepProps {
   initialValue: SignupAccountDetails;
+  isSubmitting?: boolean;
   onBack: () => void;
   onSubmit: (value: SignupAccountDetails) => void;
 }
 
 interface AccountDetailsErrors {
-  fullName?: string;
   email?: string;
-  phoneNumber?: string;
   password?: string;
   confirmPassword?: string;
   policies?: string;
@@ -60,7 +57,8 @@ function hasAcceptedRequiredPolicies(policies: PolicyAcceptanceValue): boolean {
   return (
     policies.termsAccepted &&
     policies.privacyAccepted &&
-    policies.platformRulesAccepted
+    policies.platformRulesAccepted &&
+    policies.dataProcessingConsentAccepted
   );
 }
 
@@ -72,16 +70,8 @@ function validateAccountDetails(
 ): AccountDetailsErrors {
   const errors: AccountDetailsErrors = {};
 
-  if (value.fullName.trim().length < 2) {
-    errors.fullName = "Enter your full name.";
-  }
-
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email.trim())) {
     errors.email = "Enter a valid email address.";
-  }
-
-  if (value.phoneNumber.trim().length < 7) {
-    errors.phoneNumber = "Enter a valid phone number.";
   }
 
   if (value.password.length < 8) {
@@ -104,6 +94,7 @@ function validateAccountDetails(
  */
 export function AccountDetailsStep({
   initialValue,
+  isSubmitting = false,
   onBack,
   onSubmit,
 }: AccountDetailsStepProps) {
@@ -144,21 +135,14 @@ export function AccountDetailsStep({
       </h2>
 
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Use accurate details. Email verification comes before profile setup.
+        Use an email address you can verify. Profile details come after account
+        creation.
       </p>
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
         <Input
-          autoComplete="name"
-          errorMessage={errors.fullName}
-          label="Full name"
-          onChange={(event) => updateField("fullName", event.target.value)}
-          required
-          value={formValue.fullName}
-        />
-
-        <Input
           autoComplete="email"
+          disabled={isSubmitting}
           errorMessage={errors.email}
           label="Email address"
           onChange={(event) => updateField("email", event.target.value)}
@@ -168,17 +152,8 @@ export function AccountDetailsStep({
         />
 
         <Input
-          autoComplete="tel"
-          errorMessage={errors.phoneNumber}
-          label="Phone number"
-          onChange={(event) => updateField("phoneNumber", event.target.value)}
-          required
-          type="tel"
-          value={formValue.phoneNumber}
-        />
-
-        <Input
           autoComplete="new-password"
+          disabled={isSubmitting}
           errorMessage={errors.password}
           helpText="Use at least 8 characters. Avoid reusing passwords from other websites."
           label="Password"
@@ -190,6 +165,7 @@ export function AccountDetailsStep({
 
         <Input
           autoComplete="new-password"
+          disabled={isSubmitting}
           errorMessage={errors.confirmPassword}
           label="Confirm password"
           onChange={(event) =>
@@ -207,11 +183,22 @@ export function AccountDetailsStep({
         />
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-          <Button onClick={onBack} type="button" variant="secondary">
+          <Button
+            disabled={isSubmitting}
+            onClick={onBack}
+            type="button"
+            variant="secondary"
+          >
             Back
           </Button>
 
-          <Button type="submit">Continue</Button>
+          <Button
+            isLoading={isSubmitting}
+            loadingLabel="Creating account"
+            type="submit"
+          >
+            Continue
+          </Button>
         </div>
       </form>
     </section>

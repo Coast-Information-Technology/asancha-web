@@ -60,13 +60,12 @@ export const signupPasswordSchema = z
 /**
  * Full signup form schema.
  *
- * acceptedPolicyTypes represents the checkboxes selected in the browser. Before
- * calling the registration endpoint, the UI should combine these types with
- * the active backend-provided policy versions.
+ * acceptedPolicies represents the policy checkboxes selected in the browser
+ * before calling the registration endpoint.
  */
 export const signUpSchema = z
   .object({
-    selectedRole: publicSignupRoleSchema,
+    role: publicSignupRoleSchema,
 
     email: z
       .string()
@@ -80,7 +79,7 @@ export const signUpSchema = z
 
     confirmPassword: z.string().min(1, "Confirm your password."),
 
-    acceptedPolicyTypes: z
+    acceptedPolicies: z
       .array(accountPolicyTypeSchema)
       .default([])
       .superRefine((acceptedPolicies, context) => {
@@ -106,12 +105,12 @@ export const signUpSchema = z
       });
     }
 
-    const uniquePolicies = new Set(values.acceptedPolicyTypes);
+    const uniquePolicies = new Set(values.acceptedPolicies);
 
-    if (uniquePolicies.size !== values.acceptedPolicyTypes.length) {
+    if (uniquePolicies.size !== values.acceptedPolicies.length) {
       context.addIssue({
         code: "custom",
-        path: ["acceptedPolicyTypes"],
+        path: ["acceptedPolicies"],
         message: "A policy cannot be accepted more than once.",
       });
     }

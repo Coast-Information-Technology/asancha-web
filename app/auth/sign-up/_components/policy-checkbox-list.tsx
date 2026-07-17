@@ -27,6 +27,7 @@ export interface PolicyAcceptanceValue {
   termsAccepted: boolean;
   privacyAccepted: boolean;
   platformRulesAccepted: boolean;
+  dataProcessingConsentAccepted: boolean;
 }
 
 interface PolicyCheckboxListProps {
@@ -93,6 +94,21 @@ export function PolicyCheckboxList({
         label="I accept the Platform Rules."
         onChange={(event) =>
           updatePolicy("platformRulesAccepted", event.target.checked)
+        }
+        required
+      />
+
+      <Checkbox
+        checked={value.dataProcessingConsentAccepted}
+        description="You consent to the processing needed to create and manage your public Asancha account."
+        errorMessage={
+          errorMessage && !value.dataProcessingConsentAccepted
+            ? errorMessage
+            : undefined
+        }
+        label="I accept the Data Processing Consent."
+        onChange={(event) =>
+          updatePolicy("dataProcessingConsentAccepted", event.target.checked)
         }
         required
       />

@@ -27,6 +27,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/src/components/ui/button/button";
+import { authApi } from "@/src/features/auth/api/auth.api";
+import { AUTH_SAFE_MESSAGES } from "@/src/features/auth/constants/auth.constants";
+import type { AccountPolicyType } from "@/src/features/auth/types/auth.types";
 import type { PublicSignupRole } from "@/src/lib/auth/role-guards";
 import { getRoleLabel } from "@/src/lib/auth/role-guards";
 
@@ -40,17 +43,40 @@ import { RoleSelectionStep } from "./role-selection-step";
 type SignupStep = "role" | "account" | "verify";
 
 const emptyAccountDetails: SignupAccountDetails = {
-  fullName: "",
   email: "",
-  phoneNumber: "",
   password: "",
   confirmPassword: "",
   policies: {
     termsAccepted: false,
     privacyAccepted: false,
     platformRulesAccepted: false,
+    dataProcessingConsentAccepted: false,
   },
 };
+
+function getAcceptedPolicies(
+  policies: SignupAccountDetails["policies"],
+): AccountPolicyType[] {
+  const acceptedPolicies: AccountPolicyType[] = [];
+
+  if (policies.termsAccepted) {
+    acceptedPolicies.push("terms_of_use");
+  }
+
+  if (policies.privacyAccepted) {
+    acceptedPolicies.push("privacy_policy");
+  }
+
+  if (policies.platformRulesAccepted) {
+    acceptedPolicies.push("platform_rules");
+  }
+
+  if (policies.dataProcessingConsentAccepted) {
+    acceptedPolicies.push("data_processing_consent");
+  }
+
+  return acceptedPolicies;
+}
 
 /**
  * Renders the multi-step public signup flow.
@@ -62,6 +88,8 @@ export function SignupFlow() {
   );
   const [accountDetails, setAccountDetails] =
     useState<SignupAccountDetails>(emptyAccountDetails);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stepNumber = useMemo(() => {
     if (step === "role") {
@@ -83,9 +111,30 @@ export function SignupFlow() {
     setStep("account");
   }
 
-  function handleAccountSubmit(value: SignupAccountDetails) {
-    setAccountDetails(value);
-    setStep("verify");
+  async function handleAccountSubmit(value: SignupAccountDetails) {
+    if (!selectedRole) {
+      setStep("role");
+      return;
+    }
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      await authApi.signUp({
+        email: value.email.trim().toLowerCase(),
+        password: value.password,
+        role: selectedRole,
+        acceptedPolicies: getAcceptedPolicies(value.policies),
+      });
+
+      setAccountDetails(value);
+      setStep("verify");
+    } catch {
+      setSubmitError(AUTH_SAFE_MESSAGES.genericError);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleStartOver() {
@@ -174,9 +223,19 @@ export function SignupFlow() {
       {step === "account" ? (
         <AccountDetailsStep
           initialValue={accountDetails}
+          isSubmitting={isSubmitting}
           onBack={() => setStep("role")}
           onSubmit={handleAccountSubmit}
         />
+      ) : null}
+
+      {submitError ? (
+        <p
+          className="mt-5 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm leading-6 text-destructive"
+          role="alert"
+        >
+          {submitError}
+        </p>
       ) : null}
 
       {step === "verify" ? (

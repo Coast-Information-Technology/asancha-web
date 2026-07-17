@@ -127,8 +127,8 @@ export interface PolicyAcceptanceInput {
 export interface SignUpPayload {
   email: string;
   password: string;
-  selectedRole: PublicSignupRole;
-  policyAcceptances: PolicyAcceptanceInput[];
+  role: PublicSignupRole;
+  acceptedPolicies: AccountPolicyType[];
 }
 
 /**
@@ -137,7 +137,7 @@ export interface SignUpPayload {
 export interface SignUpResult {
   userPublicId: string;
   email: string;
-  selectedRole: PublicSignupRole;
+  role: PublicSignupRole;
   emailVerificationStatus: EmailVerificationStatus;
   nextAction: "verify_email";
   verificationEmailSent: boolean;
