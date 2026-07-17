@@ -19,6 +19,7 @@
  */
 
 import { forwardRef, useId } from "react";
+import type { ReactNode } from "react";
 
 import styles from "./input.module.css";
 
@@ -30,6 +31,7 @@ export interface InputProps extends Omit<
   helpText?: string;
   errorMessage?: string;
   requiredIndicator?: boolean;
+  rightElement?: ReactNode;
 }
 
 function joinClassNames(
@@ -51,6 +53,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       required,
       requiredIndicator = true,
+      rightElement,
       ...props
     },
     ref,
@@ -74,19 +77,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </label>
         ) : null}
 
-        <input
-          aria-describedby={describedBy || undefined}
-          aria-invalid={Boolean(errorMessage)}
-          className={joinClassNames(
-            styles.input,
-            errorMessage && styles.inputError,
-            className,
-          )}
-          id={inputId}
-          ref={ref}
-          required={required}
-          {...props}
-        />
+        <div className={styles.inputWrap}>
+          <input
+            aria-describedby={describedBy || undefined}
+            aria-invalid={Boolean(errorMessage)}
+            className={joinClassNames(
+              styles.input,
+              Boolean(rightElement) && styles.inputWithRightElement,
+              errorMessage && styles.inputError,
+              className,
+            )}
+            id={inputId}
+            ref={ref}
+            required={required}
+            {...props}
+          />
+
+          {rightElement ? (
+            <div className={styles.rightElement}>{rightElement}</div>
+          ) : null}
+        </div>
 
         {helpText ? (
           <p className={styles.helpText} id={helpTextId}>

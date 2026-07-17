@@ -20,6 +20,7 @@
  */
 
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button/button";
 import { Input } from "@/src/components/ui/input/input";
@@ -101,6 +102,8 @@ export function AccountDetailsStep({
   const [formValue, setFormValue] =
     useState<SignupAccountDetails>(initialValue);
   const [errors, setErrors] = useState<AccountDetailsErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   function updateField<TKey extends keyof SignupAccountDetails>(
     key: TKey,
@@ -159,7 +162,22 @@ export function AccountDetailsStep({
           label="Password"
           onChange={(event) => updateField("password", event.target.value)}
           required
-          type="password"
+          rightElement={
+            <button
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+              disabled={isSubmitting}
+              onClick={() => setShowPassword((current) => !current)}
+              type="button"
+            >
+              {showPassword ? (
+                <EyeOff aria-hidden="true" size={17} strokeWidth={2.5} />
+              ) : (
+                <Eye aria-hidden="true" size={17} strokeWidth={2.5} />
+              )}
+            </button>
+          }
+          type={showPassword ? "text" : "password"}
           value={formValue.password}
         />
 
@@ -172,7 +190,26 @@ export function AccountDetailsStep({
             updateField("confirmPassword", event.target.value)
           }
           required
-          type="password"
+          rightElement={
+            <button
+              aria-label={
+                showConfirmPassword
+                  ? "Hide password confirmation"
+                  : "Show password confirmation"
+              }
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+              disabled={isSubmitting}
+              onClick={() => setShowConfirmPassword((current) => !current)}
+              type="button"
+            >
+              {showConfirmPassword ? (
+                <EyeOff aria-hidden="true" size={17} strokeWidth={2.5} />
+              ) : (
+                <Eye aria-hidden="true" size={17} strokeWidth={2.5} />
+              )}
+            </button>
+          }
+          type={showConfirmPassword ? "text" : "password"}
           value={formValue.confirmPassword}
         />
 

@@ -37,6 +37,10 @@
   color: var(--destructive);
 }
 
+.inputWrap {
+  position: relative;
+}
+
 .input {
   width: 100%;
   min-height: 2.75rem;
@@ -51,6 +55,18 @@
     box-shadow 150ms ease,
     background-color 150ms ease,
     color 150ms ease;
+}
+
+.inputWithRightElement {
+  padding-right: 3.25rem;
+}
+
+.rightElement {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  display: inline-flex;
+  transform: translateY(-50%);
 }
 
 .input::placeholder {

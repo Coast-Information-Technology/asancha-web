@@ -19,7 +19,7 @@
  */
 
 import Link from "next/link";
-import { KeyRound, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -56,6 +56,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<SignInErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -140,7 +141,22 @@ export default function SignInPage() {
           label="Password"
           onChange={(event) => setPassword(event.target.value)}
           required
-          type="password"
+          rightElement={
+            <button
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+              disabled={isSubmitting}
+              onClick={() => setShowPassword((current) => !current)}
+              type="button"
+            >
+              {showPassword ? (
+                <EyeOff aria-hidden="true" size={17} strokeWidth={2.5} />
+              ) : (
+                <Eye aria-hidden="true" size={17} strokeWidth={2.5} />
+              )}
+            </button>
+          }
+          type={showPassword ? "text" : "password"}
           value={password}
         />
 
