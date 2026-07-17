@@ -108,19 +108,27 @@ export default function HomePage() {
       <JsonLd data={homepageJsonLd} id="homepage-json-ld" />
 
       <main>
-        <section className="bg-card">
-          <div className="asancha-page-container py-16 sm:py-24">
+        <section className="relative isolate overflow-hidden bg-foreground text-white">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-20 bg-[url('/auth-bg.avif')] bg-cover bg-center"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/35"
+          />
+          <div className="asancha-page-container py-20 sm:py-28 lg:py-32">
             <div className="max-w-4xl">
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+              <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/80">
                 Asancha Web Public
               </p>
 
-              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
+              <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
                 A structured UK property platform for serious users and approved
                 partners.
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-white/80">
                 Asancha helps public users discover property opportunities,
                 understand the right next step, complete role-specific setup,
                 and move through trusted property workflows with clearer
@@ -132,21 +140,21 @@ export default function HomePage() {
                 className="mt-8 flex flex-col gap-3 sm:flex-row"
               >
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-white/30"
                   href="/marketplace"
                 >
                   Browse Marketplace
                 </Link>
 
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm hover:bg-white/18 focus:outline-none focus:ring-4 focus:ring-white/30"
                   href="/auth/sign-up"
                 >
                   Get Started
                 </Link>
 
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm hover:bg-white/18 focus:outline-none focus:ring-4 focus:ring-white/30"
                   href="/api-partner/apply"
                 >
                   Apply for API Access
