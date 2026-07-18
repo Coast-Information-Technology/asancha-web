@@ -34,6 +34,10 @@ export function EmailVerificationStep({
   email,
   onStartOver,
 }: EmailVerificationStepProps) {
+  const resendVerificationHref = `/auth/verify-email?email=${encodeURIComponent(
+    email,
+  )}`;
+
   return (
     <section aria-labelledby="email-verification-heading">
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -64,9 +68,9 @@ export function EmailVerificationStep({
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href="/auth/verify-email"
+            href={resendVerificationHref}
           >
-            Go to email verification
+            Resend verification email
           </Link>
 
           <Link

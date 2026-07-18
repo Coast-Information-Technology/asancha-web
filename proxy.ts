@@ -35,15 +35,6 @@ const GUEST_PREFERRED_ROUTES = [
   "/auth/forgot-password",
 ] as const;
 
-const PUBLIC_AUTH_ROUTE_PREFIXES = [
-  "/auth/reset-password",
-  "/auth/verify-email",
-  "/auth/google",
-  "/auth/google/callback",
-  "/auth/suspended",
-  "/auth/unauthorized",
-] as const;
-
 const PROTECTED_ROUTE_PREFIXES = [
   "/dashboard",
   "/account",

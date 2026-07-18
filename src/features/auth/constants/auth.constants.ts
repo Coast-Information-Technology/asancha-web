@@ -132,6 +132,7 @@ export const AUTH_PAGE_ROUTES = {
   forgotPassword: "/auth/forgot-password",
   resetPassword: "/auth/reset-password",
   verifyEmail: "/auth/verify-email",
+  emailVerify: "/auth/email-verify",
   google: "/auth/google",
   googleCallback: "/auth/google/callback",
   suspended: "/auth/suspended",

@@ -243,8 +243,8 @@ export interface ResetPasswordResult {
  * The verification token must be treated as opaque.
  */
 export interface VerifyEmailPayload {
-  userPublicId: string;
   token: string;
+  userPublicId?: string;
 }
 
 /**
