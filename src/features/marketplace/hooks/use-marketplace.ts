@@ -36,6 +36,12 @@ import {
   MARKETPLACE_SAFE_MESSAGES,
 } from "../constants/marketplace.constants";
 import { marketplaceFiltersSchema } from "../schemas/marketplace-filters.schema";
+import {
+  getDummyMarketplaceFilterConfiguration,
+  getDummyMarketplaceListing,
+  getDummyMarketplaceListings,
+  USE_MARKETPLACE_DUMMY_DATA,
+} from "../lib/marketplace-dummy-data";
 import type {
   MarketplaceFilterConfiguration,
   MarketplaceFilters,
@@ -117,7 +123,9 @@ export function useMarketplace(): UseMarketplaceResult {
       }));
 
       try {
-        const result = await marketplaceApi.getListings(requestedFilters);
+        const result = USE_MARKETPLACE_DUMMY_DATA
+          ? getDummyMarketplaceListings(requestedFilters)
+          : await marketplaceApi.getListings(requestedFilters);
 
         setMarketplaceState((currentState) => ({
           ...currentState,
@@ -171,7 +179,9 @@ export function useMarketplace(): UseMarketplaceResult {
 
         applyFilters(currentFilters);
 
-        const result = await marketplaceApi.getListings(currentFilters);
+        const result = USE_MARKETPLACE_DUMMY_DATA
+          ? getDummyMarketplaceListings(currentFilters)
+          : await marketplaceApi.getListings(currentFilters);
 
         setMarketplaceState((currentState) => ({
           ...currentState,
@@ -222,7 +232,9 @@ export function useMarketplace(): UseMarketplaceResult {
       }));
 
       try {
-        const result = await marketplaceApi.getListings(nextFilters);
+        const result = USE_MARKETPLACE_DUMMY_DATA
+          ? getDummyMarketplaceListings(nextFilters)
+          : await marketplaceApi.getListings(nextFilters);
 
         applyFilters(nextFilters);
 
@@ -279,7 +291,13 @@ export function useMarketplace(): UseMarketplaceResult {
       }));
 
       try {
-        const selectedListing = await marketplaceApi.getListing(normalizedSlug);
+        const selectedListing = USE_MARKETPLACE_DUMMY_DATA
+          ? getDummyMarketplaceListing(normalizedSlug)
+          : await marketplaceApi.getListing(normalizedSlug);
+
+        if (!selectedListing) {
+          throw new Error(MARKETPLACE_SAFE_MESSAGES.listingLoadError);
+        }
 
         setMarketplaceState((currentState) => ({
           ...currentState,
@@ -313,8 +331,9 @@ export function useMarketplace(): UseMarketplaceResult {
       }));
 
       try {
-        const filterConfiguration =
-          await marketplaceApi.getFilterConfiguration();
+        const filterConfiguration = USE_MARKETPLACE_DUMMY_DATA
+          ? getDummyMarketplaceFilterConfiguration()
+          : await marketplaceApi.getFilterConfiguration();
 
         setMarketplaceState((currentState) => ({
           ...currentState,

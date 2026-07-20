@@ -27,6 +27,10 @@ import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     ServiceProviderDashboardState,
 } from "../_types/service-provider-dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 function formatValue(value: string): string {
     return value
@@ -59,6 +63,15 @@ export function ServiceProviderOverviewPage() {
             setErrorMessage(null);
 
             try {
+                if (USE_DASHBOARD_DUMMY_DATA) {
+                    setDashboardState(
+                        getPreviewDashboardState<ServiceProviderDashboardState>(
+                            "service_provider",
+                        ),
+                    );
+                    return;
+                }
+
                 const state =
                     await authApiGet<ServiceProviderDashboardState>(
                         "/me/dashboard-state",
@@ -75,7 +88,9 @@ export function ServiceProviderOverviewPage() {
         }, []);
 
     useEffect((): void => {
-        void loadDashboard();
+        queueMicrotask(() => {
+            void loadDashboard();
+        });
     }, [loadDashboard]);
 
     if (isLoading) {

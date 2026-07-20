@@ -1,40 +1,34 @@
 // File: app/(public)/solutions/property-sourcers/page.tsx
 
-/**
- * Asancha Property Sourcer Solution Page
- *
- * Purpose:
- * Explains Asancha for property sourcers.
- *
- * Security note:
- * This page must not expose restricted investor data, private deal packs,
- * internal compliance notes, or guaranteed investment claims.
- */
-
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
 
+import { SolutionPageExperience } from "../_components/solution-page-experience";
+
 export const metadata: Metadata = {
   title: "For Property Sourcers | Asancha",
   description:
-    "Learn how property sourcers can submit opportunities, prepare deal packs, manage compliance, and track performance on Asancha.",
+    "Learn how property sourcers can submit opportunities, prepare deal information, manage compliance-aware workflows, and track performance on Asancha.",
   alternates: {
     canonical: "/solutions/property-sourcers",
   },
+  openGraph: {
+    title: "For Property Sourcers | Asancha",
+    description:
+      "See how Asancha helps property sourcers submit opportunities, prepare structured deal information, and follow compliance-aware workflows.",
+    url: "/solutions/property-sourcers",
+    type: "website",
+  },
 };
 
-/**
- * Renders the property sourcer solution page.
- */
 export default function PropertySourcersSolutionPage() {
   const jsonLd = createPublicPageJsonLdBundle({
     path: "/solutions/property-sourcers",
     name: "Asancha for Property Sourcers",
     description:
-      "Learn how property sourcers can submit opportunities, prepare deal packs, manage compliance, and track performance on Asancha.",
+      "Learn how property sourcers can submit opportunities, prepare deal information, manage compliance-aware workflows, and track performance on Asancha.",
     breadcrumbs: [
       { name: "Home", path: "/" },
       { name: "Solutions", path: "/solutions/property-sourcers" },
@@ -45,51 +39,99 @@ export default function PropertySourcersSolutionPage() {
   return (
     <>
       <JsonLd data={jsonLd} id="property-sourcers-json-ld" />
-
-      <main>
-        <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            For property sourcers
-          </p>
-
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Submit sourced opportunities through a structured, compliance-aware
-            workflow.
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Asancha helps property sourcers manage sourced deals, prepare deal
-            packs, follow compliance requirements, and communicate through safer
-            platform workflows.
-          </p>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[
-              "Submit sourced opportunities",
-              "Prepare deal packs",
-              "Track compliance and performance",
-            ].map((item) => (
-              <article
-                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
-                key={item}
-              >
-                <h2 className="text-lg font-bold text-foreground">{item}</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Deal-sensitive information should remain gated until the user
-                  has the correct profile, verification, approval, or access.
-                </p>
-              </article>
-            ))}
-          </div>
-
-          <Link
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
-            href="/auth/sign-up"
-          >
-            Start as a property sourcer
-          </Link>
-        </section>
-      </main>
+      <SolutionPageExperience
+        benefits={[
+          {
+            title: "Submit sourced opportunities",
+            description:
+              "Prepare opportunities so they can move through review and visibility workflows.",
+            icon: "search",
+          },
+          {
+            title: "Organize deal information",
+            description:
+              "Keep opportunity details, supporting context, and documents connected.",
+            icon: "document",
+          },
+          {
+            title: "Follow compliance-aware steps",
+            description:
+              "Respond when additional information, correction, verification, or review is needed.",
+            icon: "shield",
+          },
+          {
+            title: "Track workflow progress",
+            description:
+              "Understand draft, review, correction, approval, restricted, and unavailable states.",
+            icon: "investor",
+          },
+        ]}
+        benefitsDescription="Asancha supports opportunity preparation, structured submission, document-aware workflows, review states, and safer investor-facing access where approved."
+        benefitsHeading="Bring sourced opportunities into a clearer platform process."
+        description="Asancha helps property sourcers prepare opportunity information, organize supporting details, follow review requirements, and move through safer platform workflows."
+        eyebrow="For property sourcers"
+        finalCtaDescription="Create a public account, choose property sourcer as your role, and continue into a structured opportunity submission workflow."
+        finalCtaHeading="Ready to submit opportunities with better structure?"
+        journey={[
+          {
+            title: "Create a property sourcer account",
+            description:
+              "Start through ordinary public signup and choose property sourcer as your first role.",
+          },
+          {
+            title: "Complete sourcer profile setup",
+            description:
+              "Provide business profile information needed for sourced-opportunity workflows.",
+          },
+          {
+            title: "Prepare opportunity details",
+            description:
+              "Add public-safe property information, opportunity context, and supporting details.",
+          },
+          {
+            title: "Submit documents when required",
+            description:
+              "Upload or update documents through protected workflows when requested.",
+          },
+          {
+            title: "Follow review and correction",
+            description:
+              "Respond to review, correction, verification, approval, or additional information needs.",
+          },
+          {
+            title: "Continue through approved flows",
+            description:
+              "Move into visibility, conversations, performance tracking, or related actions where allowed.",
+          },
+        ]}
+        journeyDescription="Sourcer workflows connect profile setup, opportunity preparation, documents, compliance, review, and approved visibility."
+        journeyHeading="From sourced opportunity to reviewed platform workflow."
+        primaryAction={{ label: "Start as a property sourcer", href: "/auth/sign-up" }}
+        safetyDescription="Sourced opportunity pages need strong boundaries around private deal packs, investor data, and claims about outcomes."
+        safetyHeading="Compliance-aware submission without guaranteed outcomes."
+        safetyNotes={[
+          "Sourced opportunities should not expose private deal packs publicly.",
+          "Investor private data should not be visible unless released through approved workflows.",
+          "Submission does not automatically mean approval or publication.",
+          "Asancha does not guarantee investor interest, funding, resale, rental, or completion outcomes.",
+        ]}
+        secondaryAction={{ label: "See how it works", href: "/how-it-works" }}
+        supportingCopy="The sourcer journey makes submitted opportunities clearer and easier to review while protecting private deal information, investor data, and internal compliance notes."
+        title="Submit sourced opportunities through a structured, compliance-aware workflow."
+        workflowDescription="Structured opportunity details make review clearer while helping public previews stay safe."
+        workflowEyebrow="Sourcer workflow"
+        workflowHeading="Prepare opportunity details without exposing restricted deal information."
+        workflowItems={[
+          "Opportunity title and summary",
+          "Property location context",
+          "Property type and condition",
+          "Strategy or opportunity category",
+          "Supporting deal information",
+          "Document requirements",
+          "Review or correction status",
+          "Performance and visibility context",
+        ]}
+      />
     </>
   );
 }

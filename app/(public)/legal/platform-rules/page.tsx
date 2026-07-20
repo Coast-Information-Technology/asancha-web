@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+import { PublicPageHero } from "../../_components/public-page-hero";
 
 export const metadata: Metadata = {
   title: "Platform Rules | Asancha",
@@ -55,21 +56,15 @@ export default function PlatformRulesPage() {
       <JsonLd data={jsonLd} id="platform-rules-json-ld" />
 
       <main>
-        <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            Legal
-          </p>
+        <PublicPageHero
+          description="Asancha is designed to keep property workflows clear, safe, role-aware, and verification-aware."
+          eyebrow="Legal"
+          secondaryAction={{ label: "Back to legal", href: "/legal" }}
+          title="Platform Rules"
+        />
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Platform Rules
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Asancha is designed to keep property workflows clear, safe,
-            role-aware, and verification-aware.
-          </p>
-
-          <section className="mt-10 grid gap-5 md:grid-cols-2">
+        <article className="asancha-page-container py-16">
+          <section className="grid gap-5 md:grid-cols-2">
             {rules.map((rule) => (
               <article
                 className="rounded-2xl border border-border bg-card p-6 shadow-sm"

@@ -42,6 +42,30 @@ import {
     usePathname,
     useRouter,
 } from "next/navigation";
+import {
+    BadgeCheck,
+    Bell,
+    Bookmark,
+    Bot,
+    BriefcaseBusiness,
+    Building2,
+    CalendarCheck,
+    CreditCard,
+    FileText,
+    Gauge,
+    Headphones,
+    Home,
+    LineChart,
+    MapPin,
+    MessageSquare,
+    Search,
+    Settings,
+    ShieldCheck,
+    SlidersHorizontal,
+    UserCircle,
+    Wrench,
+    type LucideIcon,
+} from "lucide-react";
 
 import type {
     BusinessProfileCardData,
@@ -76,6 +100,11 @@ import type {
     DashboardState,
     PublicBusinessProfileType,
 } from "../_types/dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getDashboardPreviewProfileType,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 export interface DashboardShellProps {
     children: ReactNode;
@@ -101,6 +130,13 @@ interface SwitchBusinessProfileResult {
 
 interface DashboardNotificationSummary {
     unreadNotificationCount: number;
+}
+
+interface DashboardNavigationItemLike {
+    label: string;
+    href: string;
+    description: string;
+    exactMatch: boolean;
 }
 
 const DASHBOARD_PATHS: Record<
@@ -201,59 +237,170 @@ function isNavigationItemActive(
     );
 }
 
-function isInvestorNavigationItemActive(
-    pathname: string,
-    item: InvestorNavigationItem,
-): boolean {
-    return isNavigationItemActive(
-        pathname,
-        item.href,
-        item.exactMatch,
-    );
-}
+function getDashboardNavigationIcon(
+    href: string,
+    label: string,
+): LucideIcon {
+    const normalizedLabel =
+        label.toLowerCase();
 
-function isPropertyOwnerNavigationItemActive(
-    pathname: string,
-    item: PropertyOwnerNavigationItem,
-): boolean {
-    return isNavigationItemActive(
-        pathname,
-        item.href,
-        item.exactMatch,
-    );
-}
+    if (
+        normalizedLabel.includes(
+            "overview",
+        )
+    ) {
+        return Home;
+    }
 
-function isPropertyAgentNavigationItemActive(
-    pathname: string,
-    item: PropertyAgentNavigationItem,
-): boolean {
-    return isNavigationItemActive(
-        pathname,
-        item.href,
-        item.exactMatch,
-    );
-}
+    if (
+        normalizedLabel.includes(
+            "properties",
+        ) ||
+        normalizedLabel.includes(
+            "property",
+        ) ||
+        normalizedLabel.includes(
+            "services",
+        )
+    ) {
+        return Building2;
+    }
 
-function isPropertySourcerNavigationItemActive(
-    pathname: string,
-    item: PropertySourcerNavigationItem,
-): boolean {
-    return isNavigationItemActive(
-        pathname,
-        item.href,
-        item.exactMatch,
-    );
-}
+    if (
+        normalizedLabel.includes(
+            "listings",
+        ) ||
+        normalizedLabel.includes(
+            "opportunities",
+        ) ||
+        normalizedLabel.includes("deals")
+    ) {
+        return Search;
+    }
 
-function isServiceProviderNavigationItemActive(
-    pathname: string,
-    item: ServiceProviderNavigationItem,
-): boolean {
-    return isNavigationItemActive(
-        pathname,
-        item.href,
-        item.exactMatch,
-    );
+    if (
+        normalizedLabel.includes(
+            "documents",
+        ) ||
+        normalizedLabel.includes(
+            "authority",
+        )
+    ) {
+        return FileText;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "verification",
+        ) ||
+        normalizedLabel.includes(
+            "compliance",
+        )
+    ) {
+        return ShieldCheck;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "bookings",
+        ) ||
+        normalizedLabel.includes(
+            "reservations",
+        )
+    ) {
+        return CalendarCheck;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "conversations",
+        )
+    ) {
+        return MessageSquare;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "payments",
+        )
+    ) {
+        return CreditCard;
+    }
+
+    if (
+        normalizedLabel.includes("saved")
+    ) {
+        return Bookmark;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "recommendations",
+        ) ||
+        normalizedLabel.includes("ai")
+    ) {
+        return Bot;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "preferences",
+        ) ||
+        normalizedLabel.includes(
+            "availability",
+        )
+    ) {
+        return SlidersHorizontal;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "performance",
+        )
+    ) {
+        return LineChart;
+    }
+
+    if (
+        normalizedLabel.includes(
+            "profile",
+        ) ||
+        normalizedLabel.includes(
+            "company",
+        )
+    ) {
+        return BriefcaseBusiness;
+    }
+
+    if (href.includes("service-areas")) {
+        return MapPin;
+    }
+
+    if (href.includes("support")) {
+        return Headphones;
+    }
+
+    if (href.includes("notifications")) {
+        return Bell;
+    }
+
+    if (href.includes("account")) {
+        return UserCircle;
+    }
+
+    if (href.includes("settings")) {
+        return Settings;
+    }
+
+    if (href.includes("maintenance")) {
+        return Wrench;
+    }
+
+    if (href.includes("api-partner")) {
+        return BadgeCheck;
+    }
+
+    return Gauge;
 }
 
 function getNotificationCountLabel(
@@ -359,6 +506,40 @@ function getUnreadNotificationCount(
     );
 }
 
+function getDashboardUiPreviewHref(
+    pathname: string,
+    href: string,
+): string {
+    if (!pathname.startsWith("/dashboard-ui")) {
+        return href;
+    }
+
+    if (href === "/dashboard") {
+        return "/dashboard-ui";
+    }
+
+    if (href.startsWith("/dashboard/")) {
+        return href.replace(
+            "/dashboard",
+            "/dashboard-ui",
+        );
+    }
+
+    if (href === "/notifications") {
+        return "/dashboard-ui/notifications";
+    }
+
+    if (href === "/account/profile") {
+        return "/dashboard-ui/profile";
+    }
+
+    if (href === "/account/support") {
+        return "/dashboard-ui/support";
+    }
+
+    return href;
+}
+
 export function DashboardShell({
     children,
 }: DashboardShellProps) {
@@ -406,6 +587,19 @@ export function DashboardShell({
                 setErrorMessage(null);
 
                 try {
+                    if (USE_DASHBOARD_DUMMY_DATA) {
+                        const state =
+                            getPreviewDashboardState<DashboardState>(
+                                getDashboardPreviewProfileType(
+                                    pathname,
+                                ),
+                            );
+
+                        setDashboardState(state);
+
+                        return state;
+                    }
+
                     const state =
                         await authApiGet<DashboardState>(
                             "/me/dashboard-state",
@@ -425,15 +619,19 @@ export function DashboardShell({
                     setIsLoading(false);
                 }
             },
-            [],
+            [pathname],
         );
 
     useEffect((): void => {
-        void loadDashboardState();
+        queueMicrotask(() => {
+            void loadDashboardState();
+        });
     }, [loadDashboardState]);
 
     useEffect((): void => {
-        setMobileNavigationOpen(false);
+        queueMicrotask(() => {
+            setMobileNavigationOpen(false);
+        });
     }, [pathname]);
 
     useEffect(() => {
@@ -613,6 +811,67 @@ export function DashboardShell({
             }
         };
 
+    const renderNavigationLink =
+        (
+            item: DashboardNavigationItemLike,
+        ): ReactNode => {
+            const href =
+                getDashboardUiPreviewHref(
+                    pathname,
+                    item.href,
+                );
+            const active =
+                isNavigationItemActive(
+                    pathname,
+                    href,
+                    item.exactMatch,
+                );
+            const Icon =
+                getDashboardNavigationIcon(
+                    item.href,
+                    item.label,
+                );
+
+            return (
+                <Link
+                    key={item.href}
+                    href={href}
+                    title={item.description}
+                    aria-current={
+                        active ? "page" : undefined
+                    }
+                    className={`group relative flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
+                        active
+                            ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm"
+                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                    }`}
+                >
+                    <span
+                        aria-hidden="true"
+                        className={`grid h-8 w-8 shrink-0 place-items-center rounded-md transition-colors ${
+                            active
+                                ? "bg-[color-mix(in_srgb,var(--primary-foreground)_18%,transparent)] text-[var(--primary-foreground)]"
+                                : "bg-[var(--background)] text-[var(--muted-foreground)] group-hover:text-[var(--primary)]"
+                        }`}
+                    >
+                        <Icon
+                            size={17}
+                            strokeWidth={2.35}
+                        />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                        {item.label}
+                    </span>
+                    {active ? (
+                        <span
+                            aria-hidden="true"
+                            className="h-2 w-2 rounded-full bg-[var(--primary-foreground)]"
+                        />
+                    ) : null}
+                </Link>
+            );
+        };
+
     const renderLoadingNavigation =
         (): ReactNode => (
             <div
@@ -646,36 +905,10 @@ export function DashboardShell({
                     (
                         item:
                             InvestorNavigationItem,
-                    ): ReactNode => {
-                        const active:
-                            boolean =
-                            isInvestorNavigationItemActive(
-                                pathname,
-                                item,
-                            );
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    item.description
-                                }
-                                aria-current={
-                                    active
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    active
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    },
+                    ): ReactNode =>
+                        renderNavigationLink(
+                            item,
+                        ),
                 )}
             </nav>
         );
@@ -690,36 +923,10 @@ export function DashboardShell({
                     (
                         item:
                             PropertyOwnerNavigationItem,
-                    ): ReactNode => {
-                        const active:
-                            boolean =
-                            isPropertyOwnerNavigationItemActive(
-                                pathname,
-                                item,
-                            );
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    item.description
-                                }
-                                aria-current={
-                                    active
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    active
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    },
+                    ): ReactNode =>
+                        renderNavigationLink(
+                            item,
+                        ),
                 )}
             </nav>
         );
@@ -734,36 +941,10 @@ export function DashboardShell({
                     (
                         item:
                             PropertyAgentNavigationItem,
-                    ): ReactNode => {
-                        const active:
-                            boolean =
-                            isPropertyAgentNavigationItemActive(
-                                pathname,
-                                item,
-                            );
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    item.description
-                                }
-                                aria-current={
-                                    active
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    active
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    },
+                    ): ReactNode =>
+                        renderNavigationLink(
+                            item,
+                        ),
                 )}
             </nav>
         );
@@ -778,36 +959,10 @@ export function DashboardShell({
                     (
                         item:
                             PropertySourcerNavigationItem,
-                    ): ReactNode => {
-                        const active:
-                            boolean =
-                            isPropertySourcerNavigationItemActive(
-                                pathname,
-                                item,
-                            );
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    item.description
-                                }
-                                aria-current={
-                                    active
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    active
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    },
+                    ): ReactNode =>
+                        renderNavigationLink(
+                            item,
+                        ),
                 )}
             </nav>
         );
@@ -822,36 +977,10 @@ export function DashboardShell({
                     (
                         item:
                             ServiceProviderNavigationItem,
-                    ): ReactNode => {
-                        const active:
-                            boolean =
-                            isServiceProviderNavigationItemActive(
-                                pathname,
-                                item,
-                            );
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                title={
-                                    item.description
-                                }
-                                aria-current={
-                                    active
-                                        ? "page"
-                                        : undefined
-                                }
-                                className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    active
-                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                                }`}
-                            >
-                                {item.label}
-                            </Link>
-                        );
-                    },
+                    ): ReactNode =>
+                        renderNavigationLink(
+                            item,
+                        ),
                 )}
             </nav>
         );
@@ -862,23 +991,13 @@ export function DashboardShell({
                 aria-label="API partner workspace"
                 className="grid gap-1"
             >
-                <Link
-                    href="/api-partner/dashboard"
-                    aria-current={
-                        pathname ===
-                        "/api-partner/dashboard"
-                            ? "page"
-                            : undefined
-                    }
-                    className={`rounded-[var(--asancha-radius-md)] px-3 py-2.5 text-sm font-medium transition-colors ${
-                        pathname ===
-                        "/api-partner/dashboard"
-                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                    }`}
-                >
-                    API partner dashboard
-                </Link>
+                {renderNavigationLink({
+                    label: "API partner dashboard",
+                    href: "/api-partner/dashboard",
+                    description:
+                        "API partner dashboard",
+                    exactMatch: true,
+                })}
             </nav>
         );
 
@@ -946,8 +1065,11 @@ export function DashboardShell({
                         </span>
                     </button>
 
-                    <Link
-                        href="/dashboard"
+                        <Link
+                            href={getDashboardUiPreviewHref(
+                                pathname,
+                                "/dashboard",
+                            )}
                         className="inline-flex flex-none items-center gap-2 rounded-md font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                     >
                         <span
@@ -992,13 +1114,21 @@ export function DashboardShell({
                     >
                         <Link
                             href="/marketplace"
-                            className="hidden rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] md:inline-flex"
+                            className="hidden items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] md:inline-flex"
                         >
+                            <Building2
+                                aria-hidden="true"
+                                size={16}
+                                strokeWidth={2.4}
+                            />
                             Marketplace
                         </Link>
 
                         <Link
-                            href="/notifications"
+                            href={getDashboardUiPreviewHref(
+                                pathname,
+                                "/notifications",
+                            )}
                             className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label={
                                 unreadNotificationCount >
@@ -1007,9 +1137,11 @@ export function DashboardShell({
                                     : "Notifications"
                             }
                         >
-                            <span aria-hidden="true">
-                                🔔
-                            </span>
+                            <Bell
+                                aria-hidden="true"
+                                size={18}
+                                strokeWidth={2.4}
+                            />
 
                             {unreadNotificationCount >
                             0 ? (
@@ -1025,27 +1157,67 @@ export function DashboardShell({
                         </Link>
 
                         <Link
-                            href="/account/support"
-                            className="hidden rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] sm:inline-flex"
+                            href={getDashboardUiPreviewHref(
+                                pathname,
+                                "/account/support",
+                            )}
+                            className="hidden items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] sm:inline-flex"
                         >
+                            <Headphones
+                                aria-hidden="true"
+                                size={16}
+                                strokeWidth={2.4}
+                            />
                             Support
                         </Link>
 
                         <Link
-                            href="/account/profile"
+                            href={getDashboardUiPreviewHref(
+                                pathname,
+                                "/account/profile",
+                            )}
                             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--muted)] text-sm font-bold hover:border-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label="Open account profile"
                         >
-                            AC
+                            <UserCircle
+                                aria-hidden="true"
+                                size={20}
+                                strokeWidth={2.4}
+                            />
                         </Link>
                     </nav>
                 </div>
             </header>
 
-            <div className="mx-auto grid w-full max-w-[96rem] lg:grid-cols-[17rem_minmax(0,1fr)]">
-                <aside className="hidden min-h-[calc(100vh-4rem)] border-r border-[var(--border)] bg-[var(--card)] p-4 lg:block">
+            <div className="mx-auto grid w-full max-w-[100rem] lg:grid-cols-[var(--asancha-dashboard-sidebar-width)_minmax(0,1fr)]">
+                <aside className="hidden h-[calc(100vh-4rem)] overflow-y-auto border-r border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_96%,var(--muted))] p-4 lg:block">
+                    <div className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 shadow-sm">
+                        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
+                            Active workspace
+                        </p>
+                        <div className="mt-3 flex items-center gap-3">
+                            <span
+                                aria-hidden="true"
+                                className="grid h-10 w-10 place-items-center rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)]"
+                            >
+                                <Gauge
+                                    size={19}
+                                    strokeWidth={2.4}
+                                />
+                            </span>
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-extrabold text-[var(--foreground)]">
+                                    {workspaceLabel}
+                                </p>
+                                <p className="mt-0.5 text-xs font-medium text-[var(--muted-foreground)]">
+                                    Static role navigation
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <p className="mb-3 px-3 text-xs font-bold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
-                        {workspaceLabel}
+                        Menu
                     </p>
 
                     {renderNavigation()}
@@ -1085,8 +1257,11 @@ export function DashboardShell({
                                 .actionLabel ? (
                                 <Link
                                     href={
-                                        firstPendingAction
-                                            .actionPath
+                                        getDashboardUiPreviewHref(
+                                            pathname,
+                                            firstPendingAction
+                                                .actionPath,
+                                        )
                                     }
                                     className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                                 >
@@ -1215,8 +1390,11 @@ export function DashboardShell({
                                     .actionLabel ? (
                                     <Link
                                         href={
-                                            firstPendingAction
-                                                .actionPath
+                                            getDashboardUiPreviewHref(
+                                                pathname,
+                                                firstPendingAction
+                                                    .actionPath,
+                                            )
                                         }
                                         className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                                     >
@@ -1237,8 +1415,11 @@ export function DashboardShell({
                                 Marketplace
                             </Link>
 
-                            <Link
-                                href="/notifications"
+                                <Link
+                                    href={getDashboardUiPreviewHref(
+                                        pathname,
+                                        "/notifications",
+                                    )}
                                 className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                             >
                                 Notifications
@@ -1250,15 +1431,21 @@ export function DashboardShell({
                                     : ""}
                             </Link>
 
-                            <Link
-                                href="/account/support"
+                                <Link
+                                    href={getDashboardUiPreviewHref(
+                                        pathname,
+                                        "/account/support",
+                                    )}
                                 className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                             >
                                 Support
                             </Link>
 
-                            <Link
-                                href="/account/profile"
+                                <Link
+                                    href={getDashboardUiPreviewHref(
+                                        pathname,
+                                        "/account/profile",
+                                    )}
                                 className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                             >
                                 Account profile
@@ -1267,6 +1454,7 @@ export function DashboardShell({
                     </aside>
                 </div>
             ) : null}
+
         </div>
     );
 }

@@ -26,15 +26,28 @@
  */
 
 import { apiGet, apiPost } from "../../../lib/api/api-client";
+import type { AsanchaApiResponse } from "../../../lib/api/api-response";
 import { authApiGet, authApiPost } from "../../../lib/api/auth-fetch";
+import { getRefreshToken, setAuthTokens } from "../lib/auth-token-store";
 
-import { AUTH_API_ENDPOINTS } from "../constants/auth.constants";
+import {
+  AUTH_API_ENDPOINTS,
+  AUTH_PAGE_ROUTES,
+} from "../constants/auth.constants";
 import type {
   AuthSessionResult,
+  AuthUser,
+  ChangeEmailPayload,
+  ChangeEmailResult,
   ChangePasswordPayload,
   ChangePasswordResult,
+  ConfirmEmailChangePayload,
+  ConfirmEmailChangeResult,
+  EmailVerificationStatus,
+  OnboardingStatus,
   ForgotPasswordPayload,
   ForgotPasswordResult,
+  PublicAccountRole,
   PublicSignupRole,
   RefreshSessionResult,
   ResendVerificationPayload,
@@ -52,6 +65,63 @@ import type {
   VerifyEmailPayload,
   VerifyEmailResult,
 } from "../types/auth.types";
+import {
+  getDashboardPathForBusinessProfile,
+  isPublicAccountRole,
+} from "../../../lib/auth/role-guards";
+
+interface BackendSignInUser {
+  publicId: string;
+  email: string;
+  role: PublicAccountRole;
+  isVerified: boolean;
+  emailVerifiedAt?: string | null;
+  onboardingStatus: OnboardingStatus;
+  isActive: boolean;
+  isSuspended: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendSignInResult {
+  user: BackendSignInUser;
+  accessToken?: string;
+  accessExpiresAt?: string;
+  jti?: string;
+  refreshToken?: string;
+  refreshExpiresAt?: string;
+  sessionId?: string;
+}
+
+interface BackendSignUpUser {
+  publicId: string;
+  email: string;
+  role: PublicSignupRole;
+  isVerified: boolean;
+  onboardingStatus: OnboardingStatus;
+  isActive: boolean;
+  isSuspended: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendSignUpResult {
+  user: BackendSignUpUser;
+}
+
+interface BackendSessionResult {
+  user: BackendSignInUser;
+}
+
+interface BackendRefreshResult {
+  user?: BackendSignInUser;
+  accessToken?: string;
+  accessExpiresAt?: string;
+  jti?: string;
+  refreshToken?: string;
+  refreshExpiresAt?: string;
+  sessionId?: string;
+}
 
 /**
  * Creates a URL query string from defined string values.
@@ -109,10 +179,196 @@ async function getSignupPolicies(
  * Staff accounts must not be created through this endpoint.
  */
 async function signUp(payload: SignUpPayload): Promise<SignUpResult> {
-  return apiPost<SignUpResult, SignUpPayload>(
+  const result = await apiPost<SignUpResult | BackendSignUpResult, SignUpPayload>(
     AUTH_API_ENDPOINTS.signUp,
     payload,
   );
+
+  if ("userPublicId" in result) {
+    return result;
+  }
+
+  return {
+    userPublicId: result.user.publicId,
+    email: result.user.email,
+    role: result.user.role,
+    emailVerificationStatus: result.user.isVerified
+      ? "verified"
+      : "unverified",
+    nextAction: "verify_email",
+    verificationEmailSent: true,
+  };
+}
+
+function isFrontendSignInResult(
+  result: SignInResult | BackendSignInResult,
+): result is SignInResult {
+  return "session" in result && "nextPath" in result;
+}
+
+function isFrontendSessionResult(
+  result: AuthSessionResult | BackendSessionResult,
+): result is AuthSessionResult {
+  return "authenticated" in result && "user" in result;
+}
+
+function isRefreshSessionResult(
+  result: RefreshSessionResult | BackendRefreshResult,
+): result is RefreshSessionResult {
+  return "session" in result;
+}
+
+function getAccountStatus(user: BackendSignInUser): AuthUser["accountStatus"] {
+  if (user.isSuspended) {
+    return "suspended";
+  }
+
+  if (!user.isActive) {
+    return "deactivated";
+  }
+
+  return "active";
+}
+
+function getEmailVerificationStatus(
+  user: BackendSignInUser,
+): EmailVerificationStatus {
+  return user.isVerified ? "verified" : "unverified";
+}
+
+function getPostSignInPath(user: BackendSignInUser): string {
+  if (user.isSuspended) {
+    return "/auth/suspended";
+  }
+
+  if (!isPublicAccountRole(user.role)) {
+    return "/auth/unauthorized";
+  }
+
+  if (!user.isVerified) {
+    const searchParams = new URLSearchParams({ email: user.email });
+
+    return `${AUTH_PAGE_ROUTES.verifyEmail}?${searchParams.toString()}`;
+  }
+
+  return getDashboardPathForBusinessProfile(user.role);
+}
+
+function normalizeVerifyEmailResult(
+  envelope: AsanchaApiResponse<VerifyEmailResult | null>,
+): VerifyEmailResult {
+  const result = envelope.data;
+
+  return {
+    verified: true,
+    userPublicId: result?.userPublicId ?? "",
+    emailVerificationStatus: "verified",
+    nextPath: AUTH_PAGE_ROUTES.signIn,
+  };
+}
+
+function mapBackendSignInUser(user: BackendSignInUser): AuthUser {
+  const emailVerificationStatus = getEmailVerificationStatus(user);
+
+  return {
+    userPublicId: user.publicId,
+    email: user.email,
+    displayName: null,
+    firstName: null,
+    lastName: null,
+    accountStatus: getAccountStatus(user),
+    emailVerificationStatus,
+    authProvider: "local",
+    activeBusinessProfile: {
+      profilePublicId: user.publicId,
+      profileType: user.role,
+      displayName: user.email,
+      onboardingStatus: user.onboardingStatus,
+      verificationStatus:
+        emailVerificationStatus === "verified" ? "approved" : "pending",
+      isActive: user.isActive && !user.isSuspended,
+    },
+    availableBusinessProfiles: [
+      {
+        profilePublicId: user.publicId,
+        profileType: user.role,
+        displayName: user.email,
+        onboardingStatus: user.onboardingStatus,
+        verificationStatus:
+          emailVerificationStatus === "verified" ? "approved" : "pending",
+        isActive: user.isActive && !user.isSuspended,
+      },
+    ],
+  };
+}
+
+function normalizeSignInResult(
+  result: SignInResult | BackendSignInResult,
+): SignInResult {
+  if (isFrontendSignInResult(result)) {
+    return result;
+  }
+
+  return {
+    session: {
+      authenticated: true,
+      user: mapBackendSignInUser(result.user),
+    },
+    nextPath: getPostSignInPath(result.user),
+  };
+}
+
+function normalizeSessionResult(
+  result: AuthSessionResult | BackendSessionResult,
+): AuthSessionResult {
+  if (isFrontendSessionResult(result)) {
+    return result;
+  }
+
+  return {
+    authenticated: true,
+    user: mapBackendSignInUser(result.user),
+  };
+}
+
+function normalizeRefreshResult(
+  result: RefreshSessionResult | BackendRefreshResult,
+): RefreshSessionResult {
+  if (isRefreshSessionResult(result)) {
+    return result;
+  }
+
+  if (result.user) {
+    return {
+      session: {
+        authenticated: true,
+        user: mapBackendSignInUser(result.user),
+      },
+    };
+  }
+
+  return {
+    session: {
+      authenticated: false,
+      user: null,
+    },
+  };
+}
+
+function storeBackendAuthTokens(
+  result: SignInResult | RefreshSessionResult | BackendSignInResult | BackendRefreshResult,
+) {
+  if (!("accessToken" in result || "refreshToken" in result)) {
+    return;
+  }
+
+  setAuthTokens({
+    accessToken: result.accessToken ?? null,
+    accessExpiresAt: result.accessExpiresAt ?? null,
+    refreshToken: result.refreshToken ?? null,
+    refreshExpiresAt: result.refreshExpiresAt ?? null,
+    sessionId: result.sessionId ?? null,
+  });
 }
 
 /**
@@ -122,10 +378,14 @@ async function signUp(payload: SignUpPayload): Promise<SignUpResult> {
  * server-managed authentication cookies.
  */
 async function signIn(payload: SignInPayload): Promise<SignInResult> {
-  return apiPost<SignInResult, SignInPayload>(
+  const result = await apiPost<SignInResult | BackendSignInResult, SignInPayload>(
     AUTH_API_ENDPOINTS.signIn,
     payload,
   );
+
+  storeBackendAuthTokens(result);
+
+  return normalizeSignInResult(result);
 }
 
 /**
@@ -135,7 +395,11 @@ async function signIn(payload: SignInPayload): Promise<SignInResult> {
  * Asancha public-client request header.
  */
 async function getSession(): Promise<AuthSessionResult> {
-  return authApiGet<AuthSessionResult>(AUTH_API_ENDPOINTS.session);
+  const result = await authApiGet<AuthSessionResult | BackendSessionResult>(
+    AUTH_API_ENDPOINTS.session,
+  );
+
+  return normalizeSessionResult(result);
 }
 
 /**
@@ -145,7 +409,33 @@ async function getSession(): Promise<AuthSessionResult> {
  * or exposed by this frontend function.
  */
 async function refreshSession(): Promise<RefreshSessionResult> {
-  return authApiPost<RefreshSessionResult>(AUTH_API_ENDPOINTS.refresh);
+  const refreshToken = getRefreshToken();
+
+  if (!refreshToken) {
+    return {
+      session: {
+        authenticated: false,
+        user: null,
+      },
+    };
+  }
+
+  const result = await authApiPost<
+    RefreshSessionResult | BackendRefreshResult,
+    { refreshToken: string }
+  >(AUTH_API_ENDPOINTS.refresh, { refreshToken });
+
+  storeBackendAuthTokens(result);
+
+  const refreshResult = normalizeRefreshResult(result);
+
+  if (!refreshResult.session.authenticated) {
+    return {
+      session: await getSession(),
+    };
+  }
+
+  return refreshResult;
 }
 
 /**
@@ -167,10 +457,19 @@ async function signOut(): Promise<SignOutResult> {
 async function forgotPassword(
   payload: ForgotPasswordPayload,
 ): Promise<ForgotPasswordResult> {
-  return apiPost<ForgotPasswordResult, ForgotPasswordPayload>(
+  const envelope = await apiPost<
+    AsanchaApiResponse<ForgotPasswordResult | null>,
+    ForgotPasswordPayload
+  >(
     AUTH_API_ENDPOINTS.forgotPassword,
     payload,
+    { skipEnvelope: true },
   );
+
+  return {
+    accepted: true,
+    message: envelope.data?.message || envelope.message,
+  };
 }
 
 /**
@@ -179,10 +478,16 @@ async function forgotPassword(
 async function resetPassword(
   payload: ResetPasswordPayload,
 ): Promise<ResetPasswordResult> {
-  return apiPost<ResetPasswordResult, ResetPasswordPayload>(
+  const envelope = await apiPost<
+    AsanchaApiResponse<ResetPasswordResult | null>,
+    ResetPasswordPayload
+  >(
     AUTH_API_ENDPOINTS.resetPassword,
     payload,
+    { skipEnvelope: true },
   );
+
+  return envelope.data ?? { passwordReset: true };
 }
 
 /**
@@ -191,10 +496,16 @@ async function resetPassword(
 async function verifyEmail(
   payload: VerifyEmailPayload,
 ): Promise<VerifyEmailResult> {
-  return apiPost<VerifyEmailResult, VerifyEmailPayload>(
+  const envelope = await apiPost<
+    AsanchaApiResponse<VerifyEmailResult | null>,
+    VerifyEmailPayload
+  >(
     AUTH_API_ENDPOINTS.verifyEmail,
     payload,
+    { skipEnvelope: true },
   );
+
+  return normalizeVerifyEmailResult(envelope);
 }
 
 /**
@@ -205,10 +516,19 @@ async function verifyEmail(
 async function resendVerification(
   payload: ResendVerificationPayload,
 ): Promise<ResendVerificationResult> {
-  return apiPost<ResendVerificationResult, ResendVerificationPayload>(
+  const envelope = await apiPost<
+    AsanchaApiResponse<ResendVerificationResult | null>,
+    ResendVerificationPayload
+  >(
     AUTH_API_ENDPOINTS.resendVerification,
     payload,
+    { skipEnvelope: true },
   );
+
+  return {
+    accepted: true,
+    message: envelope.data?.message || envelope.message,
+  };
 }
 
 /**
@@ -217,10 +537,52 @@ async function resendVerification(
 async function changePassword(
   payload: ChangePasswordPayload,
 ): Promise<ChangePasswordResult> {
-  return authApiPost<ChangePasswordResult, ChangePasswordPayload>(
+  const envelope = await authApiPost<
+    AsanchaApiResponse<ChangePasswordResult | null>,
+    ChangePasswordPayload
+  >(
     AUTH_API_ENDPOINTS.changePassword,
     payload,
+    { skipEnvelope: true },
   );
+
+  return envelope.data ?? { passwordChanged: true };
+}
+
+async function changeEmail(
+  payload: ChangeEmailPayload,
+): Promise<ChangeEmailResult> {
+  const envelope = await authApiPost<
+    AsanchaApiResponse<ChangeEmailResult | null>,
+    ChangeEmailPayload
+  >(
+    AUTH_API_ENDPOINTS.changeEmail,
+    payload,
+    { skipEnvelope: true },
+  );
+
+  return {
+    accepted: true,
+    message: envelope.data?.message || envelope.message,
+  };
+}
+
+async function confirmEmailChange(
+  payload: ConfirmEmailChangePayload,
+): Promise<ConfirmEmailChangeResult> {
+  const envelope = await apiPost<
+    AsanchaApiResponse<ConfirmEmailChangeResult | null>,
+    ConfirmEmailChangePayload
+  >(
+    AUTH_API_ENDPOINTS.confirmEmailChange,
+    payload,
+    { skipEnvelope: true },
+  );
+
+  return envelope.data ?? {
+    emailChanged: true,
+    message: envelope.message,
+  };
 }
 
 /**
@@ -264,5 +626,7 @@ export const authApi = {
   verifyEmail,
   resendVerification,
   changePassword,
+  changeEmail,
+  confirmEmailChange,
   startGoogleAuth,
 } as const;

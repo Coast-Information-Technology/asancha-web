@@ -55,8 +55,7 @@ export default function ForgotPasswordPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Enter your email address. If an account can receive a reset link,
-        Asancha will send reset instructions.
+        Enter your email address and we will send password reset instructions.
       </p>
 
       {submitted ? (
@@ -65,8 +64,8 @@ export default function ForgotPasswordPage() {
             Check your email
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            If the email is eligible, reset instructions will be sent. Do not
-            share reset links or tokens with anyone.
+            If we find an account for that email, reset instructions will
+            arrive shortly.
           </p>
           <Link
             className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"

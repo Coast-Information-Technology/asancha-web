@@ -36,13 +36,12 @@ export default function SuspendedPage() {
       </p>
 
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
-        Your account cannot continue right now.
+        Your account needs support.
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Your account access may be suspended or restricted. Contact Asancha
-        support for safe guidance. Internal review notes and staff-only
-        decisions are not shown on this page.
+        We cannot continue with this account right now. Contact support and we
+        will help you understand the next step.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

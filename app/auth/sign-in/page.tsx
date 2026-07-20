@@ -41,6 +41,10 @@ function getSafeRedirectPath(value: string | null | undefined): string | null {
     return null;
   }
 
+  if (value === "/dashboard") {
+    return null;
+  }
+
   return value;
 }
 
@@ -118,8 +122,8 @@ export default function SignInPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Continue into your dashboard, onboarding, documents, bookings,
-        payments, and account workspace.
+        Access your workspace, saved opportunities, bookings, messages, and
+        account settings.
       </p>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit}>

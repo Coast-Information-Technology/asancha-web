@@ -54,12 +54,12 @@ export function PolicyCheckboxList({
   return (
     <fieldset className="space-y-4">
       <legend className="text-sm font-bold text-foreground">
-        Required policy acknowledgements
+        Agreements
       </legend>
 
       <Checkbox
         checked={value.termsAccepted}
-        description="You agree to use Asancha according to the public user terms."
+        description="The rules for using Asancha."
         errorMessage={
           errorMessage && !value.termsAccepted ? errorMessage : undefined
         }
@@ -72,7 +72,7 @@ export function PolicyCheckboxList({
 
       <Checkbox
         checked={value.privacyAccepted}
-        description="You understand how Asancha handles public and account information."
+        description="How we handle your information."
         errorMessage={
           errorMessage && !value.privacyAccepted ? errorMessage : undefined
         }
@@ -85,7 +85,7 @@ export function PolicyCheckboxList({
 
       <Checkbox
         checked={value.platformRulesAccepted}
-        description="You agree to follow Asancha platform rules and safe workflow expectations."
+        description="How members should use the platform."
         errorMessage={
           errorMessage && !value.platformRulesAccepted
             ? errorMessage
@@ -100,7 +100,7 @@ export function PolicyCheckboxList({
 
       <Checkbox
         checked={value.dataProcessingConsentAccepted}
-        description="You consent to the processing needed to create and manage your public Asancha account."
+        description="Permission to create and manage your account."
         errorMessage={
           errorMessage && !value.dataProcessingConsentAccepted
             ? errorMessage

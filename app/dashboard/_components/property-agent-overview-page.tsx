@@ -27,6 +27,10 @@ import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     PropertyAgentDashboardState,
 } from "../_types/property-agent-dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 export function PropertyAgentOverviewPage() {
     const [
@@ -52,6 +56,15 @@ export function PropertyAgentOverviewPage() {
             setErrorMessage(null);
 
             try {
+                if (USE_DASHBOARD_DUMMY_DATA) {
+                    setDashboardState(
+                        getPreviewDashboardState<PropertyAgentDashboardState>(
+                            "property_agent",
+                        ),
+                    );
+                    return;
+                }
+
                 const state =
                     await authApiGet<PropertyAgentDashboardState>(
                         "/me/dashboard-state",
@@ -68,7 +81,9 @@ export function PropertyAgentOverviewPage() {
         }, []);
 
     useEffect((): void => {
-        void loadDashboard();
+        queueMicrotask(() => {
+            void loadDashboard();
+        });
     }, [loadDashboard]);
 
     if (isLoading) {
@@ -165,7 +180,7 @@ export function PropertyAgentOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/property-agent/properties/new"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--card)] px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground hover:bg-foreground/80  px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
                     >
                         Add represented property
                     </Link>

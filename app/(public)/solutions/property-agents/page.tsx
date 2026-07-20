@@ -1,21 +1,11 @@
 // File: app/(public)/solutions/property-agents/page.tsx
 
-/**
- * Asancha Property Agent Solution Page
- *
- * Purpose:
- * Explains Asancha for property agents.
- *
- * Security note:
- * This page must not use broad deprecated agent wording or expose internal
- * authority-review details.
- */
-
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+
+import { SolutionPageExperience } from "../_components/solution-page-experience";
 
 export const metadata: Metadata = {
   title: "For Property Agents | Asancha",
@@ -24,11 +14,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/solutions/property-agents",
   },
+  openGraph: {
+    title: "For Property Agents | Asancha",
+    description:
+      "See how Asancha helps property agents manage represented properties, listing workflows, authority documents, bookings, and conversations.",
+    url: "/solutions/property-agents",
+    type: "website",
+  },
 };
 
-/**
- * Renders the property agent solution page.
- */
 export default function PropertyAgentsSolutionPage() {
   const jsonLd = createPublicPageJsonLdBundle({
     path: "/solutions/property-agents",
@@ -45,51 +39,99 @@ export default function PropertyAgentsSolutionPage() {
   return (
     <>
       <JsonLd data={jsonLd} id="property-agents-json-ld" />
-
-      <main>
-        <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            For property agents
-          </p>
-
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Represent properties with clearer authority and listing context.
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Asancha supports property agents with company context, represented
-            properties, listings, authority documents, bookings, and
-            conversations.
-          </p>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[
-              "Manage represented properties",
-              "Track authority documents",
-              "Handle bookings and conversations",
-            ].map((item) => (
-              <article
-                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
-                key={item}
-              >
-                <h2 className="text-lg font-bold text-foreground">{item}</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Agent workflows may require verification, authority evidence,
-                  and backend-approved access before sensitive actions are
-                  available.
-                </p>
-              </article>
-            ))}
-          </div>
-
-          <Link
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
-            href="/auth/sign-up"
-          >
-            Start as a property agent
-          </Link>
-        </section>
-      </main>
+      <SolutionPageExperience
+        benefits={[
+          {
+            title: "Manage represented properties",
+            description:
+              "Keep represented stock connected to the right company or agency context.",
+            icon: "building",
+          },
+          {
+            title: "Prepare listing workflows",
+            description:
+              "Create public-safe property listing information through structured workflows.",
+            icon: "clipboard",
+          },
+          {
+            title: "Handle authority evidence",
+            description:
+              "Provide authority context or documents through protected workflows when requested.",
+            icon: "agent",
+          },
+          {
+            title: "Support bookings and conversations",
+            description:
+              "Continue into viewing, enquiry, booking, and conversation flows when allowed.",
+            icon: "booking",
+          },
+        ]}
+        benefitsDescription="Asancha helps property agents organize representation, authority information, listing activity, and user interactions without exposing sensitive information publicly."
+        benefitsHeading="Manage represented properties with clearer platform structure."
+        description="Asancha supports property agents with company context, represented properties, listing workflows, authority documents, bookings, and conversations."
+        eyebrow="For property agents"
+        finalCtaDescription="Create a public account, choose property agent as your role, and continue into representation-aware setup."
+        finalCtaHeading="Ready to manage represented properties with more clarity?"
+        journey={[
+          {
+            title: "Create a property agent account",
+            description:
+              "Start through ordinary public signup and choose property agent as your first role.",
+          },
+          {
+            title: "Complete agent profile setup",
+            description:
+              "Add relevant company, agency, and business profile information.",
+          },
+          {
+            title: "Add represented properties",
+            description:
+              "Prepare property records and connect them to representation context.",
+          },
+          {
+            title: "Submit authority information",
+            description:
+              "Upload or update authority-related information through protected document workflows.",
+          },
+          {
+            title: "Manage listing visibility",
+            description:
+              "Move listings through draft, review, correction, approval, or marketplace visibility.",
+          },
+          {
+            title: "Continue with enquiries",
+            description:
+              "Use supported workflows for conversations, bookings, viewing requests, and listing updates.",
+          },
+        ]}
+        journeyDescription="Agent workflows connect company setup, represented stock, authority evidence, listing visibility, and enquiries."
+        journeyHeading="From representation setup to listing activity."
+        primaryAction={{ label: "Start as a property agent", href: "/auth/sign-up" }}
+        safetyDescription="Authority and owner data should stay protected while public previews remain useful for discovery."
+        safetyHeading="Authority-aware workflows without public leakage."
+        safetyNotes={[
+          "Authority documents should stay protected and should not appear on public listing previews.",
+          "Owner or seller private contact details should not be exposed publicly.",
+          "Document submission does not automatically mean authority approval.",
+          "Frontend access does not override backend verification, review, or permission checks.",
+        ]}
+        secondaryAction={{ label: "See how it works", href: "/how-it-works" }}
+        supportingCopy="The agent journey makes representation clearer while keeping authority documents, owner details, and review decisions protected."
+        title="Represent properties with clearer authority and listing context."
+        workflowDescription="Agent workflows keep company context, represented properties, authority evidence, and user interactions organized."
+        workflowEyebrow="Agent workflow"
+        workflowHeading="Keep representation, listing, and authority details in one structured path."
+        workflowItems={[
+          "Company or agency context",
+          "Represented property records",
+          "Authority or instruction evidence",
+          "Listing title and public description",
+          "Viewing or booking context",
+          "Enquiry and conversation flow",
+          "Document status updates",
+          "Listing review or correction state",
+        ]}
+      />
     </>
   );
 }

@@ -27,6 +27,10 @@ import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     PropertySourcerDashboardState,
 } from "../_types/property-sourcer-dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 function formatValue(value: string): string {
     return value
@@ -54,6 +58,15 @@ export function PropertySourcerOverviewPage() {
             setErrorMessage(null);
 
             try {
+                if (USE_DASHBOARD_DUMMY_DATA) {
+                    setDashboardState(
+                        getPreviewDashboardState<PropertySourcerDashboardState>(
+                            "property_sourcer",
+                        ),
+                    );
+                    return;
+                }
+
                 const state =
                     await authApiGet<PropertySourcerDashboardState>(
                         "/me/dashboard-state",
@@ -70,7 +83,9 @@ export function PropertySourcerOverviewPage() {
         }, []);
 
     useEffect((): void => {
-        void loadDashboard();
+        queueMicrotask(() => {
+            void loadDashboard();
+        });
     }, [loadDashboard]);
 
     if (isLoading) {

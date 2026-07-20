@@ -290,6 +290,37 @@ export interface ChangePasswordResult {
 }
 
 /**
+ * Request body used to begin an authenticated email-address change.
+ */
+export interface ChangeEmailPayload {
+  newEmail: string;
+  password: string;
+}
+
+/**
+ * Safe result for an email-address change request.
+ */
+export interface ChangeEmailResult {
+  accepted: true;
+  message: string;
+}
+
+/**
+ * Request body used to confirm an email-address change.
+ */
+export interface ConfirmEmailChangePayload {
+  token: string;
+}
+
+/**
+ * Safe result for email-address change confirmation.
+ */
+export interface ConfirmEmailChangeResult {
+  emailChanged: true;
+  message: string;
+}
+
+/**
  * Request used to start Google authentication.
  *
  * The role is required for first-time ordinary public signup but may be absent

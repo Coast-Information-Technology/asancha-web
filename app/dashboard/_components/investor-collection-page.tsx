@@ -103,8 +103,22 @@ export function InvestorCollectionPage({
         }, [config.endpoint]);
 
     useEffect((): void => {
-        void loadCollection();
+        void Promise.resolve().then(loadCollection);
     }, [loadCollection]);
+
+    const collectionItems = Array.isArray(collection?.items)
+        ? collection.items
+        : [];
+    const collectionPagination = collection?.pagination ?? {
+        page: 1,
+        pageSize: collectionItems.length,
+        totalItems: collectionItems.length,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+    };
+    const safeUserMessage =
+        collection?.safeUserMessage ?? null;
 
     return (
         <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -187,7 +201,7 @@ export function InvestorCollectionPage({
 
             {!isLoading &&
                 !errorMessage &&
-                collection?.items.length === 0 ? (
+                collectionItems.length === 0 ? (
                 <section className="mt-8 rounded-[var(--asancha-radius-xl)] border border-dashed border-[var(--border)] bg-[var(--card)] p-8 text-center">
                     <h2 className="text-xl font-bold">
                         {config.emptyTitle}
@@ -214,22 +228,21 @@ export function InvestorCollectionPage({
             ) : null}
 
             {!isLoading &&
-                collection &&
-                collection.items.length > 0 ? (
+                collectionItems.length > 0 ? (
                 <>
-                    {collection.safeUserMessage ? (
+                    {safeUserMessage ? (
                         <p
                             role="status"
                             className="mt-5 rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm text-[var(--muted-foreground)]"
                         >
                             {
-                                collection.safeUserMessage
+                                safeUserMessage
                             }
                         </p>
                     ) : null}
 
                     <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {collection.items.map(
+                        {collectionItems.map(
                             (
                                 item: DashboardCollectionItem,
                             ): ReactNode => (
@@ -384,20 +397,17 @@ export function InvestorCollectionPage({
                         <span className="text-[var(--muted-foreground)]">
                             Page{" "}
                             {
-                                collection.pagination
-                                    .page
+                                collectionPagination.page
                             }{" "}
                             of{" "}
                             {
-                                collection.pagination
-                                    .totalPages
+                                collectionPagination.totalPages
                             }
                         </span>
 
                         <span className="text-[var(--muted-foreground)]">
                             {
-                                collection.pagination
-                                    .totalItems
+                                collectionPagination.totalItems
                             }{" "}
                             records
                         </span>

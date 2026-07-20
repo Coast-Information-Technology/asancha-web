@@ -25,6 +25,7 @@ import { NextRequest, NextResponse } from "next/server";
 const AUTH_COOKIE_NAMES = [
   "asancha_access_token",
   "asancha_session",
+  "asancha_session_hint",
   "access_token",
   "session",
 ] as const;

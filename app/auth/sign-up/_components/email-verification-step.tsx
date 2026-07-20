@@ -53,17 +53,10 @@ export function EmailVerificationStep({
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          If the account can be created, Asancha will send a verification
-          message to <strong className="text-foreground">{email}</strong>.
-          Verify your email before continuing to general profile setup.
+          We sent a verification link to{" "}
+          <strong className="text-foreground">{email}</strong>. Open the link
+          to verify your email, then sign in to open your dashboard.
         </p>
-
-        <div className="mt-6 rounded-xl border border-border bg-muted p-4">
-          <p className="text-sm leading-6 text-muted-foreground">
-            Do not share verification links or codes. Asancha support will never
-            ask for your password, verification token, or reset token.
-          </p>
-        </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link

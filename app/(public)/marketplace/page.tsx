@@ -6,11 +6,16 @@
  * Purpose:
  * Provides the server-rendered entry point for public marketplace discovery.
  *
- * Responsibilities:
- * - Define marketplace metadata and canonical URL.
- * - Render CollectionPage and BreadcrumbList JSON-LD.
- * - Explain public marketplace visibility and restricted actions.
- * - Mount the interactive marketplace browser.
+ * Main responsibilities:
+ * - Define marketplace metadata and canonical URL
+ * - Render CollectionPage and BreadcrumbList JSON-LD
+ * - Explain public marketplace visibility and restricted actions
+ * - Set clear expectations around public previews and protected deal actions
+ * - Mount the interactive marketplace browser
+ *
+ * Accessibility note:
+ * Uses one H1, semantic sections, clear explanatory notes, and descriptive
+ * public-safe marketplace copy.
  *
  * Security notes:
  * - Public marketplace responses must contain public-safe listing data only.
@@ -23,12 +28,13 @@
 
 import type { Metadata } from "next";
 
-import { MarketplaceBrowser } from "@/src/components/marketplace/marketplace-browser";
 import { JsonLd } from "@/src/components/seo/json-ld";
 import {
   createBreadcrumbJsonLd,
   createMarketplaceCollectionJsonLd,
 } from "@/src/lib/seo/json-ld";
+
+import { MarketplacePageExperience } from "./_components/marketplace-page-experience";
 
 export const metadata: Metadata = {
   title: "Property Marketplace | Asancha",
@@ -40,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Property Marketplace | Asancha",
     description:
-      "Discover public property and investment opportunity previews across the UK.",
+      "Discover public property and investment opportunity previews across the UK with Asancha.",
     url: "/marketplace",
     type: "website",
   },
@@ -67,51 +73,7 @@ export default function MarketplacePage() {
   return (
     <>
       <JsonLd data={jsonLd} id="marketplace-json-ld" />
-
-      <main>
-        <section
-          aria-labelledby="marketplace-heading"
-          className="asancha-page-container py-12 sm:py-16 lg:py-20"
-        >
-          <div className="max-w-4xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-primary">
-              Property Marketplace
-            </p>
-
-            <h1
-              className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl"
-              id="marketplace-heading"
-            >
-              Find property opportunities that fit your strategy.
-            </h1>
-
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Search public property previews by location, property type,
-              budget, investment strategy, yield, and below-market-value
-              preferences.
-            </p>
-          </div>
-
-          <div
-            className="mt-8 rounded-2xl border border-accent bg-accent p-5"
-            role="note"
-          >
-            <h2 className="text-base font-bold text-accent-foreground">
-              Some deal information requires a verified account
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-accent-foreground">
-              Public previews do not include private deal packs, sensitive
-              documents, seller contact details, or restricted analysis. Saving,
-              reserving, messaging, and accessing protected deal information may
-              require sign-in, profile completion, verification, payment, or
-              approval.
-            </p>
-          </div>
-
-          <MarketplaceBrowser />
-        </section>
-      </main>
+      <MarketplacePageExperience />
     </>
   );
 }

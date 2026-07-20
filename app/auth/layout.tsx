@@ -24,7 +24,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, LifeBuoy, LockKeyhole, Workflow } from "lucide-react";
+import { BadgeCheck, LifeBuoy, SearchCheck, Workflow } from "lucide-react";
 
 import styles from "./auth-layout.module.css";
 
@@ -69,24 +69,23 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         >
           <p className={styles.kicker}>Public user access</p>
           <h1 className={styles.headline}>
-            A clearer account path for property work.
+            Start with the right property workspace.
           </h1>
           <p className={styles.copy}>
-            Sign in, create an account, verify details, and continue into the
-            right Asancha workspace with focused steps and safe account
-            handling.
+            Create an account, verify your email, and continue with the tools
+            that match how you use Asancha.
           </p>
 
           <div className={styles.signalGrid}>
             <div className={styles.signalItem}>
               <span aria-hidden="true" className={styles.signalIcon}>
-                <LockKeyhole size={16} strokeWidth={2.5} />
+                <SearchCheck size={16} strokeWidth={2.5} />
               </span>
               <div>
-                <p className={styles.signalTitle}>Secure session handoff</p>
+                <p className={styles.signalTitle}>Find opportunities</p>
                 <p className={styles.signalCopy}>
-                  Authentication remains backend-controlled with no exposed
-                  token values in the browser UI.
+                  Browse public property previews and save the ones you want
+                  to revisit.
                 </p>
               </div>
             </div>
@@ -96,10 +95,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <Workflow size={16} strokeWidth={2.5} />
               </span>
               <div>
-                <p className={styles.signalTitle}>Role-aware onboarding</p>
+                <p className={styles.signalTitle}>Work by role</p>
                 <p className={styles.signalCopy}>
-                  Each account can continue into investor, owner, agent,
-                  sourcer, or service-provider workflows.
+                  Continue as an investor, owner, agent, sourcer, or service
+                  provider.
                 </p>
               </div>
             </div>
@@ -109,10 +108,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <BadgeCheck size={16} strokeWidth={2.5} />
               </span>
               <div>
-                <p className={styles.signalTitle}>Verification ready</p>
+                <p className={styles.signalTitle}>Build trust</p>
                 <p className={styles.signalCopy}>
-                  Email, profile, document, and policy steps stay visible
-                  without exposing private review details.
+                  Complete profile, policy, document, and verification steps as
+                  your account grows.
                 </p>
               </div>
             </div>
@@ -122,10 +121,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <LifeBuoy size={16} strokeWidth={2.5} />
               </span>
               <div>
-                <p className={styles.signalTitle}>Support is close</p>
+                <p className={styles.signalTitle}>Get support</p>
                 <p className={styles.signalCopy}>
-                  Recovery, verification, and access-state pages keep safe
-                  routes back to support.
+                  Get help with access, verification, account recovery, and
+                  general questions.
                 </p>
               </div>
             </div>

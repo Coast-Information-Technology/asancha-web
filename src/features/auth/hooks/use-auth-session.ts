@@ -23,11 +23,17 @@
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 
+import {
+  clearBrowserSessionHint,
+  setBrowserSessionHint,
+} from "@/src/lib/auth/auth-cookies";
+
 import { authApi } from "../api/auth.api";
 import {
   AUTH_SAFE_MESSAGES,
   AUTH_SESSION_STALE_TIME_MS,
 } from "../constants/auth.constants";
+import { clearAuthTokens } from "../lib/auth-token-store";
 import type {
   AuthSessionResult,
   AuthSessionState,
@@ -263,9 +269,12 @@ export function useAuthSession(
       try {
         const result = await authApi.signIn(payload);
         applySession(result.session);
+        setBrowserSessionHint();
 
         return result;
       } catch {
+        clearAuthTokens();
+        clearBrowserSessionHint();
         setAuthState({
           status: "unauthenticated",
           session: ANONYMOUS_SESSION,
@@ -295,6 +304,8 @@ export function useAuthSession(
     } finally {
       lastLoadedAt = 0;
       pendingSessionRequest = null;
+      clearAuthTokens();
+      clearBrowserSessionHint();
       applySession(ANONYMOUS_SESSION);
     }
   }, []);

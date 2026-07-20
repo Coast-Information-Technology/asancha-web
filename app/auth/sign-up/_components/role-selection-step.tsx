@@ -28,15 +28,15 @@ interface RoleSelectionStepProps {
 
 const roleDescriptions: Record<PublicSignupRole, string> = {
   investor:
-    "Browse opportunities, save listings, set preferences, and continue into investor workflows.",
+    "Browse opportunities, save listings, and manage your investment preferences.",
   property_owner:
-    "Prepare property information, manage listings, and respond to document or verification needs.",
+    "Add properties, manage listings, and track required documents.",
   property_agent:
-    "Represent properties with clearer agency, company, listing, and authority-document context.",
+    "Manage represented properties, listings, company details, and authority documents.",
   property_sourcer:
-    "Submit sourced opportunities, prepare deal packs, and follow compliance-aware workflows.",
+    "Submit sourced opportunities, prepare deal packs, and track compliance tasks.",
   service_provider:
-    "Present property-related services, manage availability, bookings, documents, and payments.",
+    "Publish services, manage availability, bookings, documents, and payments.",
 };
 
 /**
@@ -56,8 +56,7 @@ export function RoleSelectionStep({
       </h2>
 
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Select the role that best describes what you want to do first. Existing
-        users can add more business profiles later from their account.
+        Pick the workspace you want to start with. You can add more roles later.
       </p>
 
       <div className="mt-6 grid gap-3">
@@ -85,13 +84,6 @@ export function RoleSelectionStep({
             </button>
           );
         })}
-      </div>
-
-      <div className="mt-6 rounded-lg border border-border bg-muted/80 p-4">
-        <p className="text-sm leading-6 text-muted-foreground">
-          API partner access is not part of ordinary signup. API partners should
-          use the controlled API partner application route.
-        </p>
       </div>
     </section>
   );

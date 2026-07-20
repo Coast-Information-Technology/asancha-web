@@ -155,7 +155,7 @@ export function getSafeMessageFromUnknown(
   fallbackMessage = "Request failed. Please try again.",
 ): string {
   if (isAsanchaApiResponse(value)) {
-    return value.message || value.error?.message || fallbackMessage;
+    return value.error?.message || value.message || fallbackMessage;
   }
 
   if (isRecord(value) && typeof value.message === "string") {

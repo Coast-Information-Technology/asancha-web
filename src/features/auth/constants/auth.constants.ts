@@ -154,12 +154,14 @@ export const AUTH_API_ENDPOINTS = {
   signIn: "/auth/login",
   signOut: "/auth/logout",
   refresh: "/auth/refresh",
-  session: "/me",
+  session: "/users/me",
   forgotPassword: "/auth/forgot-password",
   resetPassword: "/auth/reset-password",
   verifyEmail: "/auth/verify-email",
   resendVerification: "/auth/resend-verification",
   changePassword: "/auth/change-password",
+  changeEmail: "/auth/change-email",
+  confirmEmailChange: "/auth/confirm-email-change",
   googleStart: "/auth/google",
 } as const;
 

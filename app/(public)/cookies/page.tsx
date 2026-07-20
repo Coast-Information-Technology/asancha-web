@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+import { PublicPageHero } from "../_components/public-page-hero";
 
 export const metadata: Metadata = {
   title: "Cookies | Asancha",
@@ -68,21 +69,14 @@ export default function CookiesPage() {
       <JsonLd data={jsonLd} id="cookies-json-ld" />
 
       <main>
-        <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            Legal
-          </p>
+        <PublicPageHero
+          description="Asancha may use cookies and browser storage to support public browsing, sessions, preferences, security-supporting flows, and browser-safe analytics where enabled."
+          eyebrow="Legal"
+          secondaryAction={{ label: "View legal pages", href: "/legal" }}
+          title="Cookies"
+        />
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Cookies
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Asancha may use cookies and browser storage to support public
-            browsing, sessions, preferences, security-supporting flows, and
-            browser-safe analytics where enabled.
-          </p>
-
+        <article className="asancha-page-container py-16">
           <section className="mt-10 grid gap-5 md:grid-cols-2">
             {cookieItems.map((item) => (
               <article

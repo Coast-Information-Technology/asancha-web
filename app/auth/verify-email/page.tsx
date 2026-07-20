@@ -95,19 +95,8 @@ export default function VerifyEmailPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Enter the email address you used to create your account. If the account
-        is eligible, Asancha will send a new verification link.
+        Enter your account email and we will send a fresh verification link.
       </p>
-
-      <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
-        <h2 className="text-lg font-bold text-foreground">
-          Keep your account safe
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Do not share verification links, reset links, passwords, or access
-          tokens. Asancha support will not ask for them.
-        </p>
-      </div>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
         <Input

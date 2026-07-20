@@ -138,8 +138,8 @@ export function AccountDetailsStep({
       </h2>
 
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Use an email address you can verify. Profile details come after account
-        creation.
+        Use an email you can access. We will send a verification link after
+        signup.
       </p>
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
@@ -158,7 +158,7 @@ export function AccountDetailsStep({
           autoComplete="new-password"
           disabled={isSubmitting}
           errorMessage={errors.password}
-          helpText="Use at least 8 characters. Avoid reusing passwords from other websites."
+          helpText="Use at least 8 characters."
           label="Password"
           onChange={(event) => updateField("password", event.target.value)}
           required

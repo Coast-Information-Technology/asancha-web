@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+import { PublicPageHero } from "../../_components/public-page-hero";
 
 export const metadata: Metadata = {
   title: "Data Processing | Asancha",
@@ -46,23 +47,15 @@ export default function DataProcessingPage() {
       <JsonLd data={jsonLd} id="data-processing-json-ld" />
 
       <main>
-        <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            Legal
-          </p>
+        <PublicPageHero
+          description="Asancha may process information needed to support account setup, role-specific profiles, marketplace workflows, verification, documents, payments, bookings, conversations, notifications, recommendations, and API partner access."
+          eyebrow="Legal"
+          secondaryAction={{ label: "Back to legal", href: "/legal" }}
+          title="Data Processing"
+        />
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Data Processing
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Asancha may process information needed to support account setup,
-            role-specific profiles, marketplace workflows, verification,
-            documents, payments, bookings, conversations, notifications,
-            recommendations, and API partner access.
-          </p>
-
-          <section className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
+        <article className="asancha-page-container py-16">
+          <section className="space-y-6 text-sm leading-7 text-muted-foreground">
             <h2 className="text-2xl font-bold text-foreground">
               Processing purposes
             </h2>

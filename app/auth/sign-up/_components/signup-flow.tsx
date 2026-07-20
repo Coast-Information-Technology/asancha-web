@@ -30,6 +30,7 @@ import { Button } from "@/src/components/ui/button/button";
 import { authApi } from "@/src/features/auth/api/auth.api";
 import { AUTH_SAFE_MESSAGES } from "@/src/features/auth/constants/auth.constants";
 import type { AccountPolicyType } from "@/src/features/auth/types/auth.types";
+import { AsanchaApiError } from "@/src/lib/api/api-error";
 import type { PublicSignupRole } from "@/src/lib/auth/role-guards";
 import { getRoleLabel } from "@/src/lib/auth/role-guards";
 
@@ -130,8 +131,11 @@ export function SignupFlow() {
 
       setAccountDetails(value);
       setStep("verify");
-    } catch {
-      setSubmitError(AUTH_SAFE_MESSAGES.genericError);
+    } catch (error) {
+      setSubmitError(
+        AsanchaApiError.fromUnknown(error).toUserMessage() ||
+          AUTH_SAFE_MESSAGES.genericError,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -147,7 +151,7 @@ export function SignupFlow() {
     <div className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
       <div className="mb-8">
         <p className="text-sm font-bold uppercase tracking-wide text-primary">
-          Create public account
+          Create account
         </p>
 
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
@@ -155,8 +159,8 @@ export function SignupFlow() {
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Step {stepNumber} of 3. Ordinary signup is for investors, property
-          owners, property agents, property sourcers, and service providers.
+          Step {stepNumber} of 3. Choose your role, add your login details, and
+          verify your email.
         </p>
 
         <p className="mt-4 text-sm text-muted-foreground">

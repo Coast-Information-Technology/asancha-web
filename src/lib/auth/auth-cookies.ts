@@ -21,14 +21,15 @@
  * Backend API authentication and authorization remain the final authority.
  */
 
+export const SESSION_HINT_COOKIE_NAME = "asancha_session_hint";
+
 export const AUTH_COOKIE_NAMES = [
   "asancha_access_token",
   "asancha_session",
+  SESSION_HINT_COOKIE_NAME,
   "access_token",
   "session",
 ] as const;
-
-export const SESSION_HINT_COOKIE_NAME = "asancha_session_hint";
 
 export type AuthCookieName = (typeof AUTH_COOKIE_NAMES)[number];
 
@@ -144,6 +145,20 @@ export function hasAuthCookieInLookupSource(
  */
 export function getBrowserSessionHint(): string | null {
   return getBrowserCookie(SESSION_HINT_COOKIE_NAME);
+}
+
+/**
+ * Sets a client-visible session hint after a successful sign-in.
+ *
+ * The value is intentionally non-sensitive. It only helps frontend route
+ * guidance recognize that a recent browser sign-in occurred.
+ */
+export function setBrowserSessionHint(): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  document.cookie = `${SESSION_HINT_COOKIE_NAME}=authenticated; Max-Age=3600; Path=/; SameSite=Lax`;
 }
 
 /**

@@ -27,6 +27,10 @@ import type {
     DashboardAction,
     DashboardState,
 } from "../_types/dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 function formatStatus(status: string): string {
     return status
@@ -52,6 +56,15 @@ export function InvestorOverviewPage() {
             setErrorMessage(null);
 
             try {
+                if (USE_DASHBOARD_DUMMY_DATA) {
+                    setDashboardState(
+                        getPreviewDashboardState<DashboardState>(
+                            "investor",
+                        ),
+                    );
+                    return;
+                }
+
                 const state =
                     await authApiGet<DashboardState>(
                         "/me/dashboard-state",
@@ -68,7 +81,9 @@ export function InvestorOverviewPage() {
         }, []);
 
     useEffect((): void => {
-        void loadState();
+        queueMicrotask(() => {
+            void loadState();
+        });
     }, [loadState]);
 
     const summary =
@@ -168,7 +183,7 @@ export function InvestorOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/investor/opportunities"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--card)] px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground hover:bg-foreground/80 px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
                     >
                         Browse opportunities
                     </Link>

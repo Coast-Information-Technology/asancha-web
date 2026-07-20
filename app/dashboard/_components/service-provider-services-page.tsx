@@ -91,8 +91,12 @@ export function ServiceProviderServicesPage() {
         }, [status]);
 
     useEffect((): void => {
-        void loadServices();
+        void Promise.resolve().then(loadServices);
     }, [loadServices]);
+
+    const collectionItems = Array.isArray(collection?.items)
+        ? collection.items
+        : [];
 
     return (
         <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -215,7 +219,7 @@ export function ServiceProviderServicesPage() {
             ) : null}
 
             {!isLoading &&
-            collection?.items.length === 0 ? (
+            collectionItems.length === 0 ? (
                 <section className="mt-8 rounded-[var(--asancha-radius-xl)] border border-dashed border-[var(--border)] p-8 text-center">
                     <h2 className="text-xl font-bold">
                         You have not added any services
@@ -237,10 +241,9 @@ export function ServiceProviderServicesPage() {
             ) : null}
 
             {!isLoading &&
-            collection &&
-            collection.items.length > 0 ? (
+            collectionItems.length > 0 ? (
                 <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {collection.items.map(
+                    {collectionItems.map(
                         (
                             service:
                                 ProviderServiceSummary,

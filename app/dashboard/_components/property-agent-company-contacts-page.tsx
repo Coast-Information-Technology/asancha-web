@@ -95,7 +95,7 @@ export function PropertyAgentCompanyContactsPage() {
         }, []);
 
     useEffect((): void => {
-        void loadContacts();
+        void Promise.resolve().then(loadContacts);
     }, [loadContacts]);
 
     const updateValue = <
@@ -145,7 +145,11 @@ export function PropertyAgentCompanyContactsPage() {
                         ...current,
                         items: [
                             contact,
-                            ...current.items,
+                            ...(Array.isArray(
+                                current.items,
+                            )
+                                ? current.items
+                                : []),
                         ],
                     }
                     : current,
@@ -168,6 +172,12 @@ export function PropertyAgentCompanyContactsPage() {
             </main>
         );
     }
+
+    const companyContacts = Array.isArray(
+        contactsResponse?.items,
+    )
+        ? contactsResponse.items
+        : [];
 
     return (
         <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -359,9 +369,9 @@ export function PropertyAgentCompanyContactsPage() {
                     Existing contacts
                 </h2>
 
-                {contactsResponse?.items.length ? (
+                {companyContacts.length ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        {contactsResponse.items.map(
+                        {companyContacts.map(
                             (contact) => (
                                 <article
                                     key={

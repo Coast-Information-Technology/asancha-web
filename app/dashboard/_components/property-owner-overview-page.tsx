@@ -26,6 +26,10 @@ import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     PropertyOwnerDashboardState,
 } from "../_types/property-owner-dashboard.types";
+import {
+    USE_DASHBOARD_DUMMY_DATA,
+    getPreviewDashboardState,
+} from "../_lib/dashboard-preview-state";
 
 export function PropertyOwnerOverviewPage() {
     const [dashboardState, setDashboardState] =
@@ -45,6 +49,15 @@ export function PropertyOwnerOverviewPage() {
             setErrorMessage(null);
 
             try {
+                if (USE_DASHBOARD_DUMMY_DATA) {
+                    setDashboardState(
+                        getPreviewDashboardState<PropertyOwnerDashboardState>(
+                            "property_owner",
+                        ),
+                    );
+                    return;
+                }
+
                 const state =
                     await authApiGet<PropertyOwnerDashboardState>(
                         "/me/dashboard-state",
@@ -61,7 +74,9 @@ export function PropertyOwnerOverviewPage() {
         }, []);
 
     useEffect((): void => {
-        void loadDashboardState();
+        queueMicrotask(() => {
+            void loadDashboardState();
+        });
     }, [loadDashboardState]);
 
     if (isLoading) {

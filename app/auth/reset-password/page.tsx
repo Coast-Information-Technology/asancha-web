@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Use a strong password you do not use on other websites.
+        Choose a new password for your Asancha account.
       </p>
 
       {completed ? (
@@ -84,8 +84,7 @@ export default function ResetPasswordPage() {
             Password reset submitted
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            If the reset link is valid, your password will be updated. Sign in
-            with your new password.
+            Your password has been submitted. Sign in with your new password.
           </p>
           <Link
             className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"

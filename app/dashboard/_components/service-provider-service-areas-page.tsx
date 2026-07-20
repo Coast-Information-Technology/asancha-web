@@ -107,8 +107,12 @@ export function ServiceProviderServiceAreasPage() {
         }, []);
 
     useEffect((): void => {
-        void loadServiceAreas();
+        void Promise.resolve().then(loadServiceAreas);
     }, [loadServiceAreas]);
+
+    const serviceAreas = Array.isArray(response?.items)
+        ? response.items
+        : [];
 
     const updateValue = <
         TKey extends keyof ServiceAreaFormValues,
@@ -181,7 +185,11 @@ export function ServiceProviderServiceAreasPage() {
                               ...current,
                               items: [
                                   created,
-                                  ...current.items,
+                                  ...(Array.isArray(
+                                      current.items,
+                                  )
+                                      ? current.items
+                                      : []),
                               ],
                           }
                         : current,
@@ -605,9 +613,9 @@ export function ServiceProviderServiceAreasPage() {
                     Current service areas
                 </h2>
 
-                {response?.items.length ? (
+                {serviceAreas.length ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {response.items.map(
+                        {serviceAreas.map(
                             (
                                 area: ServiceArea,
                             ): ReactNode => (
@@ -654,7 +662,7 @@ export function ServiceProviderServiceAreasPage() {
                                         </p>
                                     ) : null}
 
-                                    {response.canManage ? (
+                                    {response?.canManage ? (
                                         <button
                                             type="button"
                                             disabled={

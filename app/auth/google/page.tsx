@@ -21,8 +21,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Continue with Google | Asancha",
-  description:
-    "Continue to Asancha using Google authentication. OAuth handling is completed through the backend authentication flow.",
+  description: "Continue to Asancha using Google.",
 };
 
 /**
@@ -40,9 +39,7 @@ export default function GoogleAuthPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Google authentication will be handled through the approved backend
-        authentication flow. OAuth secrets and provider payloads are never shown
-        in the frontend.
+        Google sign-in is not available yet. Use email and password for now.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

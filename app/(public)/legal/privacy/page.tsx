@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+import { PublicPageHero } from "../../_components/public-page-hero";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Asancha",
@@ -46,22 +47,15 @@ export default function PrivacyPage() {
       <JsonLd data={jsonLd} id="privacy-json-ld" />
 
       <main>
-        <article className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            Legal
-          </p>
+        <PublicPageHero
+          description="This page explains public privacy principles for Asancha. Final production privacy wording should be reviewed by the appropriate legal adviser before launch."
+          eyebrow="Legal"
+          secondaryAction={{ label: "Back to legal", href: "/legal" }}
+          title="Privacy Policy"
+        />
 
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Privacy Policy
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            This page explains public privacy principles for Asancha. Final
-            production privacy wording should be reviewed by the appropriate
-            legal adviser before launch.
-          </p>
-
-          <section className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
+        <article className="asancha-page-container py-16">
+          <section className="space-y-6 text-sm leading-7 text-muted-foreground">
             <h2 className="text-2xl font-bold text-foreground">
               Information users provide
             </h2>

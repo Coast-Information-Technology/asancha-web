@@ -41,18 +41,9 @@ export default function GoogleCallbackPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Asancha is preparing your authentication result. If this page does not
-        continue automatically after backend integration, return to sign in and
-        try again.
+        We are finishing your Google sign-in. If nothing happens, return to
+        sign in and try again.
       </p>
-
-      <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
-        <h2 className="text-lg font-bold text-foreground">Security note</h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          OAuth tokens and provider payloads are not displayed here. Any error
-          shown to users should remain safe and generic.
-        </p>
-      </div>
 
       <Link
         className="mt-8 inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"

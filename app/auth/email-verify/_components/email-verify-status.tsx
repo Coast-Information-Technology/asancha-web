@@ -57,21 +57,21 @@ function createInitialState(token: string): VerificationState {
     return {
       status: "missing",
       message:
-        "This verification link is missing a token. Request a new verification email and use the latest link.",
+        "This verification link is incomplete. Request a new email and use the latest link.",
       nextPath: null,
     };
   }
 
   return {
     status: "verifying",
-    message: "We are verifying your email address.",
+    message: "Checking your verification link.",
     nextPath: null,
   };
 }
 
 function getSafeLocalPath(value: string | null | undefined): string {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return AUTH_PAGE_ROUTES.onboarding;
+    return AUTH_PAGE_ROUTES.signIn;
   }
 
   return value;
@@ -94,7 +94,7 @@ export function EmailVerifyStatus({
 
     setVerificationState({
       status: "verifying",
-      message: "We are verifying your email address.",
+      message: "Checking your verification link.",
       nextPath: null,
     });
 
@@ -106,8 +106,7 @@ export function EmailVerifyStatus({
 
       setVerificationState({
         status: "verified",
-        message:
-          "Your email address has been verified. You can continue your account setup.",
+        message: "Your email is verified. You can now sign in to Asancha.",
         nextPath: getSafeLocalPath(result.nextPath),
       });
     } catch (error) {
@@ -142,8 +141,7 @@ export function EmailVerifyStatus({
 
         setVerificationState({
           status: "verified",
-          message:
-            "Your email address has been verified. You can continue your account setup.",
+          message: "Your email is verified. You can now sign in to Asancha.",
           nextPath: getSafeLocalPath(result.nextPath),
         });
       } catch (error) {

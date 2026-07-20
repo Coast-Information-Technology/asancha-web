@@ -59,6 +59,13 @@ export const PUBLIC_HEADER_NAVIGATION = [
     access: "public",
   },
   {
+    label: "About",
+    href: "/about",
+    description: "Learn about Asancha.",
+    iconName: "Info",
+    access: "public",
+  },
+  {
     label: "Marketplace",
     href: "/marketplace",
     description: "Browse safe public property and opportunity previews.",

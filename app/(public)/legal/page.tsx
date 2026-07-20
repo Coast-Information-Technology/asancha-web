@@ -16,6 +16,7 @@ import Link from "next/link";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
+import { PublicPageHero } from "../_components/public-page-hero";
 
 export const metadata: Metadata = {
   title: "Legal | Asancha",
@@ -74,20 +75,14 @@ export default function LegalPage() {
       <JsonLd data={jsonLd} id="legal-json-ld" />
 
       <main>
-        <section className="asancha-page-container py-16 sm:py-24">
-          <p className="text-sm font-bold uppercase tracking-wide text-primary">
-            Legal
-          </p>
+        <PublicPageHero
+          description="These public legal pages support transparency around Asancha terms, privacy, platform rules, data processing, and cookies."
+          eyebrow="Legal"
+          secondaryAction={{ label: "Review cookies", href: "/cookies" }}
+          title="Legal and policy information."
+        />
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Legal and policy information.
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-            These public legal pages support transparency around Asancha terms,
-            privacy, platform rules, data processing, and cookies.
-          </p>
-
+        <section className="asancha-page-container py-16">
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {legalLinks.map((item) => (
               <article

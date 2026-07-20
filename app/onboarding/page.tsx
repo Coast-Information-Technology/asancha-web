@@ -149,15 +149,9 @@ export default function OnboardingPage() {
                         Applying as an API partner?
                     </h2>
 
-                    <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                        API partner access uses a controlled
-                        application and approval process. It is not
-                        part of ordinary public-user onboarding.
-                    </p>
-
                     <Link
                         href="/onboarding/api-partner"
-                        className="mt-4 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
+                        className="mt-4 inline-flex text-sm font-semibold !text-primary hover:underline"
                     >
                         View API partner application guidance
                     </Link>

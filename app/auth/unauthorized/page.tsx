@@ -40,10 +40,8 @@ export default function UnauthorizedPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        This may be because you are not signed in, your profile is incomplete,
-        verification is pending, payment review is required, API partner access
-        has not been approved, or the page is not available to your current
-        account state.
+        Sign in with the right account, complete any required setup, or contact
+        support if you think you should have access.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
