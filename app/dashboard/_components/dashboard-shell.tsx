@@ -76,7 +76,6 @@ import { BusinessProfileSwitcher } from "../../../src/components/business-profil
 import {
     authApiGet,
     authApiPatch,
-    authApiPost,
 } from "../../../src/lib/api/auth-fetch";
 import {
     clearAuthTokens,
@@ -110,6 +109,9 @@ import type {
     DashboardState,
     PublicBusinessProfileType,
 } from "../_types/dashboard.types";
+import {
+    DashboardStateProvider,
+} from "./dashboard-state-context";
 
 export interface DashboardShellProps {
     children: ReactNode;
@@ -165,14 +167,72 @@ interface ActiveBusinessProfileResponse {
         BackendBusinessProfileSummary | null;
 }
 
-interface BackendOnboardingStartResponse {
-    status:
+interface RoleDashboardActionResponse {
+    action: string;
+    label: string;
+    locked?: boolean;
+    reason?: string | null;
+    nextStep?: string | null;
+    responsibleParty?:
+        | "user"
+        | "asancha"
+        | "shared"
+        | null;
+    status?: string | null;
+}
+
+interface RoleDashboardStateResponse {
+    accountStatus: string;
+    emailVerificationStatus: string;
+    generalProfileStatus: string;
+    activeBusinessProfileType:
+        PublicBusinessProfileType;
+    activeBusinessProfileStatus: string;
+    activeBusinessProfilePublicId:
+        string | null;
+    onboardingStatus:
         | "not_started"
         | "in_progress"
         | "submitted"
         | "completed"
         | "abandoned"
         | "correction_required";
+    onboardingPublicId: string | null;
+    verificationStatus:
+        DashboardState["status"]["verificationStatus"];
+    documentStatusSummary: {
+        total: number;
+        pending: number;
+        approved: number;
+        rejected: number;
+        replacementRequired?: number;
+        replacementRequiredCount?: number;
+    };
+    policyAcceptanceStatus: {
+        status: string;
+        missing?: unknown[];
+    };
+    paymentStatusSummary: {
+        pendingPaymentCount: number;
+        submittedForReviewCount: number;
+        paidPaymentCount: number;
+        failedPaymentCount: number;
+    };
+    lockedActions: RoleDashboardActionResponse[];
+    unlockedActions: RoleDashboardActionResponse[];
+    pendingActions: RoleDashboardActionResponse[];
+    nextActions: RoleDashboardActionResponse[];
+    notificationSummary: {
+        unreadCount?: number;
+        unreadNotificationCount?: number;
+    };
+    marketplaceSummary?: {
+        submittedPropertiesCount?: number;
+        submittedListingsCount?: number;
+        publishedListingsCount?: number;
+        pendingReviewCount?: number;
+        correctionRequiredCount?: number;
+    };
 }
 
 const DASHBOARD_PATHS: Record<
@@ -346,9 +406,13 @@ function toDashboardBusinessProfile(
     profile: BackendBusinessProfileSummary,
     activeProfileType:
         PublicBusinessProfileType | null,
+    roleDashboardState:
+        RoleDashboardStateResponse | null = null,
 ): DashboardBusinessProfile {
     const dashboardPath =
         DASHBOARD_PATHS[profile.profileType];
+    const isActiveProfile =
+        profile.profileType === activeProfileType;
 
     return {
         profilePublicId: profile.publicId,
@@ -358,14 +422,23 @@ function toDashboardBusinessProfile(
                 profile,
             ),
         imageUrl: null,
-        onboardingStatus: "completed",
-        verificationStatus: profile.isVerified
-            ? "approved"
-            : "pending",
-        pendingActionCount: 0,
-        isActive:
-            profile.profileType ===
-            activeProfileType,
+        onboardingStatus:
+            isActiveProfile && roleDashboardState
+                ? normalizeOnboardingStatus(
+                      roleDashboardState.onboardingStatus,
+                  )
+                : "completed",
+        verificationStatus:
+            isActiveProfile && roleDashboardState
+                ? roleDashboardState.verificationStatus
+                : profile.isVerified
+                  ? "approved"
+                  : "pending",
+        pendingActionCount:
+            isActiveProfile && roleDashboardState
+                ? roleDashboardState.pendingActions.length
+                : 0,
+        isActive: isActiveProfile,
         canSwitch:
             profile.isActive &&
             profile.profileType !==
@@ -381,16 +454,93 @@ function toDashboardBusinessProfile(
     };
 }
 
+function toDashboardAction(
+    action: RoleDashboardActionResponse,
+    activeProfileType:
+        PublicBusinessProfileType | null,
+): DashboardState["pendingActions"][number] {
+    return {
+        actionKey: action.action,
+        title: action.label,
+        description:
+            action.nextStep ??
+            action.reason ??
+            null,
+        allowed: action.locked !== true,
+        lockedReason: action.reason ?? null,
+        responsibleParty:
+            action.responsibleParty ?? null,
+        actionLabel:
+            action.nextStep ? action.label : null,
+        actionPath:
+            action.action === "complete_onboarding" &&
+            activeProfileType
+                ? ONBOARDING_PATHS[activeProfileType]
+                : null,
+    };
+}
+
+function createPropertyOwnerSummary(
+    roleDashboardState:
+        RoleDashboardStateResponse | null,
+): DashboardState["propertyOwnerSummary"] {
+    if (!roleDashboardState?.marketplaceSummary) {
+        return null;
+    }
+
+    const marketplaceSummary =
+        roleDashboardState.marketplaceSummary;
+
+    return {
+        propertyCount:
+            marketplaceSummary.submittedPropertiesCount ??
+            0,
+        draftPropertyCount: 0,
+        propertyUnderReviewCount:
+            marketplaceSummary.pendingReviewCount ?? 0,
+        approvedPropertyCount: 0,
+        correctionRequiredPropertyCount:
+            marketplaceSummary.correctionRequiredCount ??
+            0,
+        rejectedPropertyCount: 0,
+        listingCount:
+            marketplaceSummary.submittedListingsCount ??
+            0,
+        draftListingCount: 0,
+        listingUnderReviewCount:
+            marketplaceSummary.pendingReviewCount ?? 0,
+        publishedListingCount:
+            marketplaceSummary.publishedListingsCount ??
+            0,
+        pausedListingCount: 0,
+        upcomingBookingCount: 0,
+        pendingDocumentCount:
+            roleDashboardState.documentStatusSummary
+                .pending,
+        unreadConversationCount: 0,
+        pendingPaymentCount:
+            roleDashboardState.paymentStatusSummary
+                .pendingPaymentCount,
+        unreadNotificationCount:
+            roleDashboardState.notificationSummary
+                .unreadCount ??
+            roleDashboardState.notificationSummary
+                .unreadNotificationCount ??
+            0,
+    };
+}
+
 function createDashboardShellState(
     businessProfiles:
         BackendBusinessProfileSummary[],
     activeProfile:
         BackendBusinessProfileSummary | null,
-    onboardingStatus:
-        DashboardState["status"]["onboardingStatus"] =
-            "completed",
+    roleDashboardState:
+        RoleDashboardStateResponse | null = null,
 ): DashboardState {
     const activeProfileType =
+        roleDashboardState
+            ?.activeBusinessProfileType ??
         activeProfile?.profileType ??
         businessProfiles[0]?.profileType ??
         null;
@@ -399,6 +549,7 @@ function createDashboardShellState(
             toDashboardBusinessProfile(
                 profile,
                 activeProfileType,
+                roleDashboardState,
             ),
         );
     const activeBusinessProfile =
@@ -407,6 +558,11 @@ function createDashboardShellState(
                 profile.profileType ===
                 activeProfileType,
         ) ?? null;
+    const onboardingStatus =
+        normalizeOnboardingStatus(
+            roleDashboardState?.onboardingStatus ??
+                null,
+        );
 
     return {
         activeBusinessProfileType:
@@ -414,74 +570,148 @@ function createDashboardShellState(
         activeBusinessProfile,
         availableBusinessProfiles,
         status: {
-            accountStatus: "active",
-            emailVerificationStatus: "verified",
-            generalProfileStatus: "completed",
+            accountStatus:
+                roleDashboardState?.accountStatus ??
+                "active",
+            emailVerificationStatus:
+                roleDashboardState
+                    ?.emailVerificationStatus ??
+                "verified",
+            generalProfileStatus:
+                roleDashboardState
+                    ?.generalProfileStatus ??
+                "completed",
             onboardingStatus,
             verificationStatus:
+                roleDashboardState
+                    ?.verificationStatus ??
                 activeBusinessProfile
                     ?.verificationStatus ??
                 "pending",
             documentStatusSummary: {
-                total: 0,
-                pending: 0,
-                approved: 0,
-                rejected: 0,
-                replacementRequired: 0,
+                total:
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .total ?? 0,
+                pending:
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .pending ?? 0,
+                approved:
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .approved ?? 0,
+                rejected:
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .rejected ?? 0,
+                replacementRequired:
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .replacementRequired ??
+                    roleDashboardState
+                        ?.documentStatusSummary
+                        .replacementRequiredCount ??
+                    0,
             },
             paymentStatusSummary: {
-                total: 0,
-                pending: 0,
-                submitted: 0,
-                approved: 0,
-                rejected: 0,
+                total:
+                    (roleDashboardState
+                        ?.paymentStatusSummary
+                        .pendingPaymentCount ??
+                        0) +
+                    (roleDashboardState
+                        ?.paymentStatusSummary
+                        .submittedForReviewCount ??
+                        0) +
+                    (roleDashboardState
+                        ?.paymentStatusSummary
+                        .paidPaymentCount ??
+                        0) +
+                    (roleDashboardState
+                        ?.paymentStatusSummary
+                        .failedPaymentCount ??
+                        0),
+                pending:
+                    roleDashboardState
+                        ?.paymentStatusSummary
+                        .pendingPaymentCount ?? 0,
+                submitted:
+                    roleDashboardState
+                        ?.paymentStatusSummary
+                        .submittedForReviewCount ??
+                    0,
+                approved:
+                    roleDashboardState
+                        ?.paymentStatusSummary
+                        .paidPaymentCount ?? 0,
+                rejected:
+                    roleDashboardState
+                        ?.paymentStatusSummary
+                        .failedPaymentCount ?? 0,
             },
             policyAcceptanceStatus: {
-                complete: true,
-                missingCount: 0,
+                complete:
+                    !roleDashboardState ||
+                    roleDashboardState
+                        .policyAcceptanceStatus
+                        .status === "satisfied",
+                missingCount:
+                    roleDashboardState
+                        ?.policyAcceptanceStatus
+                        .missing?.length ?? 0,
             },
         },
         investorSummary: null,
-        propertyOwnerSummary: null,
+        propertyOwnerSummary:
+            activeProfileType === "property_owner"
+                ? createPropertyOwnerSummary(
+                      roleDashboardState,
+                  )
+                : null,
         propertyAgentSummary: null,
         propertySourcerSummary: null,
         serviceProviderSummary: null,
         apiPartnerSummary: null,
-        lockedActions: [],
-        unlockedActions: [],
+        lockedActions:
+            roleDashboardState?.lockedActions.map(
+                (action) =>
+                    toDashboardAction(
+                        action,
+                        activeProfileType,
+                    ),
+            ) ?? [],
+        unlockedActions:
+            roleDashboardState?.unlockedActions.map(
+                (action) =>
+                    toDashboardAction(
+                        action,
+                        activeProfileType,
+                    ),
+            ) ?? [],
         pendingActions:
-            activeBusinessProfile &&
-            onboardingStatus !== "completed"
-                ? [
-                      {
-                          actionKey:
-                              "complete_role_onboarding",
-                          title:
-                              "Complete onboarding",
-                          description:
-                              "Your active business profile setup is not completed yet.",
-                          allowed: true,
-                          lockedReason: null,
-                          responsibleParty:
-                              "user",
-                          actionLabel:
-                              "Continue onboarding",
-                          actionPath:
-                              ONBOARDING_PATHS[
-                                  activeBusinessProfile
-                                      .profileType
-                              ],
-                      },
-                  ]
-                : [],
-        nextActions: [],
+            roleDashboardState?.pendingActions.map(
+                (action) =>
+                    toDashboardAction(
+                        action,
+                        activeProfileType,
+                    ),
+            ) ?? [],
+        nextActions:
+            roleDashboardState?.nextActions.map(
+                (action) =>
+                    toDashboardAction(
+                        action,
+                        activeProfileType,
+                    ),
+            ) ?? [],
         safeUserMessage: null,
     };
 }
 
 function normalizeOnboardingStatus(
     status:
-        | BackendOnboardingStartResponse["status"]
+        | RoleDashboardStateResponse["onboardingStatus"]
         | null
         | undefined,
 ): DashboardState["status"]["onboardingStatus"] {
@@ -862,20 +1092,10 @@ export function DashboardShell({
                         businessProfiles[0]
                             ?.profileType ??
                         null;
-                    const onboarding =
+                    const roleDashboardState =
                         activeProfileType
-                            ? await authApiPost<
-                                  BackendOnboardingStartResponse,
-                                  {
-                                      profileType:
-                                          PublicBusinessProfileType;
-                                  }
-                              >(
-                                  "/onboarding/start",
-                                  {
-                                      profileType:
-                                          activeProfileType,
-                                  },
+                            ? await authApiGet<RoleDashboardStateResponse>(
+                                  `/onboarding/me/${activeProfileType}/dashboard-state`,
                               ).catch(() => null)
                             : null;
 
@@ -884,10 +1104,7 @@ export function DashboardShell({
                             businessProfiles,
                             activeProfileResult
                                 .activeBusinessProfile,
-                            normalizeOnboardingStatus(
-                                onboarding?.status ??
-                                    null,
-                            ),
+                            roleDashboardState,
                         );
 
                     setDashboardState(mergedState);
@@ -1786,7 +2003,15 @@ export function DashboardShell({
                         </div>
                     ) : null}
 
-                    {children}
+                    <DashboardStateProvider
+                        value={{
+                            dashboardState,
+                            isLoading,
+                            errorMessage,
+                        }}
+                    >
+                        {children}
+                    </DashboardStateProvider>
                 </div>
 
             {mobileNavigationOpen ? (

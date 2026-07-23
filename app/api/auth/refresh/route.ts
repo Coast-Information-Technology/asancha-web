@@ -23,10 +23,30 @@ interface BackendRefreshData {
   sessionId?: string | null;
 }
 
+interface RefreshRequestBody {
+  refreshToken?: string | null;
+}
+
+async function readRefreshTokenFromBody(
+  request: NextRequest,
+): Promise<string> {
+  try {
+    const body = (await request.json()) as RefreshRequestBody;
+    const refreshToken =
+      typeof body?.refreshToken === "string" ? body.refreshToken.trim() : "";
+
+    return refreshToken;
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
   const refreshTokenValue =
-    typeof refreshToken === "string" ? refreshToken.trim() : "";
+    typeof refreshToken === "string" && refreshToken.trim().length > 0
+      ? refreshToken.trim()
+      : await readRefreshTokenFromBody(request);
 
   if (!refreshTokenValue) {
     const response = NextResponse.json(

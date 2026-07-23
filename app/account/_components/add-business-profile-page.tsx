@@ -66,6 +66,33 @@ interface BackendBusinessProfileSummary {
     summary: Record<string, unknown>;
 }
 
+interface RequiredProfilePolicy {
+    policyType: string;
+    currentVersion: string;
+    title: string;
+    required: boolean;
+    context: string;
+}
+
+interface RequiredProfilePoliciesResponse {
+    context: string;
+    profileType: AccountBusinessProfileType;
+    resolvedPolicyContext: string;
+    allRequiredPolicies: RequiredProfilePolicy[];
+    acceptedPolicies: RequiredProfilePolicy[];
+    missingPolicies: RequiredProfilePolicy[];
+    canProceed: boolean;
+}
+
+interface PolicyAcceptancePayload
+    extends Record<string, unknown> {
+    context: string;
+    profileType: AccountBusinessProfileType;
+    policyType: string;
+    version: string;
+    source: "onboarding";
+}
+
 function getBusinessProfileDestination(
     result:
         | CreateBusinessProfileResult
@@ -85,6 +112,21 @@ function getBusinessProfileDestination(
     }
 
     return "/dashboard";
+}
+
+function getRequiredPoliciesEndpoint(
+    profileType: AccountBusinessProfileType,
+): string {
+    const searchParams = new URLSearchParams({
+        context: "role_profile_onboarding",
+        profileType,
+    });
+
+    return `/policies/required?${searchParams.toString()}`;
+}
+
+function getPolicyHref(policyType: string): string {
+    return `/account/policies?policyType=${encodeURIComponent(policyType)}`;
 }
 
 function createAvailableTypesFromProfiles(
@@ -136,9 +178,23 @@ export function AddBusinessProfilePage() {
         useState<CreateBusinessProfileFormValues>(
             INITIAL_VALUES,
         );
+    const [
+        policyRequirement,
+        setPolicyRequirement,
+    ] =
+        useState<RequiredProfilePoliciesResponse | null>(
+            null,
+        );
+    const [
+        acceptedMissingPolicies,
+        setAcceptedMissingPolicies,
+    ] = useState<Record<string, boolean>>({});
 
     const [isLoading, setIsLoading] =
         useState(true);
+
+    const [isLoadingPolicies, setIsLoadingPolicies] =
+        useState(false);
 
     const [isCreating, setIsCreating] =
         useState(false);
@@ -179,6 +235,37 @@ export function AddBusinessProfilePage() {
         });
     }, [loadAvailableTypes]);
 
+    const loadRequiredPolicies =
+        useCallback(
+            async (
+                profileType:
+                    AccountBusinessProfileType,
+            ): Promise<void> => {
+                setIsLoadingPolicies(true);
+                setPolicyRequirement(null);
+                setAcceptedMissingPolicies({});
+                setErrorMessage(null);
+
+                try {
+                    const result =
+                        await authApiGet<RequiredProfilePoliciesResponse>(
+                            getRequiredPoliciesEndpoint(
+                                profileType,
+                            ),
+                        );
+
+                    setPolicyRequirement(result);
+                } catch {
+                    setErrorMessage(
+                        "We could not load the policies required for this profile.",
+                    );
+                } finally {
+                    setIsLoadingPolicies(false);
+                }
+            },
+            [],
+        );
+
     const selectedType =
         useMemo(
             ():
@@ -202,57 +289,28 @@ export function AddBusinessProfilePage() {
         profileType:
             CreateBusinessProfileFormValues["profileType"],
     ): void => {
-        const selected =
-            availableTypes?.items.find(
-                (
-                    item:
-                        AvailableBusinessProfileType,
-                ): boolean =>
-                    item.profileType ===
-                    profileType,
-            );
-
         setValues({
             profileType,
 
             companyPublicId: null,
 
-            acceptedPolicies:
-                selected?.requiredPolicies.map(
-                    (policy) => ({
-                        policyType:
-                            policy.policyType,
-
-                        policyVersion:
-                            policy.policyVersion,
-
-                        accepted:
-                            policy.accepted,
-                    }),
-                ) ?? [],
+            acceptedPolicies: [],
         });
 
         setErrorMessage(null);
+
+        if (profileType) {
+            void loadRequiredPolicies(profileType);
+        }
     };
 
     const updatePolicyAcceptance = (
         policyType: string,
         accepted: boolean,
     ): void => {
-        setValues((current) => ({
+        setAcceptedMissingPolicies((current) => ({
             ...current,
-
-            acceptedPolicies:
-                current.acceptedPolicies.map(
-                    (policy) =>
-                        policy.policyType ===
-                        policyType
-                            ? {
-                                  ...policy,
-                                  accepted,
-                              }
-                            : policy,
-                ),
+            [policyType]: accepted,
         }));
     };
 
@@ -289,10 +347,16 @@ export function AddBusinessProfilePage() {
             return;
         }
 
+        const missingPolicies =
+            policyRequirement?.missingPolicies ??
+            [];
+
         if (
-            values.acceptedPolicies.some(
+            missingPolicies.some(
                 (policy) =>
-                    !policy.accepted,
+                    !acceptedMissingPolicies[
+                        policy.policyType
+                    ],
             )
         ) {
             setErrorMessage(
@@ -311,12 +375,41 @@ export function AddBusinessProfilePage() {
 
             companyPublicId:
                 values.companyPublicId,
-
-            acceptedPolicies:
-                values.acceptedPolicies,
         };
 
         try {
+            if (policyRequirement) {
+                await Promise.all(
+                    missingPolicies.map(
+                        (policy) => {
+                            const acceptancePayload:
+                                PolicyAcceptancePayload =
+                                {
+                                    context:
+                                        policy.context ||
+                                        policyRequirement.resolvedPolicyContext,
+                                    profileType:
+                                        values.profileType as AccountBusinessProfileType,
+                                    policyType:
+                                        policy.policyType,
+                                    version:
+                                        policy.currentVersion,
+                                    source:
+                                        "onboarding",
+                                };
+
+                            return authApiPost<
+                                unknown,
+                                PolicyAcceptancePayload
+                            >(
+                                "/policy-acceptances",
+                                acceptancePayload,
+                            );
+                        },
+                    ),
+                );
+            }
+
             const result =
                 await authApiPost<
                     | CreateBusinessProfileResult
@@ -538,23 +631,17 @@ export function AddBusinessProfilePage() {
                                 Required policies
                             </h3>
 
-                            {selectedType
-                                .requiredPolicies
-                                .length ? (
+                            {isLoadingPolicies ? (
+                                <p className="mt-3 text-sm text-[var(--muted-foreground)]">
+                                    Loading required policies...
+                                </p>
+                            ) : policyRequirement?.missingPolicies
+                                  .length ? (
                                 <div className="mt-3 grid gap-3">
-                                    {selectedType.requiredPolicies.map(
+                                    {policyRequirement.missingPolicies.map(
                                         (
                                             policy,
                                         ): ReactNode => {
-                                            const current =
-                                                values.acceptedPolicies.find(
-                                                    (
-                                                        item,
-                                                    ) =>
-                                                        item.policyType ===
-                                                        policy.policyType,
-                                                );
-
                                             return (
                                                 <label
                                                     key={
@@ -565,8 +652,10 @@ export function AddBusinessProfilePage() {
                                                     <input
                                                         type="checkbox"
                                                         checked={
-                                                            current
-                                                                ?.accepted ??
+                                                            acceptedMissingPolicies[
+                                                                policy
+                                                                    .policyType
+                                                            ] ??
                                                             false
                                                         }
                                                         onChange={(
@@ -583,22 +672,25 @@ export function AddBusinessProfilePage() {
                                                     />
 
                                                     <span>
-                                                        <strong className="block text-sm">
-                                                            {
-                                                                policy.policyTitle
-                                                            }
-                                                        </strong>
+                                                        <a
+                                                            href={getPolicyHref(
+                                                                policy.policyType,
+                                                            )}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="block text-sm font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] hover:underline"
+                                                        >
+                                                            {policy.title}
+                                                        </a>
 
                                                         <span className="mt-1 block text-sm leading-6 text-[var(--muted-foreground)]">
-                                                            {
-                                                                policy.summary
-                                                            }
+                                                            Review and accept this required policy before creating the profile.
                                                         </span>
 
                                                         <span className="mt-1 block text-xs text-[var(--muted-foreground)]">
                                                             Version{" "}
                                                             {
-                                                                policy.policyVersion
+                                                                policy.currentVersion
                                                             }
                                                         </span>
                                                     </span>
@@ -609,8 +701,7 @@ export function AddBusinessProfilePage() {
                                 </div>
                             ) : (
                                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                                    No additional policy
-                                    acceptance is required.
+                                    No additional policy acceptance is required.
                                 </p>
                             )}
                         </div>
@@ -619,6 +710,7 @@ export function AddBusinessProfilePage() {
                             type="submit"
                             disabled={
                                 isCreating ||
+                                isLoadingPolicies ||
                                 !selectedType.available
                             }
                             className="mt-6 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"

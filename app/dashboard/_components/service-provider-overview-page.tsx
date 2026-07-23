@@ -17,13 +17,15 @@
 
 import Link from "next/link";
 import {
-    useState,
     type ReactNode,
 } from "react";
 
-import type {
-    ServiceProviderDashboardState,
-} from "../_types/service-provider-dashboard.types";
+import {
+    useDashboardState,
+} from "./dashboard-state-context";
+import {
+    DashboardVerificationStatusBadge,
+} from "./dashboard-verification-status-badge";
 
 function formatValue(value: string): string {
     return value
@@ -36,17 +38,11 @@ function formatValue(value: string): string {
 }
 
 export function ServiceProviderOverviewPage() {
-    const [
+    const {
         dashboardState,
-    ] =
-        useState<ServiceProviderDashboardState | null>(
-            null,
-        );
-
-    const [isLoading] = useState(false);
-
-    const [errorMessage] =
-        useState<string | null>(null);
+        isLoading,
+        errorMessage,
+    } = useDashboardState();
 
     if (isLoading) {
         return (
@@ -71,6 +67,11 @@ export function ServiceProviderOverviewPage() {
 
     const summary =
         dashboardState?.serviceProviderSummary;
+    const verificationStatus =
+        dashboardState?.status.verificationStatus ??
+        dashboardState?.activeBusinessProfile
+            ?.verificationStatus ??
+        null;
 
     const summaryCards = [
         {
@@ -151,6 +152,14 @@ export function ServiceProviderOverviewPage() {
                     >
                         Update availability
                     </Link>
+
+                    {verificationStatus ? (
+                        <DashboardVerificationStatusBadge
+                            status={verificationStatus}
+                            profileLabel="service-provider"
+                            tooltipId="service-provider-verification-status-tooltip"
+                        />
+                    ) : null}
                 </div>
             </header>
 

@@ -16,130 +16,27 @@
 
 import Link from "next/link";
 import {
-    useEffect,
-    useState,
     type ReactNode,
 } from "react";
 
 import {
-    authApiPost,
-} from "@/src/lib/api/auth-fetch";
-
-import type {
-    PropertyOwnerDashboardState,
-} from "../_types/property-owner-dashboard.types";
-
-interface PropertyOwnerOnboardingStartResponse {
-    verificationStatus: string;
-}
-
-function formatStatusLabel(status: string): string {
-    return status
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (character) =>
-            character.toUpperCase(),
-        );
-}
-
-function getVerificationStatusBadgeClassName(
-    status: string,
-): string {
-    switch (status) {
-        case "approved":
-        case "verified":
-            return "border-emerald-200 bg-emerald-50 text-emerald-800";
-
-        case "rejected":
-        case "declined":
-            return "border-red-200 bg-red-50 text-red-800";
-
-        case "correction_required":
-        case "replacement_required":
-            return "border-amber-200 bg-amber-50 text-amber-900";
-
-        case "on_hold":
-        case "suspended":
-            return "border-slate-300 bg-slate-100 text-slate-800";
-
-        case "in_review":
-        case "pending":
-        default:
-            return "border-orange-200 bg-orange-50 text-orange-800";
-    }
-}
-
-function getVerificationStatusDescription(
-    status: string,
-): string {
-    switch (status) {
-        case "approved":
-        case "verified":
-            return "Your property-owner verification has been approved.";
-
-        case "rejected":
-        case "declined":
-            return "Your property-owner verification was not approved.";
-
-        case "correction_required":
-        case "replacement_required":
-            return "Your verification needs updates before review can continue.";
-
-        case "on_hold":
-        case "suspended":
-            return "Your verification is currently on hold.";
-
-        case "in_review":
-            return "Your verification is being reviewed.";
-
-        case "pending":
-        default:
-            return "Your verification is pending review.";
-    }
-}
+    useDashboardState,
+} from "./dashboard-state-context";
+import {
+    DashboardVerificationStatusBadge,
+} from "./dashboard-verification-status-badge";
 
 export function PropertyOwnerOverviewPage() {
-    const [dashboardState] =
-        useState<PropertyOwnerDashboardState | null>(
-            null,
-        );
-
-    const [isLoading] = useState(false);
-
-    const [errorMessage] =
-        useState<string | null>(null);
-    const [
-        verificationStatus,
-        setVerificationStatus,
-    ] = useState<string | null>(null);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        authApiPost<
-            PropertyOwnerOnboardingStartResponse,
-            {
-                profileType: "property_owner";
-            }
-        >("/onboarding/start", {
-            profileType: "property_owner",
-        })
-            .then((response) => {
-                if (isMounted) {
-                    setVerificationStatus(
-                        response.verificationStatus,
-                    );
-                }
-            })
-            .catch(() => {
-                if (isMounted) {
-                    setVerificationStatus(null);
-                }
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    const {
+        dashboardState,
+        isLoading,
+        errorMessage,
+    } = useDashboardState();
+    const verificationStatus =
+        dashboardState?.status.verificationStatus ??
+        dashboardState?.activeBusinessProfile
+            ?.verificationStatus ??
+        null;
 
     if (isLoading) {
         return (
@@ -250,32 +147,11 @@ export function PropertyOwnerOverviewPage() {
                     </Link>
 
                     {verificationStatus ? (
-                        <span
-                            className="group relative inline-flex items-center"
-                        >
-                            <span
-                                aria-describedby="property-owner-verification-status-tooltip"
-                                className={`inline-flex items-center justify-center rounded-md border px-2.5 py-1 text-xs font-bold shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] ${getVerificationStatusBadgeClassName(
-                                    verificationStatus,
-                                )}`}
-                                tabIndex={0}
-                            >
-                                <span className="mr-1.5 size-1.5 rounded-full bg-current" />
-                                {formatStatusLabel(
-                                    verificationStatus,
-                                )}
-                            </span>
-
-                            <span
-                                id="property-owner-verification-status-tooltip"
-                                role="tooltip"
-                                className="pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-20 w-64 -translate-x-1/2 rounded-[var(--asancha-radius-md)] bg-[var(--foreground)] px-3 py-2 text-xs font-medium leading-5 text-[var(--background)] opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-                            >
-                                {getVerificationStatusDescription(
-                                    verificationStatus,
-                                )}
-                            </span>
-                        </span>
+                        <DashboardVerificationStatusBadge
+                            status={verificationStatus}
+                            profileLabel="property-owner"
+                            tooltipId="property-owner-verification-status-tooltip"
+                        />
                     ) : null}
                 </div>
             </header>

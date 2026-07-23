@@ -14,8 +14,7 @@
 
 import type { Metadata } from "next";
 
-import { OnboardingFormPage } from "../_components/onboarding-form-page";
-import { INVESTOR_ONBOARDING_CONFIG } from "../_config/onboarding-page-config";
+import { InvestorOnboardingForm } from "./_components/investor-onboarding-form";
 
 export const metadata: Metadata = {
     title: "Investor Onboarding",
@@ -24,9 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function InvestorOnboardingPage() {
-    return (
-        <OnboardingFormPage
-            config={INVESTOR_ONBOARDING_CONFIG}
-        />
-    );
+    return <InvestorOnboardingForm />;
 }

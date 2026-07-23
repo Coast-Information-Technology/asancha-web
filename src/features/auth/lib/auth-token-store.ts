@@ -36,11 +36,24 @@ export function setAuthTokens(tokens: Partial<AuthTokenState>): void {
   }
 
   tokenState = {
-    accessToken: tokens.accessToken ?? null,
-    accessExpiresAt: tokens.accessExpiresAt ?? null,
-    refreshToken: tokens.refreshToken ?? null,
-    refreshExpiresAt: tokens.refreshExpiresAt ?? null,
-    sessionId: tokens.sessionId ?? null,
+    accessToken:
+      "accessToken" in tokens
+        ? tokens.accessToken ?? null
+        : tokenState.accessToken,
+    accessExpiresAt:
+      "accessExpiresAt" in tokens
+        ? tokens.accessExpiresAt ?? null
+        : tokenState.accessExpiresAt,
+    refreshToken:
+      "refreshToken" in tokens
+        ? tokens.refreshToken ?? null
+        : tokenState.refreshToken,
+    refreshExpiresAt:
+      "refreshExpiresAt" in tokens
+        ? tokens.refreshExpiresAt ?? null
+        : tokenState.refreshExpiresAt,
+    sessionId:
+      "sessionId" in tokens ? tokens.sessionId ?? null : tokenState.sessionId,
   };
 }
 

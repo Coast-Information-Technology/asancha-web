@@ -24,11 +24,32 @@ import {
   ApiClientRequestOptions,
   ApiRequestBody,
 } from "./api-client";
-import { getAccessToken } from "@/src/features/auth/lib/auth-token-store";
+import { AsanchaApiError } from "./api-error";
+import {
+  clearAuthTokens,
+  getAccessToken,
+  getRefreshToken,
+  setAuthTokens,
+} from "@/src/features/auth/lib/auth-token-store";
 
 const AUTH_REQUEST_HEADERS = {
   "X-Asancha-Client": "asancha-web",
 } as const;
+
+interface RefreshTokenResponseData {
+  accessToken?: string | null;
+  accessExpiresAt?: string | null;
+  refreshToken?: string | null;
+  refreshExpiresAt?: string | null;
+  sessionId?: string | null;
+}
+
+interface RefreshTokenEnvelope {
+  success?: boolean;
+  data?: RefreshTokenResponseData | null;
+}
+
+let pendingTokenRefresh: Promise<boolean> | null = null;
 
 function buildAuthenticatedApiUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -54,6 +75,78 @@ async function applyAuthHeadersAsync(headers: Headers): Promise<Headers> {
   return headers;
 }
 
+function isUnauthorizedError(error: unknown): boolean {
+  return error instanceof AsanchaApiError && error.isUnauthorized();
+}
+
+function isRefreshTokenEnvelope(
+  value: unknown,
+): value is RefreshTokenEnvelope {
+  return value !== null && typeof value === "object" && "success" in value;
+}
+
+async function refreshAuthTokens(): Promise<boolean> {
+  if (pendingTokenRefresh) {
+    return pendingTokenRefresh;
+  }
+
+  const refreshToken = getRefreshToken();
+  pendingTokenRefresh = fetch("/api/auth/refresh", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      refreshToken:
+        typeof refreshToken === "string" && refreshToken.trim().length > 0
+          ? refreshToken
+          : null,
+    }),
+    credentials: "include",
+  })
+    .then(async (response) => {
+      const body = (await response.json().catch(() => null)) as unknown;
+
+      if (!response.ok || !isRefreshTokenEnvelope(body) || !body.success) {
+        clearAuthTokens();
+        return false;
+      }
+
+      if (body.data) {
+        setAuthTokens(body.data);
+      }
+
+      return Boolean(body.data?.accessToken);
+    })
+    .catch(() => {
+      clearAuthTokens();
+      return false;
+    })
+    .finally(() => {
+      pendingTokenRefresh = null;
+    });
+
+  return pendingTokenRefresh;
+}
+
+async function retryAfterRefresh<TResponse>(
+  request: () => Promise<TResponse>,
+  error: unknown,
+): Promise<TResponse> {
+  if (!isUnauthorizedError(error)) {
+    throw error;
+  }
+
+  const refreshed = await refreshAuthTokens();
+
+  if (!refreshed) {
+    throw error;
+  }
+
+  return request();
+}
+
 /**
  * Performs a raw authenticated fetch request.
  *
@@ -64,12 +157,27 @@ export function authFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  return applyAuthHeadersAsync(new Headers(init.headers)).then((headers) => {
-    return fetch(buildAuthenticatedApiUrl(path), {
-      ...init,
-      headers,
-      credentials: init.credentials ?? "include",
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(init.headers)).then((headers) => {
+      return fetch(buildAuthenticatedApiUrl(path), {
+        ...init,
+        headers,
+        credentials: init.credentials ?? "include",
+      });
     });
+
+  return makeRequest().then(async (response) => {
+    if (response.status !== 401) {
+      return response;
+    }
+
+    const refreshed = await refreshAuthTokens();
+
+    if (!refreshed) {
+      return response;
+    }
+
+    return makeRequest();
   });
 }
 
@@ -80,13 +188,18 @@ export function authApiRequest<TResponse, TBody = ApiRequestBody>(
   path: string,
   options: ApiClientRequestOptions<TBody> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiRequest<TResponse, TBody>(buildAuthenticatedApiUrl(path), {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiRequest<TResponse, TBody>(buildAuthenticatedApiUrl(path), {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }
 
 /**
@@ -96,13 +209,18 @@ export function authApiGet<TResponse>(
   path: string,
   options: Omit<ApiClientRequestOptions, "method" | "body"> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiGet<TResponse>(buildAuthenticatedApiUrl(path), {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiGet<TResponse>(buildAuthenticatedApiUrl(path), {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }
 
 /**
@@ -113,13 +231,18 @@ export function authApiPost<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiPost<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiPost<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }
 
 /**
@@ -130,13 +253,18 @@ export function authApiPut<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiPut<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiPut<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }
 
 /**
@@ -147,13 +275,18 @@ export function authApiPatch<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiPatch<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiPatch<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }
 
 /**
@@ -163,11 +296,16 @@ export function authApiDelete<TResponse>(
   path: string,
   options: Omit<ApiClientRequestOptions, "method" | "body"> = {},
 ): Promise<TResponse> {
-  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
-    return apiDelete<TResponse>(buildAuthenticatedApiUrl(path), {
-      ...options,
-      credentials: options.credentials ?? "include",
-      headers,
+  const makeRequest = () =>
+    applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+      return apiDelete<TResponse>(buildAuthenticatedApiUrl(path), {
+        ...options,
+        credentials: options.credentials ?? "include",
+        headers,
+      });
     });
-  });
+
+  return makeRequest().catch((error: unknown) =>
+    retryAfterRefresh(makeRequest, error),
+  );
 }

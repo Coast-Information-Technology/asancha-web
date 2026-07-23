@@ -16,14 +16,18 @@
 
 import Link from "next/link";
 import {
-    useState,
     type ReactNode,
 } from "react";
 
 import type {
     DashboardAction,
-    DashboardState,
 } from "../_types/dashboard.types";
+import {
+    useDashboardState,
+} from "./dashboard-state-context";
+import {
+    DashboardVerificationStatusBadge,
+} from "./dashboard-verification-status-badge";
 
 function formatStatus(status: string): string {
     return status
@@ -34,16 +38,19 @@ function formatStatus(status: string): string {
 }
 
 export function InvestorOverviewPage() {
-    const [dashboardState] =
-        useState<DashboardState | null>(null);
-
-    const [isLoading] = useState(false);
-
-    const [errorMessage] =
-        useState<string | null>(null);
+    const {
+        dashboardState,
+        isLoading,
+        errorMessage,
+    } = useDashboardState();
 
     const summary =
         dashboardState?.investorSummary;
+    const verificationStatus =
+        dashboardState?.status.verificationStatus ??
+        dashboardState?.activeBusinessProfile
+            ?.verificationStatus ??
+        null;
 
     const summaryCards = [
         {
@@ -139,7 +146,7 @@ export function InvestorOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/investor/opportunities"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground hover:bg-foreground/80 px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-5 py-2 text-sm font-semibold text-background hover:bg-foreground/80"
                     >
                         Browse opportunities
                     </Link>
@@ -150,6 +157,14 @@ export function InvestorOverviewPage() {
                     >
                         View recommendations
                     </Link>
+
+                    {verificationStatus ? (
+                        <DashboardVerificationStatusBadge
+                            status={verificationStatus}
+                            profileLabel="investor"
+                            tooltipId="investor-verification-status-tooltip"
+                        />
+                    ) : null}
                 </div>
             </header>
 

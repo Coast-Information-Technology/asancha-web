@@ -20,11 +20,32 @@ export async function proxyBackendAuthRequest(
     headers.set("X-Asancha-Client", "asancha-web");
   }
 
-  return fetch(buildApiUrl(path), {
-    ...init,
-    headers,
-    cache: "no-store",
-  });
+  try {
+    return await fetch(buildApiUrl(path), {
+      ...init,
+      headers,
+      cache: "no-store",
+    });
+  } catch {
+    return Response.json(
+      {
+        success: false,
+        message: "The authentication service is unavailable.",
+        data: null,
+        error: {
+          code: "auth_service_unavailable",
+          message: "The authentication service is unavailable.",
+        },
+        meta: {
+          path,
+          statusCode: 503,
+        },
+      },
+      {
+        status: 503,
+      },
+    );
+  }
 }
 
 export async function readJsonBody(response: Response): Promise<unknown> {

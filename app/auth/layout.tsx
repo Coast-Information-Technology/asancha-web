@@ -47,6 +47,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               height={80}
               priority
               src="/logo.png"
+              style={{ height: "auto" }}
               width={80}
             />
           </Link>

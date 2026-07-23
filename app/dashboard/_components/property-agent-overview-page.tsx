@@ -17,28 +17,22 @@
 
 import Link from "next/link";
 import {
-    useState,
     type ReactNode,
 } from "react";
 
-import type {
-    PropertyAgentDashboardState,
-} from "../_types/property-agent-dashboard.types";
+import {
+    useDashboardState,
+} from "./dashboard-state-context";
+import {
+    DashboardVerificationStatusBadge,
+} from "./dashboard-verification-status-badge";
 
 export function PropertyAgentOverviewPage() {
-    const [
+    const {
         dashboardState,
-    ] = useState<PropertyAgentDashboardState | null>(
-        null,
-    );
-
-    const [
         isLoading,
-    ] = useState(false);
-
-    const [
         errorMessage,
-    ] = useState<string | null>(null);
+    } = useDashboardState();
 
     if (isLoading) {
         return (
@@ -63,6 +57,11 @@ export function PropertyAgentOverviewPage() {
 
     const summary =
         dashboardState?.propertyAgentSummary;
+    const verificationStatus =
+        dashboardState?.status.verificationStatus ??
+        dashboardState?.activeBusinessProfile
+            ?.verificationStatus ??
+        null;
 
     const summaryCards = [
         {
@@ -134,7 +133,7 @@ export function PropertyAgentOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/property-agent/properties/new"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground hover:bg-foreground/80  px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-5 py-2 text-sm font-semibold text-background hover:bg-foreground/80"
                     >
                         Add represented property
                     </Link>
@@ -145,6 +144,14 @@ export function PropertyAgentOverviewPage() {
                     >
                         Upload authority document
                     </Link>
+
+                    {verificationStatus ? (
+                        <DashboardVerificationStatusBadge
+                            status={verificationStatus}
+                            profileLabel="property-agent"
+                            tooltipId="property-agent-verification-status-tooltip"
+                        />
+                    ) : null}
                 </div>
             </header>
 

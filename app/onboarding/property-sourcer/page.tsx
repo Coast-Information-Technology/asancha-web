@@ -14,8 +14,7 @@
 
 import type { Metadata } from "next";
 
-import { OnboardingFormPage } from "../_components/onboarding-form-page";
-import { PROPERTY_SOURCER_ONBOARDING_CONFIG } from "../_config/onboarding-page-config";
+import { PropertySourcerOnboardingForm } from "./_components/property-sourcer-onboarding-form";
 
 export const metadata: Metadata = {
     title: "Property Sourcer Onboarding",
@@ -24,11 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function PropertySourcerOnboardingPage() {
-    return (
-        <OnboardingFormPage
-            config={
-                PROPERTY_SOURCER_ONBOARDING_CONFIG
-            }
-        />
-    );
+    return <PropertySourcerOnboardingForm />;
 }

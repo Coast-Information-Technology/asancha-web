@@ -1662,6 +1662,49 @@ export function PropertyOwnerOnboardingForm() {
             }
         };
 
+    const saveReviewSubmitStep =
+        async (): Promise<boolean> => {
+            if (!hasLoadedBackendSteps) {
+                setErrorMessage(
+                    "Property owner onboarding steps must load from the backend before saving. Refresh the steps and try again.",
+                );
+
+                return false;
+            }
+
+            setIsSaving(true);
+            setErrorMessage(null);
+            setSuccessMessage(null);
+
+            try {
+                const savedSteps =
+                    await authApiPut<
+                        PropertyOwnerOnboardingStepsResponse,
+                        RoleOnboardingSubmitPayload
+                    >(
+                        getRoleStepSaveEndpoint(
+                            PROPERTY_OWNER_ONBOARDING_FLOW,
+                            "review_submit",
+                        ),
+                        PROPERTY_OWNER_ONBOARDING_FLOW.submitPayload,
+                    );
+
+                setStepsResponse(savedSteps);
+                setHasLoadedBackendSteps(true);
+                setActiveStepKey("review_submit");
+
+                return true;
+            } catch {
+                setErrorMessage(
+                    SAFE_MESSAGES.saveError,
+                );
+
+                return false;
+            } finally {
+                setIsSaving(false);
+            }
+        };
+
     const handleFormSubmit = async (
         event: FormEvent<HTMLFormElement>,
     ): Promise<void> => {
@@ -1673,7 +1716,13 @@ export function PropertyOwnerOnboardingForm() {
         }
 
         if (activeStep.stepKey === "review_submit") {
-            setIsSubmitConfirmationOpen(true);
+            const saved =
+                await saveReviewSubmitStep();
+
+            if (saved) {
+                setIsSubmitConfirmationOpen(true);
+            }
+
             return;
         }
 

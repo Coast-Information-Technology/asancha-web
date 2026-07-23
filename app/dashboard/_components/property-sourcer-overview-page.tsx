@@ -17,13 +17,15 @@
 
 import Link from "next/link";
 import {
-    useState,
     type ReactNode,
 } from "react";
 
-import type {
-    PropertySourcerDashboardState,
-} from "../_types/property-sourcer-dashboard.types";
+import {
+    useDashboardState,
+} from "./dashboard-state-context";
+import {
+    DashboardVerificationStatusBadge,
+} from "./dashboard-verification-status-badge";
 
 function formatValue(value: string): string {
     return value
@@ -34,15 +36,11 @@ function formatValue(value: string): string {
 }
 
 export function PropertySourcerOverviewPage() {
-    const [dashboardState] =
-        useState<PropertySourcerDashboardState | null>(
-            null,
-        );
-
-    const [isLoading] = useState(false);
-
-    const [errorMessage] =
-        useState<string | null>(null);
+    const {
+        dashboardState,
+        isLoading,
+        errorMessage,
+    } = useDashboardState();
 
     if (isLoading) {
         return (
@@ -67,6 +65,11 @@ export function PropertySourcerOverviewPage() {
 
     const summary =
         dashboardState?.propertySourcerSummary;
+    const verificationStatus =
+        dashboardState?.status.verificationStatus ??
+        dashboardState?.activeBusinessProfile
+            ?.verificationStatus ??
+        null;
 
     const cards = [
         {
@@ -146,6 +149,14 @@ export function PropertySourcerOverviewPage() {
                     >
                         Review compliance
                     </Link>
+
+                    {verificationStatus ? (
+                        <DashboardVerificationStatusBadge
+                            status={verificationStatus}
+                            profileLabel="property-sourcer"
+                            tooltipId="property-sourcer-verification-status-tooltip"
+                        />
+                    ) : null}
                 </div>
             </header>
 

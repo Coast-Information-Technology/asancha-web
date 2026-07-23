@@ -14,8 +14,7 @@
 
 import type { Metadata } from "next";
 
-import { OnboardingFormPage } from "../_components/onboarding-form-page";
-import { SERVICE_PROVIDER_ONBOARDING_CONFIG } from "../_config/onboarding-page-config";
+import { ServiceProviderOnboardingForm } from "./_components/service-provider-onboarding-form";
 
 export const metadata: Metadata = {
     title: "Service Provider Onboarding",
@@ -24,11 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function ServiceProviderOnboardingPage() {
-    return (
-        <OnboardingFormPage
-            config={
-                SERVICE_PROVIDER_ONBOARDING_CONFIG
-            }
-        />
-    );
+    return <ServiceProviderOnboardingForm />;
 }
