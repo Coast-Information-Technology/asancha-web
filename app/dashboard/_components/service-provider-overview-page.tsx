@@ -17,20 +17,13 @@
 
 import Link from "next/link";
 import {
-    useCallback,
-    useEffect,
     useState,
     type ReactNode,
 } from "react";
 
-import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     ServiceProviderDashboardState,
 } from "../_types/service-provider-dashboard.types";
-import {
-    USE_DASHBOARD_DUMMY_DATA,
-    getPreviewDashboardState,
-} from "../_lib/dashboard-preview-state";
 
 function formatValue(value: string): string {
     return value
@@ -45,53 +38,15 @@ function formatValue(value: string): string {
 export function ServiceProviderOverviewPage() {
     const [
         dashboardState,
-        setDashboardState,
     ] =
         useState<ServiceProviderDashboardState | null>(
             null,
         );
 
-    const [isLoading, setIsLoading] =
-        useState(true);
+    const [isLoading] = useState(false);
 
-    const [errorMessage, setErrorMessage] =
+    const [errorMessage] =
         useState<string | null>(null);
-
-    const loadDashboard =
-        useCallback(async (): Promise<void> => {
-            setIsLoading(true);
-            setErrorMessage(null);
-
-            try {
-                if (USE_DASHBOARD_DUMMY_DATA) {
-                    setDashboardState(
-                        getPreviewDashboardState<ServiceProviderDashboardState>(
-                            "service_provider",
-                        ),
-                    );
-                    return;
-                }
-
-                const state =
-                    await authApiGet<ServiceProviderDashboardState>(
-                        "/me/dashboard-state",
-                    );
-
-                setDashboardState(state);
-            } catch {
-                setErrorMessage(
-                    "We could not load your service-provider dashboard.",
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        }, []);
-
-    useEffect((): void => {
-        queueMicrotask(() => {
-            void loadDashboard();
-        });
-    }, [loadDashboard]);
 
     if (isLoading) {
         return (
@@ -185,7 +140,7 @@ export function ServiceProviderOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/service-provider/services/new"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--card)] px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-5 py-2 text-sm font-semibold text-background hover:bg-foreground/80"
                     >
                         Add service
                     </Link>

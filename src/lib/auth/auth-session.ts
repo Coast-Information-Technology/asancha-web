@@ -151,7 +151,7 @@ export interface AuthRedirectDecision {
 
 const DEFAULT_DASHBOARD_DESTINATION = "/dashboard";
 const SIGN_IN_DESTINATION = "/auth/sign-in";
-const VERIFY_EMAIL_DESTINATION = "/auth/verify-email";
+const VERIFY_EMAIL_DESTINATION = "/auth/resend-verification";
 const GENERAL_PROFILE_DESTINATION = "/onboarding/general-profile";
 const ONBOARDING_DESTINATION = "/onboarding";
 const SUSPENDED_DESTINATION = "/auth/suspended";

@@ -25,6 +25,7 @@ export const SESSION_HINT_COOKIE_NAME = "asancha_session_hint";
 
 export const AUTH_COOKIE_NAMES = [
   "asancha_access_token",
+  "asancha_refresh_token",
   "asancha_session",
   SESSION_HINT_COOKIE_NAME,
   "access_token",

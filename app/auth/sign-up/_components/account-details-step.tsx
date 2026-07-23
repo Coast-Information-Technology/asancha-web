@@ -138,8 +138,7 @@ export function AccountDetailsStep({
       </h2>
 
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Use an email you can access. We will send a verification link after
-        signup.
+        We'll send a verification link to this address.
       </p>
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
@@ -234,7 +233,7 @@ export function AccountDetailsStep({
             loadingLabel="Creating account"
             type="submit"
           >
-            Continue
+            Create account
           </Button>
         </div>
       </form>

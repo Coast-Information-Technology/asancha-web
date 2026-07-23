@@ -33,7 +33,7 @@ import {
   AUTH_SAFE_MESSAGES,
   AUTH_SESSION_STALE_TIME_MS,
 } from "../constants/auth.constants";
-import { clearAuthTokens } from "../lib/auth-token-store";
+import { clearAuthTokens } from "@/src/features/auth/lib/auth-token-store";
 import type {
   AuthSessionResult,
   AuthSessionState,

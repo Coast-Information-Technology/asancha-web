@@ -305,8 +305,8 @@ export function OnboardingFormPage({
                     "general_profile"
                 ) {
                     const profile =
-                        await authApiGet<SafeGeneralProfileRecord>(
-                            "/profiles/me",
+                        await authApiGet<any>(
+                            "/profiles/me/general",
                         );
 
                     setValues(
@@ -315,7 +315,7 @@ export function OnboardingFormPage({
                                 OnboardingFormValues,
                         ): OnboardingFormValues => ({
                             ...currentValues,
-                            ...profile.data,
+                            ...profile,
                         }),
                     );
 
@@ -473,15 +473,9 @@ export function OnboardingFormPage({
                     config.profileType ===
                     "general_profile"
                 ) {
-                    const payload:
-                        SaveGeneralProfilePayload =
-                    {
-                        data: values,
-                    };
-
                     await authApiPatch(
-                        "/profiles/me",
-                        payload,
+                        "/profiles/me/general",
+                        values,
                     );
 
                     setSuccessMessage(
@@ -646,28 +640,17 @@ export function OnboardingFormPage({
                 config.profileType ===
                 "general_profile"
             ) {
-                const savePayload:
-                    SaveGeneralProfilePayload =
-                {
-                    data: values,
-                };
-
                 await authApiPatch(
-                    "/profiles/me",
-                    savePayload,
+                    "/profiles/me/general",
+                    values,
                 );
 
-                const completePayload:
-                    CompleteGeneralProfilePayload =
-                {
-                    data: {
-                        informationAccurateConfirmed:
-                            true,
-                    },
+                const completePayload = {
+                    confirmCompletion: true,
                 };
 
                 await authApiPost(
-                    "/profiles/me/complete",
+                    "/profiles/me/general/complete",
                     completePayload,
                 );
 

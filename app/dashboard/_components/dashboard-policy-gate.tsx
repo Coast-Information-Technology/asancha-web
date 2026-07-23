@@ -111,8 +111,7 @@ export function DashboardPolicyGate({
     const shouldCheckPolicies =
         Boolean(profileType) &&
         profileType !== "api_partner" &&
-        pathname.startsWith("/dashboard") &&
-        !pathname.startsWith("/dashboard-ui");
+        pathname.startsWith("/dashboard");
 
     const missingPolicies = useMemo(
         () => getMissingPolicies(policyResult),

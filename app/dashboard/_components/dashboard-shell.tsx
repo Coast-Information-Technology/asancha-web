@@ -29,6 +29,7 @@
  * - Staff roles must not use this public application.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import {
     useCallback,
@@ -56,10 +57,11 @@ import {
     Headphones,
     Home,
     LineChart,
+    LogOut,
     MapPin,
     MessageSquare,
+    UserRound,
     Search,
-    Settings,
     ShieldCheck,
     SlidersHorizontal,
     UserCircle,
@@ -73,8 +75,16 @@ import type {
 import { BusinessProfileSwitcher } from "../../../src/components/business-profiles/business-profile-switcher";
 import {
     authApiGet,
+    authApiPatch,
     authApiPost,
 } from "../../../src/lib/api/auth-fetch";
+import {
+    clearAuthTokens,
+    getAccessToken,
+} from "../../../src/features/auth/lib/auth-token-store";
+import {
+    clearBrowserSessionHint,
+} from "../../../src/lib/auth/auth-cookies";
 import {
     INVESTOR_NAVIGATION,
     type InvestorNavigationItem,
@@ -100,11 +110,6 @@ import type {
     DashboardState,
     PublicBusinessProfileType,
 } from "../_types/dashboard.types";
-import {
-    USE_DASHBOARD_DUMMY_DATA,
-    getDashboardPreviewProfileType,
-    getPreviewDashboardState,
-} from "../_lib/dashboard-preview-state";
 
 export interface DashboardShellProps {
     children: ReactNode;
@@ -112,14 +117,13 @@ export interface DashboardShellProps {
 
 interface SwitchBusinessProfilePayload
     extends Record<string, unknown> {
-    data: {
-        profilePublicId: string;
-    };
+    profileType:
+        PublicBusinessProfileType;
 }
 
 interface SwitchBusinessProfileResult {
     activeBusinessProfile:
-        DashboardBusinessProfile;
+        BackendBusinessProfileSummary | null;
 
     dashboardPath: string | null;
 
@@ -137,6 +141,38 @@ interface DashboardNavigationItemLike {
     href: string;
     description: string;
     exactMatch: boolean;
+}
+
+interface AccountMenuItem {
+    label: string;
+    href: string;
+    icon: LucideIcon;
+}
+
+interface BackendBusinessProfileSummary {
+    publicId: string;
+    profileType: PublicBusinessProfileType;
+    verificationStatus: string;
+    isVerified: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    summary: Record<string, unknown>;
+}
+
+interface ActiveBusinessProfileResponse {
+    activeBusinessProfile:
+        BackendBusinessProfileSummary | null;
+}
+
+interface BackendOnboardingStartResponse {
+    status:
+        | "not_started"
+        | "in_progress"
+        | "submitted"
+        | "completed"
+        | "abandoned"
+        | "correction_required";
 }
 
 const DASHBOARD_PATHS: Record<
@@ -161,9 +197,31 @@ const DASHBOARD_PATHS: Record<
         "/api-partner/dashboard",
 };
 
+const ONBOARDING_PATHS: Record<
+    PublicBusinessProfileType,
+    string
+> = {
+    investor: "/onboarding/investor",
+
+    property_owner:
+        "/onboarding/property-owner",
+
+    property_agent:
+        "/onboarding/property-agent",
+
+    property_sourcer:
+        "/onboarding/property-sourcer",
+
+    service_provider:
+        "/onboarding/service-provider",
+
+    api_partner:
+        "/onboarding/api-partner",
+};
+
 const SAFE_MESSAGES = {
     dashboardLoadError:
-        "We could not load your dashboard state. Refresh the page or sign in again.",
+        "We could not load your business profile context. Refresh the page or sign in again.",
 
     profileSwitchError:
         "We could not switch your business profile. Review the profile requirements and try again.",
@@ -174,6 +232,34 @@ const SAFE_MESSAGES = {
     profileSwitchSuccess:
         "Your active business profile has been changed.",
 } as const;
+
+const ACCOUNT_MENU_ITEMS: readonly AccountMenuItem[] = [
+    {
+        label: "Profile",
+        href: "/account/profile",
+        icon: UserRound,
+    },
+    {
+        label: "Business profiles",
+        href: "/account/business-profiles/add",
+        icon: BriefcaseBusiness,
+    },
+    {
+        label: "Security",
+        href: "/account/security",
+        icon: ShieldCheck,
+    },
+    {
+        label: "Notifications",
+        href: "/account/notifications",
+        icon: Bell,
+    },
+    {
+        label: "Support",
+        href: "/account/support",
+        icon: Headphones,
+    },
+] as const;
 
 function toBusinessProfileCardData(
     profile: DashboardBusinessProfile,
@@ -218,6 +304,201 @@ function toBusinessProfileCardData(
         continueSetupPath:
             profile.continueSetupPath,
     };
+}
+
+function getStringSummaryValue(
+    summary: Record<string, unknown>,
+    keys: readonly string[],
+): string | null {
+    for (const key of keys) {
+        const value = summary[key];
+
+        if (
+            typeof value === "string" &&
+            value.trim().length > 0
+        ) {
+            return value.trim();
+        }
+    }
+
+    return null;
+}
+
+function getBusinessProfileDisplayName(
+    profile: BackendBusinessProfileSummary,
+): string {
+    return (
+        getStringSummaryValue(profile.summary, [
+            "displayName",
+            "businessName",
+            "companyName",
+            "agencyName",
+            "serviceName",
+            "tradingName",
+            "fullName",
+            "name",
+        ]) ??
+        getWorkspaceLabel(profile.profileType)
+    );
+}
+
+function toDashboardBusinessProfile(
+    profile: BackendBusinessProfileSummary,
+    activeProfileType:
+        PublicBusinessProfileType | null,
+): DashboardBusinessProfile {
+    const dashboardPath =
+        DASHBOARD_PATHS[profile.profileType];
+
+    return {
+        profilePublicId: profile.publicId,
+        profileType: profile.profileType,
+        displayName:
+            getBusinessProfileDisplayName(
+                profile,
+            ),
+        imageUrl: null,
+        onboardingStatus: "completed",
+        verificationStatus: profile.isVerified
+            ? "approved"
+            : "pending",
+        pendingActionCount: 0,
+        isActive:
+            profile.profileType ===
+            activeProfileType,
+        canSwitch:
+            profile.isActive &&
+            profile.profileType !==
+                activeProfileType,
+        switchLockedReason: profile.isActive
+            ? null
+            : "This business profile is inactive.",
+        detailPath: `/account/business-profiles/${encodeURIComponent(
+            profile.profileType,
+        )}`,
+        dashboardPath,
+        continueSetupPath: null,
+    };
+}
+
+function createDashboardShellState(
+    businessProfiles:
+        BackendBusinessProfileSummary[],
+    activeProfile:
+        BackendBusinessProfileSummary | null,
+    onboardingStatus:
+        DashboardState["status"]["onboardingStatus"] =
+            "completed",
+): DashboardState {
+    const activeProfileType =
+        activeProfile?.profileType ??
+        businessProfiles[0]?.profileType ??
+        null;
+    const availableBusinessProfiles =
+        businessProfiles.map((profile) =>
+            toDashboardBusinessProfile(
+                profile,
+                activeProfileType,
+            ),
+        );
+    const activeBusinessProfile =
+        availableBusinessProfiles.find(
+            (profile) =>
+                profile.profileType ===
+                activeProfileType,
+        ) ?? null;
+
+    return {
+        activeBusinessProfileType:
+            activeProfileType,
+        activeBusinessProfile,
+        availableBusinessProfiles,
+        status: {
+            accountStatus: "active",
+            emailVerificationStatus: "verified",
+            generalProfileStatus: "completed",
+            onboardingStatus,
+            verificationStatus:
+                activeBusinessProfile
+                    ?.verificationStatus ??
+                "pending",
+            documentStatusSummary: {
+                total: 0,
+                pending: 0,
+                approved: 0,
+                rejected: 0,
+                replacementRequired: 0,
+            },
+            paymentStatusSummary: {
+                total: 0,
+                pending: 0,
+                submitted: 0,
+                approved: 0,
+                rejected: 0,
+            },
+            policyAcceptanceStatus: {
+                complete: true,
+                missingCount: 0,
+            },
+        },
+        investorSummary: null,
+        propertyOwnerSummary: null,
+        propertyAgentSummary: null,
+        propertySourcerSummary: null,
+        serviceProviderSummary: null,
+        apiPartnerSummary: null,
+        lockedActions: [],
+        unlockedActions: [],
+        pendingActions:
+            activeBusinessProfile &&
+            onboardingStatus !== "completed"
+                ? [
+                      {
+                          actionKey:
+                              "complete_role_onboarding",
+                          title:
+                              "Complete onboarding",
+                          description:
+                              "Your active business profile setup is not completed yet.",
+                          allowed: true,
+                          lockedReason: null,
+                          responsibleParty:
+                              "user",
+                          actionLabel:
+                              "Continue onboarding",
+                          actionPath:
+                              ONBOARDING_PATHS[
+                                  activeBusinessProfile
+                                      .profileType
+                              ],
+                      },
+                  ]
+                : [],
+        nextActions: [],
+        safeUserMessage: null,
+    };
+}
+
+function normalizeOnboardingStatus(
+    status:
+        | BackendOnboardingStartResponse["status"]
+        | null
+        | undefined,
+): DashboardState["status"]["onboardingStatus"] {
+    switch (status) {
+        case "not_started":
+        case "in_progress":
+        case "submitted":
+        case "completed":
+        case "correction_required":
+            return status;
+
+        case "abandoned":
+            return "in_progress";
+
+        default:
+            return "completed";
+    }
 }
 
 function isNavigationItemActive(
@@ -388,8 +669,8 @@ function getDashboardNavigationIcon(
         return UserCircle;
     }
 
-    if (href.includes("settings")) {
-        return Settings;
+    if (href.includes("security")) {
+        return ShieldCheck;
     }
 
     if (href.includes("maintenance")) {
@@ -506,40 +787,6 @@ function getUnreadNotificationCount(
     );
 }
 
-function getDashboardUiPreviewHref(
-    pathname: string,
-    href: string,
-): string {
-    if (!pathname.startsWith("/dashboard-ui")) {
-        return href;
-    }
-
-    if (href === "/dashboard") {
-        return "/dashboard-ui";
-    }
-
-    if (href.startsWith("/dashboard/")) {
-        return href.replace(
-            "/dashboard",
-            "/dashboard-ui",
-        );
-    }
-
-    if (href === "/notifications") {
-        return "/dashboard-ui/notifications";
-    }
-
-    if (href === "/account/profile") {
-        return "/dashboard-ui/profile";
-    }
-
-    if (href === "/account/support") {
-        return "/dashboard-ui/support";
-    }
-
-    return href;
-}
-
 export function DashboardShell({
     children,
 }: DashboardShellProps) {
@@ -559,6 +806,11 @@ export function DashboardShell({
     ] = useState(false);
 
     const [
+        accountMenuOpen,
+        setAccountMenuOpen,
+    ] = useState(false);
+
+    const [
         isLoading,
         setIsLoading,
     ] = useState(true);
@@ -567,6 +819,11 @@ export function DashboardShell({
         switchingProfilePublicId,
         setSwitchingProfilePublicId,
     ] = useState<string | null>(null);
+
+    const [
+        isSigningOut,
+        setIsSigningOut,
+    ] = useState(false);
 
     const [
         errorMessage,
@@ -587,27 +844,55 @@ export function DashboardShell({
                 setErrorMessage(null);
 
                 try {
-                    if (USE_DASHBOARD_DUMMY_DATA) {
-                        const state =
-                            getPreviewDashboardState<DashboardState>(
-                                getDashboardPreviewProfileType(
-                                    pathname,
-                                ),
-                            );
+                    const [
+                        activeProfileResult,
+                        businessProfiles,
+                    ] = await Promise.all([
+                        authApiGet<ActiveBusinessProfileResponse>(
+                            "/profiles/me/active-business-profile",
+                        ),
+                        authApiGet<BackendBusinessProfileSummary[]>(
+                            "/profiles/me/business-profiles",
+                        ),
+                    ]);
+                    const activeProfileType =
+                        activeProfileResult
+                            .activeBusinessProfile
+                            ?.profileType ??
+                        businessProfiles[0]
+                            ?.profileType ??
+                        null;
+                    const onboarding =
+                        activeProfileType
+                            ? await authApiPost<
+                                  BackendOnboardingStartResponse,
+                                  {
+                                      profileType:
+                                          PublicBusinessProfileType;
+                                  }
+                              >(
+                                  "/onboarding/start",
+                                  {
+                                      profileType:
+                                          activeProfileType,
+                                  },
+                              ).catch(() => null)
+                            : null;
 
-                        setDashboardState(state);
-
-                        return state;
-                    }
-
-                    const state =
-                        await authApiGet<DashboardState>(
-                            "/me/dashboard-state",
+                    const mergedState =
+                        createDashboardShellState(
+                            businessProfiles,
+                            activeProfileResult
+                                .activeBusinessProfile,
+                            normalizeOnboardingStatus(
+                                onboarding?.status ??
+                                    null,
+                            ),
                         );
 
-                    setDashboardState(state);
+                    setDashboardState(mergedState);
 
-                    return state;
+                    return mergedState;
                 } catch {
                     setErrorMessage(
                         SAFE_MESSAGES
@@ -619,7 +904,7 @@ export function DashboardShell({
                     setIsLoading(false);
                 }
             },
-            [pathname],
+            [],
         );
 
     useEffect((): void => {
@@ -631,6 +916,7 @@ export function DashboardShell({
     useEffect((): void => {
         queueMicrotask(() => {
             setMobileNavigationOpen(false);
+            setAccountMenuOpen(false);
         });
     }, [pathname]);
 
@@ -694,6 +980,29 @@ export function DashboardShell({
         dashboardState
             ?.activeBusinessProfileType;
 
+    useEffect((): void => {
+        if (
+            !activeProfileType ||
+            !pathname?.startsWith("/dashboard/")
+        ) {
+            return;
+        }
+
+        const expectedDashboardPath =
+            DASHBOARD_PATHS[activeProfileType];
+
+        if (
+            expectedDashboardPath &&
+            !pathname.startsWith(
+                expectedDashboardPath,
+            )
+        ) {
+            router.replace(
+                expectedDashboardPath,
+            );
+        }
+    }, [activeProfileType, pathname, router]);
+
     const unreadNotificationCount:
         number =
         getUnreadNotificationCount(
@@ -729,16 +1038,16 @@ export function DashboardShell({
 
             const payload:
                 SwitchBusinessProfilePayload = {
-                data: {
-                    profilePublicId:
-                        profile.profilePublicId,
-                },
+                profileType: profile.profileType,
             };
 
             try {
                 const result =
-                    await authApiPost<SwitchBusinessProfileResult>(
-                        "/profiles/me/switch",
+                    await authApiPatch<
+                        SwitchBusinessProfileResult,
+                        SwitchBusinessProfilePayload
+                    >(
+                        "/profiles/me/active-business-profile",
                         payload,
                     );
 
@@ -757,7 +1066,8 @@ export function DashboardShell({
                         ?.activeBusinessProfileType ??
                     result
                         .activeBusinessProfile
-                        .profileType;
+                        ?.profileType ??
+                    profile.profileType;
 
                 const configuredDashboardPath:
                     string =
@@ -796,6 +1106,48 @@ export function DashboardShell({
             }
         };
 
+    const handleSignOut =
+        async (
+            allDevices = false,
+        ): Promise<void> => {
+            if (isSigningOut) {
+                return;
+            }
+
+            setIsSigningOut(true);
+            setErrorMessage(null);
+
+            try {
+                const accessToken =
+                    getAccessToken();
+                const headers = new Headers();
+
+                if (accessToken) {
+                    headers.set(
+                        "Authorization",
+                        `Bearer ${accessToken}`,
+                    );
+                }
+
+                await fetch(
+                    allDevices
+                        ? "/api/auth/logout-all-devices"
+                        : "/api/auth/logout",
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers,
+                    },
+                );
+            } finally {
+                clearAuthTokens();
+                clearBrowserSessionHint();
+                setAccountMenuOpen(false);
+                router.replace("/auth/sign-in");
+                router.refresh();
+            }
+        };
+
     const handleMobileBackdropMouseDown =
         (
             event:
@@ -815,11 +1167,7 @@ export function DashboardShell({
         (
             item: DashboardNavigationItemLike,
         ): ReactNode => {
-            const href =
-                getDashboardUiPreviewHref(
-                    pathname,
-                    item.href,
-                );
+            const href = item.href;
             const active =
                 isNavigationItemActive(
                     pathname,
@@ -1001,6 +1349,61 @@ export function DashboardShell({
             </nav>
         );
 
+    const renderAccountMenuLinks =
+        (compact = false): ReactNode => (
+            <nav
+                aria-label="Account navigation"
+                className={
+                    compact
+                        ? "grid gap-1"
+                        : "grid gap-1"
+                }
+            >
+                {ACCOUNT_MENU_ITEMS.map(
+                    (item): ReactNode => {
+                        const Icon = item.icon;
+                        const active =
+                            pathname === item.href ||
+                            pathname.startsWith(
+                                `${item.href}/`,
+                            );
+
+                        return (
+                            <Link
+                                aria-current={
+                                    active
+                                        ? "page"
+                                        : undefined
+                                }
+                                className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium ${
+                                    active
+                                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                                }`}
+                                href={item.href}
+                                key={item.href}
+                                onClick={() => {
+                                    setAccountMenuOpen(
+                                        false,
+                                    );
+                                    setMobileNavigationOpen(
+                                        false,
+                                    );
+                                }}
+                            >
+                                <Icon
+                                    aria-hidden="true"
+                                    size={16}
+                                    strokeWidth={2.4}
+                                />
+                                <span>{item.label}</span>
+                            </Link>
+                        );
+                    },
+                )}
+            </nav>
+        );
+
     const renderNavigation =
         (): ReactNode => {
             if (isLoading) {
@@ -1043,9 +1446,82 @@ export function DashboardShell({
         null;
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-            <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--card)]">
-                <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid lg:grid-cols-[var(--asancha-dashboard-sidebar-width)_minmax(0,1fr)]">
+            <aside className="sticky top-0 hidden h-screen overflow-y-auto border-r border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_96%,var(--muted))] p-4 lg:block">
+                <div className="mb-5 border-b border-[var(--border)] pb-5">
+                    <Link
+                        aria-label="Asancha home"
+                        className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
+                        href="/"
+                    >
+                        <Image
+                            alt="Asancha logo"
+                            className="h-auto w-20"
+                            height={80}
+                            priority
+                            src="/logo.png"
+                            style={{ height: "auto" }}
+                            width={80}
+                        />
+                    </Link>
+                </div>
+
+                <p className="mb-3 px-3 text-xs font-bold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
+                    Menu
+                </p>
+
+                {renderNavigation()}
+
+                {dashboardState &&
+                dashboardState.pendingActions
+                    .length > 0 ? (
+                    <section
+                        className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4"
+                        aria-labelledby="dashboard-pending-actions-heading"
+                    >
+                        <h2
+                            id="dashboard-pending-actions-heading"
+                            className="text-sm font-bold"
+                        >
+                            Pending actions
+                        </h2>
+
+                        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+                            {
+                                dashboardState
+                                    .pendingActions
+                                    .length
+                            }{" "}
+                            account or profile{" "}
+                            {dashboardState
+                                .pendingActions
+                                .length === 1
+                                ? "action requires"
+                                : "actions require"}{" "}
+                            attention.
+                        </p>
+
+                        {firstPendingAction
+                            ?.actionPath &&
+                        firstPendingAction
+                            .actionLabel ? (
+                            <Link
+                                href={firstPendingAction.actionPath}
+                                className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
+                            >
+                                {
+                                    firstPendingAction
+                                        .actionLabel
+                                }
+                            </Link>
+                        ) : null}
+                    </section>
+                ) : null}
+            </aside>
+
+            <div className="min-w-0">
+                <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--card)]">
+                    <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6">
                     <button
                         type="button"
                         className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-[var(--asancha-radius-md)] border border-[var(--border)] hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] lg:hidden"
@@ -1065,23 +1541,20 @@ export function DashboardShell({
                         </span>
                     </button>
 
-                        <Link
-                            href={getDashboardUiPreviewHref(
-                                pathname,
-                                "/dashboard",
-                            )}
-                        className="inline-flex flex-none items-center gap-2 rounded-md font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
+                    <Link
+                        aria-label="Asancha home"
+                        className="inline-flex flex-none rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] lg:hidden"
+                        href="/"
                     >
-                        <span
-                            aria-hidden="true"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--asancha-radius-md)] bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        >
-                            A
-                        </span>
-
-                        <span className="hidden sm:inline">
-                            Asancha
-                        </span>
+                        <Image
+                            alt="Asancha logo"
+                            className="h-auto w-16"
+                            height={80}
+                            priority
+                            src="/logo.png"
+                            style={{ height: "auto" }}
+                            width={80}
+                        />
                     </Link>
 
                     <div className="min-w-0 flex-1">
@@ -1125,10 +1598,7 @@ export function DashboardShell({
                         </Link>
 
                         <Link
-                            href={getDashboardUiPreviewHref(
-                                pathname,
-                                "/notifications",
-                            )}
+                            href="/notifications"
                             className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label={
                                 unreadNotificationCount >
@@ -1157,10 +1627,7 @@ export function DashboardShell({
                         </Link>
 
                         <Link
-                            href={getDashboardUiPreviewHref(
-                                pathname,
-                                "/account/support",
-                            )}
+                            href="/account/support"
                             className="hidden items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] sm:inline-flex"
                         >
                             <Headphones
@@ -1171,111 +1638,108 @@ export function DashboardShell({
                             Support
                         </Link>
 
-                        <Link
-                            href={getDashboardUiPreviewHref(
-                                pathname,
-                                "/account/profile",
-                            )}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--muted)] text-sm font-bold hover:border-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
-                            aria-label="Open account profile"
-                        >
-                            <UserCircle
-                                aria-hidden="true"
-                                size={20}
-                                strokeWidth={2.4}
-                            />
-                        </Link>
-                    </nav>
-                </div>
-            </header>
-
-            <div className="mx-auto grid w-full max-w-[100rem] lg:grid-cols-[var(--asancha-dashboard-sidebar-width)_minmax(0,1fr)]">
-                <aside className="hidden h-[calc(100vh-4rem)] overflow-y-auto border-r border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_96%,var(--muted))] p-4 lg:block">
-                    <div className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 shadow-sm">
-                        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
-                            Active workspace
-                        </p>
-                        <div className="mt-3 flex items-center gap-3">
-                            <span
-                                aria-hidden="true"
-                                className="grid h-10 w-10 place-items-center rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)]"
+                        <div className="relative">
+                            <button
+                                type="button"
+                                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--muted)] text-sm font-bold hover:border-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
+                                aria-label="Open account menu"
+                                aria-haspopup="menu"
+                                aria-expanded={
+                                    accountMenuOpen
+                                }
+                                onClick={() =>
+                                    setAccountMenuOpen(
+                                        (current) =>
+                                            !current,
+                                    )
+                                }
                             >
-                                <Gauge
-                                    size={19}
+                                <UserCircle
+                                    aria-hidden="true"
+                                    size={20}
                                     strokeWidth={2.4}
                                 />
-                            </span>
-                            <div className="min-w-0">
-                                <p className="truncate text-sm font-extrabold text-[var(--foreground)]">
-                                    {workspaceLabel}
-                                </p>
-                                <p className="mt-0.5 text-xs font-medium text-[var(--muted-foreground)]">
-                                    Static role navigation
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                            </button>
 
-                    <p className="mb-3 px-3 text-xs font-bold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
-                        Menu
-                    </p>
-
-                    {renderNavigation()}
-
-                    {dashboardState &&
-                    dashboardState.pendingActions
-                        .length > 0 ? (
-                        <section
-                            className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4"
-                            aria-labelledby="dashboard-pending-actions-heading"
-                        >
-                            <h2
-                                id="dashboard-pending-actions-heading"
-                                className="text-sm font-bold"
-                            >
-                                Pending actions
-                            </h2>
-
-                            <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-                                {
-                                    dashboardState
-                                        .pendingActions
-                                        .length
-                                }{" "}
-                                account or profile{" "}
-                                {dashboardState
-                                    .pendingActions
-                                    .length === 1
-                                    ? "action requires"
-                                    : "actions require"}{" "}
-                                attention.
-                            </p>
-
-                            {firstPendingAction
-                                ?.actionPath &&
-                            firstPendingAction
-                                .actionLabel ? (
-                                <Link
-                                    href={
-                                        getDashboardUiPreviewHref(
-                                            pathname,
-                                            firstPendingAction
-                                                .actionPath,
-                                        )
-                                    }
-                                    className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
+                            {accountMenuOpen ? (
+                                <div
+                                    className="absolute right-0 top-12 z-50 w-64 rounded-[var(--asancha-radius-lg)] border border-[var(--border)] bg-[var(--card)] p-2 shadow-xl"
+                                    role="menu"
                                 >
-                                    {
-                                        firstPendingAction
-                                            .actionLabel
-                                    }
-                                </Link>
-                            ) : null}
-                        </section>
-                    ) : null}
-                </aside>
+                                    <div className="border-b border-[var(--border)] px-3 py-2">
+                                        <p className="text-sm font-bold">
+                                            Account
+                                        </p>
+                                        <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                                            Profile, security,
+                                            notifications, and
+                                            support
+                                        </p>
+                                    </div>
 
-                <div className="min-w-0">
+                                    <div className="mt-2">
+                                        {renderAccountMenuLinks(
+                                            true,
+                                        )}
+                                    </div>
+
+                                    <div className="mt-2 border-t border-[var(--border)] pt-2">
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                                            disabled={
+                                                isSigningOut
+                                            }
+                                            onClick={() => {
+                                                void handleSignOut(
+                                                    false,
+                                                );
+                                            }}
+                                        >
+                                            <LogOut
+                                                aria-hidden="true"
+                                                size={16}
+                                                strokeWidth={
+                                                    2.4
+                                                }
+                                            />
+                                            <span>
+                                                Logout
+                                            </span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-[var(--destructive)] hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
+                                            disabled={
+                                                isSigningOut
+                                            }
+                                            onClick={() => {
+                                                void handleSignOut(
+                                                    true,
+                                                );
+                                            }}
+                                        >
+                                            <ShieldCheck
+                                                aria-hidden="true"
+                                                size={16}
+                                                strokeWidth={
+                                                    2.4
+                                                }
+                                            />
+                                            <span>
+                                                Logout from all
+                                                devices
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : null}
+                        </div>
+                    </nav>
+                    </div>
+                </header>
+
                     {errorMessage ? (
                         <div
                             role="alert"
@@ -1324,7 +1788,6 @@ export function DashboardShell({
 
                     {children}
                 </div>
-            </div>
 
             {mobileNavigationOpen ? (
                 <div
@@ -1389,13 +1852,7 @@ export function DashboardShell({
                                 firstPendingAction
                                     .actionLabel ? (
                                     <Link
-                                        href={
-                                            getDashboardUiPreviewHref(
-                                                pathname,
-                                                firstPendingAction
-                                                    .actionPath,
-                                            )
-                                        }
+                                        href={firstPendingAction.actionPath}
                                         className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                                     >
                                         {
@@ -1413,42 +1870,6 @@ export function DashboardShell({
                                 className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                             >
                                 Marketplace
-                            </Link>
-
-                                <Link
-                                    href={getDashboardUiPreviewHref(
-                                        pathname,
-                                        "/notifications",
-                                    )}
-                                className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                            >
-                                Notifications
-                                {unreadNotificationCount >
-                                0
-                                    ? ` (${getNotificationCountLabel(
-                                          unreadNotificationCount,
-                                      )})`
-                                    : ""}
-                            </Link>
-
-                                <Link
-                                    href={getDashboardUiPreviewHref(
-                                        pathname,
-                                        "/account/support",
-                                    )}
-                                className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                            >
-                                Support
-                            </Link>
-
-                                <Link
-                                    href={getDashboardUiPreviewHref(
-                                        pathname,
-                                        "/account/profile",
-                                    )}
-                                className="rounded-md px-3 py-2.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                            >
-                                Account profile
                             </Link>
                         </div>
                     </aside>

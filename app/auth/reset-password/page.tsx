@@ -81,10 +81,11 @@ export default function ResetPasswordPage() {
       {completed ? (
         <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
           <h2 className="text-lg font-bold text-foreground">
-            Password reset submitted
+            Password updated
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Your password has been submitted. Sign in with your new password.
+            Your password has been changed. Sign in with your new password to
+            continue.
           </p>
           <Link
             className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"

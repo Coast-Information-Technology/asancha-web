@@ -67,12 +67,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           aria-label="Asancha account access"
           className={styles.contextPanel}
         >
-          <p className={styles.kicker}>Public user access</p>
+          <p className={styles.kicker}>Your Asancha account</p>
           <h1 className={styles.headline}>
             Start with the right property workspace.
           </h1>
           <p className={styles.copy}>
-            Create an account, verify your email, and continue with the tools
+            Sign in or create an account to access your workspace and the tools
             that match how you use Asancha.
           </p>
 

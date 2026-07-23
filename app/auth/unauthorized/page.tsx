@@ -40,8 +40,8 @@ export default function UnauthorizedPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Sign in with the right account, complete any required setup, or contact
-        support if you think you should have access.
+        Sign in with the right account or complete any required setup steps. If
+        you think you should have access, contact support.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

@@ -55,7 +55,7 @@ export const GUEST_PREFERRED_ROUTES = [
 
 export const PUBLIC_AUTH_ROUTE_PREFIXES = [
   "/auth/reset-password",
-  "/auth/verify-email",
+  "/auth/resend-verification",
   "/auth/google",
   "/auth/google/callback",
   "/auth/suspended",

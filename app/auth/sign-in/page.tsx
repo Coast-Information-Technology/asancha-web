@@ -19,7 +19,8 @@
  */
 
 import Link from "next/link";
-import { Eye, EyeOff, KeyRound, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, KeyRound, UserPlus } from "lucide-react";
+import { FaGoogle } from "react-icons/fa";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -122,8 +123,7 @@ export default function SignInPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Access your workspace, saved opportunities, bookings, messages, and
-        account settings.
+        Pick up where you left off.
       </p>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
@@ -188,7 +188,7 @@ export default function SignInPage() {
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:border-primary hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
           href="/auth/google"
         >
-          <Mail aria-hidden="true" size={16} strokeWidth={2.5} />
+          <FaGoogle aria-hidden="true" size={16} strokeWidth={2.5} />
           Continue with Google
         </Link>
       </div>
@@ -206,7 +206,7 @@ export default function SignInPage() {
           className="inline-flex items-center gap-2 rounded-md px-1 font-bold !text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20 sm:justify-end"
           href="/auth/sign-up"
         >
-          <ShieldCheck aria-hidden="true" size={15} strokeWidth={2.5} />
+          <UserPlus aria-hidden="true" size={15} strokeWidth={2.5} />
           Create account
         </Link>
       </div>

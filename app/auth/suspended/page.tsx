@@ -36,12 +36,12 @@ export default function SuspendedPage() {
       </p>
 
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
-        Your account needs support.
+        Your account access is paused.
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        We cannot continue with this account right now. Contact support and we
-        will help you understand the next step.
+        Access to this account has been restricted. Contact support and we'll
+        help you with the next steps.
       </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

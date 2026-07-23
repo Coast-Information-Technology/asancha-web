@@ -17,6 +17,13 @@
 
 import Link from "next/link";
 import {
+    useRouter,
+} from "next/navigation";
+import {
+    Eye,
+    EyeOff,
+} from "lucide-react";
+import {
     useCallback,
     useEffect,
     useState,
@@ -30,6 +37,9 @@ import {
     authApiGet,
     authApiPost,
 } from "../../../src/lib/api/auth-fetch";
+import {
+    useToast,
+} from "../../../src/components/ui/toast/toast";
 import type {
     AccountLoginActivity,
     AccountSecurityNotification,
@@ -39,7 +49,96 @@ import type {
     RequestEmailChangePayload,
 } from "../_types/account.types";
 
+const FALLBACK_SECURITY_RESPONSE: AccountSecurityResponse = {
+    summary: {
+        email: "",
+        emailVerificationStatus: "unknown",
+        passwordConfigured: true,
+        activeSessionCount: 0,
+        recentFailedLoginCount: 0,
+        securityNotificationCount: 0,
+        canChangePassword: true,
+        canRequestEmailChange: true,
+        safeUserMessage: null,
+    },
+    sessions: [],
+    loginActivity: [],
+    securityNotifications: [],
+};
+
+function normalizeSecurityResponse(
+    value:
+        | Partial<AccountSecurityResponse>
+        | null
+        | undefined,
+): AccountSecurityResponse {
+    return {
+        summary: {
+            ...FALLBACK_SECURITY_RESPONSE.summary,
+            ...(value?.summary ?? {}),
+        },
+        sessions: Array.isArray(value?.sessions)
+            ? value.sessions
+            : [],
+        loginActivity: Array.isArray(
+            value?.loginActivity,
+        )
+            ? value.loginActivity
+            : [],
+        securityNotifications:
+            Array.isArray(
+                value?.securityNotifications,
+            )
+                ? value.securityNotifications
+                : [],
+    };
+}
+
+interface PasswordVisibilityButtonProps {
+    isVisible: boolean;
+    label: string;
+    onToggle: () => void;
+}
+
+function PasswordVisibilityButton({
+    isVisible,
+    label,
+    onToggle,
+}: PasswordVisibilityButtonProps) {
+    const Icon = isVisible ? EyeOff : Eye;
+
+    return (
+        <button
+            type="button"
+            aria-label={label}
+            title={label}
+            onClick={onToggle}
+            className="absolute right-3 top-1/2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/20"
+        >
+            <Icon
+                aria-hidden="true"
+                className="size-4"
+            />
+        </button>
+    );
+}
+
+async function refreshBrowserSessionAfterCredentialChange(): Promise<boolean> {
+    const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "X-Asancha-Client": "asancha-web",
+        },
+    });
+
+    return response.ok;
+}
+
 export function AccountSecurityPage() {
+    const router = useRouter();
+    const { showToast } = useToast();
+
     const [response, setResponse] =
         useState<AccountSecurityResponse | null>(
             null,
@@ -67,6 +166,26 @@ export function AccountSecurityPage() {
         emailChangePassword,
         setEmailChangePassword,
     ] = useState("");
+
+    const [
+        showCurrentPassword,
+        setShowCurrentPassword,
+    ] = useState(false);
+
+    const [
+        showNewPassword,
+        setShowNewPassword,
+    ] = useState(false);
+
+    const [
+        showConfirmPassword,
+        setShowConfirmPassword,
+    ] = useState(false);
+
+    const [
+        showEmailChangePassword,
+        setShowEmailChangePassword,
+    ] = useState(false);
 
     const [isLoading, setIsLoading] =
         useState(true);
@@ -103,10 +222,17 @@ export function AccountSecurityPage() {
                         "/me/security",
                     );
 
-                setResponse(result);
+                setResponse(
+                    normalizeSecurityResponse(
+                        result,
+                    ),
+                );
             } catch {
+                setResponse(
+                    FALLBACK_SECURITY_RESPONSE,
+                );
                 setErrorMessage(
-                    "We could not load your security information.",
+                    "We could not load your full security summary. Password and email settings are still available.",
                 );
             } finally {
                 setIsLoading(false);
@@ -114,7 +240,9 @@ export function AccountSecurityPage() {
         }, []);
 
     useEffect((): void => {
-        void loadSecurity();
+        queueMicrotask(() => {
+            void loadSecurity();
+        });
     }, [loadSecurity]);
 
     const handlePasswordChange = async (
@@ -149,11 +277,8 @@ export function AccountSecurityPage() {
 
         const payload:
             ChangePasswordPayload = {
-            data: {
-                currentPassword,
-                newPassword,
-                confirmNewPassword,
-            },
+            currentPassword,
+            newPassword,
         };
 
         try {
@@ -170,7 +295,29 @@ export function AccountSecurityPage() {
                 "Your password has been changed.",
             );
 
-            await loadSecurity();
+            const refreshed =
+                await refreshBrowserSessionAfterCredentialChange();
+
+            if (refreshed) {
+                await loadSecurity();
+            } else {
+                setSuccessMessage(
+                    "Your password has been changed. Sign in again to continue.",
+                );
+                showToast({
+                    title:
+                        "Password changed successfully",
+                    description:
+                        "Please sign in again to continue.",
+                    variant: "success",
+                });
+
+                window.setTimeout(() => {
+                    router.replace(
+                        "/auth/sign-in",
+                    );
+                }, 1500);
+            }
         } catch {
             setErrorMessage(
                 "We could not change your password.",
@@ -192,25 +339,28 @@ export function AccountSecurityPage() {
             return;
         }
 
+        if (!emailChangePassword) {
+            setErrorMessage(
+                "Enter your current password.",
+            );
+            return;
+        }
+
         setIsRequestingEmailChange(true);
         setErrorMessage(null);
         setSuccessMessage(null);
 
         const payload:
             RequestEmailChangePayload = {
-            data: {
-                newEmail:
-                    newEmail.trim(),
-
-                currentPassword:
-                    emailChangePassword ||
-                    null,
-            },
+            newEmail:
+                newEmail.trim(),
+            password:
+                emailChangePassword,
         };
 
         try {
             await authApiPost(
-                "/me/email-change-request",
+                "/auth/change-email",
                 payload,
             );
 
@@ -218,7 +368,7 @@ export function AccountSecurityPage() {
             setEmailChangePassword("");
 
             setSuccessMessage(
-                "Your email-change request has been submitted. Follow the verification instructions sent by Asancha.",
+                "Your email-change request has been submitted. Follow the confirmation instructions sent by Asancha.",
             );
         } catch {
             setErrorMessage(
@@ -288,6 +438,9 @@ export function AccountSecurityPage() {
 
     const inputClassName =
         "mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm";
+    const passwordInputClassName = `${inputClassName} pr-12`;
+    const securitySummary =
+        response.summary;
 
     return (
         <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -307,10 +460,10 @@ export function AccountSecurityPage() {
                 </p>
             </header>
 
-            {response.summary.safeUserMessage ? (
+            {securitySummary.safeUserMessage ? (
                 <div className="mt-5 rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
                     {
-                        response.summary
+                        securitySummary
                             .safeUserMessage
                     }
                 </div>
@@ -360,20 +513,49 @@ export function AccountSecurityPage() {
                                 Current password
                             </label>
 
-                            <input
-                                id="currentPassword"
-                                type="password"
-                                autoComplete="current-password"
-                                value={currentPassword}
-                                onChange={(
-                                    event: ChangeEvent<HTMLInputElement>,
-                                ): void =>
-                                    setCurrentPassword(
-                                        event.target.value,
-                                    )
-                                }
-                                className={inputClassName}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="currentPassword"
+                                    type={
+                                        showCurrentPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    autoComplete="current-password"
+                                    value={currentPassword}
+                                    onChange={(
+                                        event: ChangeEvent<HTMLInputElement>,
+                                    ): void =>
+                                        setCurrentPassword(
+                                            event
+                                                .target
+                                                .value,
+                                        )
+                                    }
+                                    className={
+                                        passwordInputClassName
+                                    }
+                                />
+
+                                <PasswordVisibilityButton
+                                    isVisible={
+                                        showCurrentPassword
+                                    }
+                                    label={
+                                        showCurrentPassword
+                                            ? "Hide current password"
+                                            : "Show current password"
+                                    }
+                                    onToggle={() =>
+                                        setShowCurrentPassword(
+                                            (
+                                                current,
+                                            ) =>
+                                                !current,
+                                        )
+                                    }
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -384,20 +566,49 @@ export function AccountSecurityPage() {
                                 New password
                             </label>
 
-                            <input
-                                id="newPassword"
-                                type="password"
-                                autoComplete="new-password"
-                                value={newPassword}
-                                onChange={(
-                                    event: ChangeEvent<HTMLInputElement>,
-                                ): void =>
-                                    setNewPassword(
-                                        event.target.value,
-                                    )
-                                }
-                                className={inputClassName}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="newPassword"
+                                    type={
+                                        showNewPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    autoComplete="new-password"
+                                    value={newPassword}
+                                    onChange={(
+                                        event: ChangeEvent<HTMLInputElement>,
+                                    ): void =>
+                                        setNewPassword(
+                                            event
+                                                .target
+                                                .value,
+                                        )
+                                    }
+                                    className={
+                                        passwordInputClassName
+                                    }
+                                />
+
+                                <PasswordVisibilityButton
+                                    isVisible={
+                                        showNewPassword
+                                    }
+                                    label={
+                                        showNewPassword
+                                            ? "Hide new password"
+                                            : "Show new password"
+                                    }
+                                    onToggle={() =>
+                                        setShowNewPassword(
+                                            (
+                                                current,
+                                            ) =>
+                                                !current,
+                                        )
+                                    }
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -408,22 +619,51 @@ export function AccountSecurityPage() {
                                 Confirm new password
                             </label>
 
-                            <input
-                                id="confirmNewPassword"
-                                type="password"
-                                autoComplete="new-password"
-                                value={
-                                    confirmNewPassword
-                                }
-                                onChange={(
-                                    event: ChangeEvent<HTMLInputElement>,
-                                ): void =>
-                                    setConfirmNewPassword(
-                                        event.target.value,
-                                    )
-                                }
-                                className={inputClassName}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="confirmNewPassword"
+                                    type={
+                                        showConfirmPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    autoComplete="new-password"
+                                    value={
+                                        confirmNewPassword
+                                    }
+                                    onChange={(
+                                        event: ChangeEvent<HTMLInputElement>,
+                                    ): void =>
+                                        setConfirmNewPassword(
+                                            event
+                                                .target
+                                                .value,
+                                        )
+                                    }
+                                    className={
+                                        passwordInputClassName
+                                    }
+                                />
+
+                                <PasswordVisibilityButton
+                                    isVisible={
+                                        showConfirmPassword
+                                    }
+                                    label={
+                                        showConfirmPassword
+                                            ? "Hide confirmed password"
+                                            : "Show confirmed password"
+                                    }
+                                    onToggle={() =>
+                                        setShowConfirmPassword(
+                                            (
+                                                current,
+                                            ) =>
+                                                !current,
+                                        )
+                                    }
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -431,7 +671,7 @@ export function AccountSecurityPage() {
                         type="submit"
                         disabled={
                             isChangingPassword ||
-                            !response.summary
+                            !securitySummary
                                 .canChangePassword
                         }
                         className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
@@ -456,7 +696,7 @@ export function AccountSecurityPage() {
                         Current email:{" "}
                         <strong className="text-[var(--foreground)]">
                             {
-                                response.summary
+                                securitySummary
                                     .email
                             }
                         </strong>
@@ -465,7 +705,7 @@ export function AccountSecurityPage() {
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                         Verification:{" "}
                         {
-                            response.summary
+                            securitySummary
                                 .emailVerificationStatus
                         }
                     </p>
@@ -503,22 +743,54 @@ export function AccountSecurityPage() {
                                 Current password
                             </label>
 
-                            <input
-                                id="emailChangePassword"
-                                type="password"
-                                autoComplete="current-password"
-                                value={
-                                    emailChangePassword
-                                }
-                                onChange={(
-                                    event: ChangeEvent<HTMLInputElement>,
-                                ): void =>
-                                    setEmailChangePassword(
-                                        event.target.value,
-                                    )
-                                }
-                                className={inputClassName}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="emailChangePassword"
+                                    name="emailChangePasswordConfirmation"
+                                    type={
+                                        showEmailChangePassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    autoComplete="off"
+                                    data-1p-ignore="true"
+                                    data-lpignore="true"
+                                    value={
+                                        emailChangePassword
+                                    }
+                                    onChange={(
+                                        event: ChangeEvent<HTMLInputElement>,
+                                    ): void =>
+                                        setEmailChangePassword(
+                                            event
+                                                .target
+                                                .value,
+                                        )
+                                    }
+                                    className={
+                                        passwordInputClassName
+                                    }
+                                />
+
+                                <PasswordVisibilityButton
+                                    isVisible={
+                                        showEmailChangePassword
+                                    }
+                                    label={
+                                        showEmailChangePassword
+                                            ? "Hide password for email change"
+                                            : "Show password for email change"
+                                    }
+                                    onToggle={() =>
+                                        setShowEmailChangePassword(
+                                            (
+                                                current,
+                                            ) =>
+                                                !current,
+                                        )
+                                    }
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -526,7 +798,7 @@ export function AccountSecurityPage() {
                         type="submit"
                         disabled={
                             isRequestingEmailChange ||
-                            !response.summary
+                            !securitySummary
                                 .canRequestEmailChange
                         }
                         className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"

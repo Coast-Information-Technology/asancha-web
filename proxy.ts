@@ -22,8 +22,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+const ACCESS_TOKEN_COOKIE_NAME = "asancha_access_token";
+const REFRESH_TOKEN_COOKIE_NAME = "asancha_refresh_token";
+
 const AUTH_COOKIE_NAMES = [
-  "asancha_access_token",
+  ACCESS_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_NAME,
   "asancha_session",
   "asancha_session_hint",
   "access_token",
@@ -39,6 +43,7 @@ const GUEST_PREFERRED_ROUTES = [
 const PROTECTED_ROUTE_PREFIXES = [
   "/dashboard",
   "/account",
+  "/onboarding",
   "/documents",
   "/verification",
   "/payments",
@@ -64,17 +69,38 @@ const PROTECTED_API_PARTNER_ROUTE_PREFIXES = [
 const FORBIDDEN_PUBLIC_APP_ROUTE_PREFIXES = ["/admin", "/staff"] as const;
 
 /**
- * Checks whether the request contains one of the supported auth cookies.
- *
- * This does not verify token validity.
- * Backend verification remains required for protected API actions.
+ * Checks whether the request contains the access-token cookie used for
+ * authenticated page guidance.
  */
-function hasAuthCookie(request: NextRequest): boolean {
-  return AUTH_COOKIE_NAMES.some((cookieName) => {
-    const cookieValue = request.cookies.get(cookieName)?.value;
+function hasAccessTokenCookie(request: NextRequest): boolean {
+  return Boolean(request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value);
+}
 
-    return Boolean(cookieValue);
-  });
+/**
+ * Checks whether the request contains the refresh-token cookie that can renew
+ * a missing or expired access token through the backend proxy.
+ */
+function hasRefreshTokenCookie(request: NextRequest): boolean {
+  return Boolean(request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value);
+}
+
+/**
+ * Clears all local auth cookies before sending the browser to sign-in.
+ */
+function redirectToSignInAndClearSession(request: NextRequest): NextResponse {
+  const response = NextResponse.redirect(createSignInRedirect(request));
+
+  for (const cookieName of AUTH_COOKIE_NAMES) {
+    response.cookies.set(cookieName, "", {
+      httpOnly: cookieName !== "asancha_session_hint",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 0,
+    });
+  }
+
+  return response;
 }
 
 /**
@@ -122,7 +148,9 @@ function createSignInRedirect(request: NextRequest): URL {
  */
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
-  const isAuthenticated = hasAuthCookie(request);
+  const hasAccessToken = hasAccessTokenCookie(request);
+  const hasRefreshToken = hasRefreshTokenCookie(request);
+  const hasRenewableSession = hasAccessToken || hasRefreshToken;
 
   const isForbiddenPublicAppRoute = startsWithAny(
     pathname,
@@ -139,11 +167,11 @@ export function proxy(request: NextRequest): NextResponse {
     startsWithAny(pathname, PROTECTED_ROUTE_PREFIXES) ||
     startsWithAny(pathname, PROTECTED_API_PARTNER_ROUTE_PREFIXES);
 
-  if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(createSignInRedirect(request));
+  if (isProtectedRoute && !hasRenewableSession) {
+    return redirectToSignInAndClearSession(request);
   }
 
-  if (isAuthenticated && isGuestPreferredRoute(pathname)) {
+  if (hasAccessToken && isGuestPreferredRoute(pathname)) {
     return NextResponse.redirect(createRedirectUrl(request, "/dashboard"));
   }
 

@@ -24,24 +24,31 @@ import {
   ApiClientRequestOptions,
   ApiRequestBody,
 } from "./api-client";
-import { buildApiUrl } from "./api-routes";
 import { getAccessToken } from "@/src/features/auth/lib/auth-token-store";
 
 const AUTH_REQUEST_HEADERS = {
   "X-Asancha-Client": "asancha-web",
 } as const;
 
-function applyAuthHeaders(headers: Headers): Headers {
+function buildAuthenticatedApiUrl(path: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  return `/api/backend${normalizedPath}`;
+}
+
+async function applyAuthHeadersAsync(headers: Headers): Promise<Headers> {
   Object.entries(AUTH_REQUEST_HEADERS).forEach(([key, value]) => {
     if (!headers.has(key)) {
       headers.set(key, value);
     }
   });
 
-  const accessToken = getAccessToken();
+  if (!headers.has("Authorization")) {
+    const accessToken = getAccessToken();
 
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+    if (accessToken) {
+      headers.set("Authorization", `Bearer ${accessToken}`);
+    }
   }
 
   return headers;
@@ -57,12 +64,12 @@ export function authFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  const headers = applyAuthHeaders(new Headers(init.headers));
-
-  return fetch(buildApiUrl(path), {
-    ...init,
-    headers,
-    credentials: init.credentials ?? "include",
+  return applyAuthHeadersAsync(new Headers(init.headers)).then((headers) => {
+    return fetch(buildAuthenticatedApiUrl(path), {
+      ...init,
+      headers,
+      credentials: init.credentials ?? "include",
+    });
   });
 }
 
@@ -73,12 +80,12 @@ export function authApiRequest<TResponse, TBody = ApiRequestBody>(
   path: string,
   options: ApiClientRequestOptions<TBody> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiRequest<TResponse, TBody>(path, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiRequest<TResponse, TBody>(buildAuthenticatedApiUrl(path), {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }
 
@@ -89,12 +96,12 @@ export function authApiGet<TResponse>(
   path: string,
   options: Omit<ApiClientRequestOptions, "method" | "body"> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiGet<TResponse>(path, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiGet<TResponse>(buildAuthenticatedApiUrl(path), {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }
 
@@ -106,12 +113,12 @@ export function authApiPost<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiPost<TResponse, TBody>(path, body, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiPost<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }
 
@@ -123,12 +130,12 @@ export function authApiPut<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiPut<TResponse, TBody>(path, body, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiPut<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }
 
@@ -140,12 +147,12 @@ export function authApiPatch<TResponse, TBody = ApiRequestBody>(
   body?: TBody,
   options: Omit<ApiClientRequestOptions<TBody>, "method" | "body"> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiPatch<TResponse, TBody>(path, body, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiPatch<TResponse, TBody>(buildAuthenticatedApiUrl(path), body, {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }
 
@@ -156,11 +163,11 @@ export function authApiDelete<TResponse>(
   path: string,
   options: Omit<ApiClientRequestOptions, "method" | "body"> = {},
 ): Promise<TResponse> {
-  const headers = applyAuthHeaders(new Headers(options.headers));
-
-  return apiDelete<TResponse>(path, {
-    ...options,
-    credentials: options.credentials ?? "include",
-    headers,
+  return applyAuthHeadersAsync(new Headers(options.headers)).then((headers) => {
+    return apiDelete<TResponse>(buildAuthenticatedApiUrl(path), {
+      ...options,
+      credentials: options.credentials ?? "include",
+      headers,
+    });
   });
 }

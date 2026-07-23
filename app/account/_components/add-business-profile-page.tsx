@@ -31,9 +31,14 @@ import {
     authApiPost,
 } from "../../../src/lib/api/auth-fetch";
 import {
+    getDashboardPathForBusinessProfile,
+    isBusinessProfileType,
+} from "../../../src/lib/auth/role-guards";
+import {
     BUSINESS_PROFILE_TYPE_OPTIONS,
 } from "../_config/account-navigation.config";
 import type {
+    AccountBusinessProfileType,
     AvailableBusinessProfileType,
     AvailableBusinessProfileTypesResponse,
     CreateBusinessProfileFormValues,
@@ -49,6 +54,75 @@ const INITIAL_VALUES:
 
     acceptedPolicies: [],
 };
+
+interface BackendBusinessProfileSummary {
+    publicId: string;
+    profileType: AccountBusinessProfileType;
+    verificationStatus: string;
+    isVerified: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    summary: Record<string, unknown>;
+}
+
+function getBusinessProfileDestination(
+    result:
+        | CreateBusinessProfileResult
+        | BackendBusinessProfileSummary,
+): string {
+    if ("profile" in result) {
+        return (
+            result.onboardingPath ??
+            result.profile.detailPath
+        );
+    }
+
+    if (isBusinessProfileType(result.profileType)) {
+        return getDashboardPathForBusinessProfile(
+            result.profileType,
+        );
+    }
+
+    return "/dashboard";
+}
+
+function createAvailableTypesFromProfiles(
+    profiles:
+        BackendBusinessProfileSummary[],
+): AvailableBusinessProfileTypesResponse {
+    const createdProfileTypes = new Set(
+        profiles.map(
+            (profile) => profile.profileType,
+        ),
+    );
+
+    return {
+        items: BUSINESS_PROFILE_TYPE_OPTIONS.map(
+            (option) => {
+                const alreadyCreated =
+                    createdProfileTypes.has(
+                        option.profileType,
+                    );
+
+                return {
+                    profileType:
+                        option.profileType,
+                    available: !alreadyCreated,
+                    alreadyCreated,
+                    requiresCompany: false,
+                    companyOptional: true,
+                    lockedReason:
+                        alreadyCreated
+                            ? "This business profile already exists for your account."
+                            : null,
+                    requiredPolicies: [],
+                };
+            },
+        ),
+        safeUserMessage: null,
+    };
+}
 
 export function AddBusinessProfilePage() {
     const router = useRouter();
@@ -79,11 +153,17 @@ export function AddBusinessProfilePage() {
 
             try {
                 const result =
-                    await authApiGet<AvailableBusinessProfileTypesResponse>(
-                        "/profiles/me/available-types",
+                    await authApiGet<
+                        BackendBusinessProfileSummary[]
+                    >(
+                        "/profiles/me/business-profiles",
                     );
 
-                setAvailableTypes(result);
+                setAvailableTypes(
+                    createAvailableTypesFromProfiles(
+                        result,
+                    ),
+                );
             } catch {
                 setErrorMessage(
                     "We could not load the available business-profile types.",
@@ -94,7 +174,9 @@ export function AddBusinessProfilePage() {
         }, []);
 
     useEffect((): void => {
-        void loadAvailableTypes();
+        queueMicrotask(() => {
+            void loadAvailableTypes();
+        });
     }, [loadAvailableTypes]);
 
     const selectedType =
@@ -224,28 +306,31 @@ export function AddBusinessProfilePage() {
 
         const payload:
             CreateBusinessProfilePayload = {
-            data: {
-                profileType:
-                    values.profileType,
+            profileType:
+                values.profileType,
 
-                companyPublicId:
-                    values.companyPublicId,
+            companyPublicId:
+                values.companyPublicId,
 
-                acceptedPolicies:
-                    values.acceptedPolicies,
-            },
+            acceptedPolicies:
+                values.acceptedPolicies,
         };
 
         try {
             const result =
-                await authApiPost<CreateBusinessProfileResult>(
+                await authApiPost<
+                    | CreateBusinessProfileResult
+                    | BackendBusinessProfileSummary,
+                    CreateBusinessProfilePayload
+                >(
                     "/profiles/me/business-profiles",
                     payload,
                 );
 
             router.push(
-                result.onboardingPath ??
-                    result.profile.detailPath,
+                getBusinessProfileDestination(
+                    result,
+                ),
             );
 
             router.refresh();

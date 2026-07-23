@@ -43,6 +43,7 @@ export function PublicFooter() {
                 className="h-auto w-20"
                 height={80}
                 src="/logo.png"
+                style={{ height: "auto" }}
                 width={80}
               />
             </Link>

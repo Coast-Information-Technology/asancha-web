@@ -34,7 +34,7 @@ export function EmailVerificationStep({
   email,
   onStartOver,
 }: EmailVerificationStepProps) {
-  const resendVerificationHref = `/auth/verify-email?email=${encodeURIComponent(
+  const resendVerificationHref = `/auth/resend-verification?email=${encodeURIComponent(
     email,
   )}`;
 

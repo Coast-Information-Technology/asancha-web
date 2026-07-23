@@ -17,74 +17,28 @@
 
 import Link from "next/link";
 import {
-    useCallback,
-    useEffect,
     useState,
     type ReactNode,
 } from "react";
 
-import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     PropertyAgentDashboardState,
 } from "../_types/property-agent-dashboard.types";
-import {
-    USE_DASHBOARD_DUMMY_DATA,
-    getPreviewDashboardState,
-} from "../_lib/dashboard-preview-state";
 
 export function PropertyAgentOverviewPage() {
     const [
         dashboardState,
-        setDashboardState,
     ] = useState<PropertyAgentDashboardState | null>(
         null,
     );
 
     const [
         isLoading,
-        setIsLoading,
-    ] = useState(true);
+    ] = useState(false);
 
     const [
         errorMessage,
-        setErrorMessage,
     ] = useState<string | null>(null);
-
-    const loadDashboard =
-        useCallback(async (): Promise<void> => {
-            setIsLoading(true);
-            setErrorMessage(null);
-
-            try {
-                if (USE_DASHBOARD_DUMMY_DATA) {
-                    setDashboardState(
-                        getPreviewDashboardState<PropertyAgentDashboardState>(
-                            "property_agent",
-                        ),
-                    );
-                    return;
-                }
-
-                const state =
-                    await authApiGet<PropertyAgentDashboardState>(
-                        "/me/dashboard-state",
-                    );
-
-                setDashboardState(state);
-            } catch {
-                setErrorMessage(
-                    "We could not load your property-agent dashboard.",
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        }, []);
-
-    useEffect((): void => {
-        queueMicrotask(() => {
-            void loadDashboard();
-        });
-    }, [loadDashboard]);
 
     if (isLoading) {
         return (

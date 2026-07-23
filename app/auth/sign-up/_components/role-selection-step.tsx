@@ -34,9 +34,9 @@ const roleDescriptions: Record<PublicSignupRole, string> = {
   property_agent:
     "Manage represented properties, listings, company details, and authority documents.",
   property_sourcer:
-    "Submit sourced opportunities, prepare deal packs, and track compliance tasks.",
+    "Submit sourced opportunities, prepare deal packs, and manage your sourcing activity.",
   service_provider:
-    "Publish services, manage availability, bookings, documents, and payments.",
+    "Publish your services, manage bookings, and handle payments in one place.",
 };
 
 /**

@@ -31,23 +31,35 @@ import type {
     UpdateAccountGeneralProfilePayload,
 } from "../_types/account.types";
 
+const GENERAL_PROFILE_ENDPOINT =
+    "/profiles/me/general";
+
 function profileToFormValues(
     profile: AccountGeneralProfile,
 ): AccountGeneralProfileFormValues {
     return {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-
-        displayName: profile.displayName,
-
-        phoneNumber: profile.phoneNumber,
-        dateOfBirth: profile.dateOfBirth,
-
-        address: profile.address,
-
+        firstName: profile.firstName ?? "",
+        lastName: profile.lastName ?? "",
+        displayName: profile.displayName ?? "",
+        phoneNumber: profile.phoneNumber ?? "",
+        preferredContactMethod:
+            profile.preferredContactMethod ??
+            "email",
+        profileImageUrl:
+            profile.profileImageUrl ?? "",
         informationAccurateConfirmed:
             false,
     };
+}
+
+function formatStatus(value: string): string {
+    return value
+        .replace(/_/g, " ")
+        .replace(
+            /\b\w/g,
+            (character: string): string =>
+                character.toUpperCase(),
+        );
 }
 
 export function AccountProfilePage() {
@@ -81,7 +93,7 @@ export function AccountProfilePage() {
             try {
                 const result =
                     await authApiGet<AccountGeneralProfile>(
-                        "/profiles/me",
+                        GENERAL_PROFILE_ENDPOINT,
                     );
 
                 setProfile(result);
@@ -98,7 +110,7 @@ export function AccountProfilePage() {
         }, []);
 
     useEffect((): void => {
-        void loadProfile();
+        void Promise.resolve().then(loadProfile);
     }, [loadProfile]);
 
     const updateRoot = <
@@ -120,50 +132,40 @@ export function AccountProfilePage() {
         setSuccessMessage(null);
     };
 
-    const updateAddress = <
-        TKey extends keyof AccountGeneralProfileFormValues["address"],
-    >(
-        key: TKey,
-        value: AccountGeneralProfileFormValues["address"][TKey],
-    ): void => {
-        setValues((current) =>
-            current
-                ? {
-                      ...current,
-                      address: {
-                          ...current.address,
-                          [key]: value,
-                      },
-                  }
-                : current,
-        );
-
-        setErrorMessage(null);
-        setSuccessMessage(null);
-    };
-
     const handleSubmit = async (
         event: FormEvent<HTMLFormElement>,
     ): Promise<void> => {
         event.preventDefault();
 
-        if (!profile || !values) {
+        if (!values) {
             return;
         }
 
-        if (!profile.canEdit) {
+        const firstName =
+            values.firstName.trim();
+        const lastName =
+            values.lastName.trim();
+        const displayName =
+            values.displayName.trim();
+        const phoneNumber =
+            values.phoneNumber.trim();
+        const profileImageUrl =
+            values.profileImageUrl.trim();
+
+        if (
+            !firstName ||
+            !lastName ||
+            !displayName
+        ) {
             setErrorMessage(
-                "This profile cannot currently be edited.",
+                "Enter your first name, last name, and display name.",
             );
             return;
         }
 
-        if (
-            !values.firstName.trim() ||
-            !values.lastName.trim()
-        ) {
+        if (!phoneNumber) {
             setErrorMessage(
-                "Enter your first and last name.",
+                "Enter your phone number.",
             );
             return;
         }
@@ -184,13 +186,25 @@ export function AccountProfilePage() {
 
         const payload:
             UpdateAccountGeneralProfilePayload = {
-            data: values,
+            firstName,
+            lastName,
+            displayName,
+            phoneNumber,
+            preferredContactMethod:
+                values.preferredContactMethod,
+            profileImageUrl:
+                profileImageUrl.length > 0
+                    ? profileImageUrl
+                    : null,
         };
 
         try {
             const result =
-                await authApiPatch<AccountGeneralProfile>(
-                    "/profiles/me",
+                await authApiPatch<
+                    AccountGeneralProfile,
+                    UpdateAccountGeneralProfilePayload
+                >(
+                    GENERAL_PROFILE_ENDPOINT,
                     payload,
                 );
 
@@ -248,17 +262,20 @@ export function AccountProfilePage() {
                 </h1>
 
                 <p className="mt-3 max-w-3xl leading-7 text-[var(--muted-foreground)]">
-                    Maintain the personal and contact
-                    information shared across your
-                    Asancha business profiles.
+                    Maintain the general profile details
+                    shared across your Asancha account
+                    and business workspaces.
                 </p>
             </header>
 
-            {profile.safeUserMessage ? (
-                <div className="mt-5 rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                    {profile.safeUserMessage}
-                </div>
-            ) : null}
+            <div className="mt-5 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                Profile status:{" "}
+                <strong className="text-[var(--foreground)]">
+                    {formatStatus(
+                        profile.profileCompletionStatus,
+                    )}
+                </strong>
+            </div>
 
             {errorMessage ? (
                 <div
@@ -299,7 +316,7 @@ export function AccountProfilePage() {
                             <input
                                 id="firstName"
                                 required
-                                disabled={!profile.canEdit}
+                                disabled={isSaving}
                                 value={values.firstName}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
@@ -324,7 +341,7 @@ export function AccountProfilePage() {
                             <input
                                 id="lastName"
                                 required
-                                disabled={!profile.canEdit}
+                                disabled={isSaving}
                                 value={values.lastName}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
@@ -338,7 +355,7 @@ export function AccountProfilePage() {
                             />
                         </div>
 
-                        <div>
+                        <div className="md:col-span-2">
                             <label
                                 htmlFor="displayName"
                                 className="text-sm font-semibold"
@@ -349,7 +366,7 @@ export function AccountProfilePage() {
                             <input
                                 id="displayName"
                                 required
-                                disabled={!profile.canEdit}
+                                disabled={isSaving}
                                 value={values.displayName}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
@@ -362,37 +379,16 @@ export function AccountProfilePage() {
                                 className={fieldClassName}
                             />
                         </div>
+                    </div>
+                </section>
 
+                <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7">
+                    <h2 className="text-xl font-bold">
+                        Contact
+                    </h2>
+
+                    <div className="mt-5 grid gap-5 md:grid-cols-2">
                         <div>
-                            <label
-                                htmlFor="dateOfBirth"
-                                className="text-sm font-semibold"
-                            >
-                                Date of birth
-                            </label>
-
-                            <input
-                                id="dateOfBirth"
-                                type="date"
-                                disabled={!profile.canEdit}
-                                value={
-                                    values.dateOfBirth ??
-                                    ""
-                                }
-                                onChange={(
-                                    event: ChangeEvent<HTMLInputElement>,
-                                ): void =>
-                                    updateRoot(
-                                        "dateOfBirth",
-                                        event.target.value ||
-                                            null,
-                                    )
-                                }
-                                className={fieldClassName}
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
                             <label
                                 htmlFor="phoneNumber"
                                 className="text-sm font-semibold"
@@ -403,132 +399,125 @@ export function AccountProfilePage() {
                             <input
                                 id="phoneNumber"
                                 type="tel"
-                                disabled={!profile.canEdit}
-                                value={
-                                    values.phoneNumber ??
-                                    ""
-                                }
+                                required
+                                disabled={isSaving}
+                                value={values.phoneNumber}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
                                 ): void =>
                                     updateRoot(
                                         "phoneNumber",
-                                        event.target.value ||
-                                            null,
+                                        event.target.value,
                                     )
                                 }
                                 className={fieldClassName}
                             />
                         </div>
-                    </div>
-                </section>
 
-                <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7">
-                    <h2 className="text-xl font-bold">
-                        Address
-                    </h2>
+                        <div>
+                            <label
+                                htmlFor="preferredContactMethod"
+                                className="text-sm font-semibold"
+                            >
+                                Preferred contact method
+                            </label>
 
-                    <div className="mt-5 grid gap-5 md:grid-cols-2">
-                        {(
-                            [
-                                {
-                                    key: "addressLine1",
-                                    label: "Address line 1",
-                                },
-                                {
-                                    key: "addressLine2",
-                                    label: "Address line 2",
-                                },
-                                {
-                                    key: "townCity",
-                                    label: "Town or city",
-                                },
-                                {
-                                    key: "county",
-                                    label: "County",
-                                },
-                                {
-                                    key: "postcode",
-                                    label: "Postcode",
-                                },
-                                {
-                                    key: "country",
-                                    label: "Country",
-                                },
-                            ] as const
-                        ).map((field) => (
-                            <div key={field.key}>
-                                <label
-                                    htmlFor={field.key}
-                                    className="text-sm font-semibold"
-                                >
-                                    {field.label}
-                                </label>
-
-                                <input
-                                    id={field.key}
-                                    disabled={
-                                        !profile.canEdit
-                                    }
-                                    value={
-                                        values.address[
-                                            field.key
-                                        ] ?? ""
-                                    }
-                                    onChange={(
-                                        event: ChangeEvent<HTMLInputElement>,
-                                    ): void =>
-                                        updateAddress(
-                                            field.key,
-                                            event.target
-                                                .value || null,
-                                        )
-                                    }
-                                    className={
-                                        fieldClassName
-                                    }
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {profile.canEdit ? (
-                    <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5">
-                        <label className="flex items-start gap-3">
-                            <input
-                                type="checkbox"
-                                checked={
-                                    values.informationAccurateConfirmed
+                            <select
+                                id="preferredContactMethod"
+                                required
+                                disabled={isSaving}
+                                value={
+                                    values.preferredContactMethod
                                 }
+                                onChange={(
+                                    event: ChangeEvent<HTMLSelectElement>,
+                                ): void =>
+                                    updateRoot(
+                                        "preferredContactMethod",
+                                        event.target
+                                            .value as AccountGeneralProfileFormValues["preferredContactMethod"],
+                                    )
+                                }
+                                className={fieldClassName}
+                            >
+                                <option value="email">
+                                    Email
+                                </option>
+                                <option value="phone">
+                                    Phone
+                                </option>
+                                <option value="whatsapp">
+                                    WhatsApp
+                                </option>
+                                <option value="platform_message">
+                                    Platform message
+                                </option>
+                            </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label
+                                htmlFor="profileImageUrl"
+                                className="text-sm font-semibold"
+                            >
+                                Profile image URL
+                            </label>
+
+                            <input
+                                id="profileImageUrl"
+                                type="url"
+                                disabled={isSaving}
+                                value={values.profileImageUrl}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
                                 ): void =>
                                     updateRoot(
-                                        "informationAccurateConfirmed",
-                                        event.target.checked,
+                                        "profileImageUrl",
+                                        event.target.value,
                                     )
                                 }
-                                className="mt-1 h-4 w-4 accent-[var(--primary)]"
+                                className={fieldClassName}
+                                placeholder="https://..."
                             />
+                        </div>
+                    </div>
+                </section>
 
-                            <span className="text-sm leading-6">
-                                I confirm that this profile
-                                information is accurate.
-                            </span>
-                        </label>
-
-                        <button
-                            type="submit"
+                <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5">
+                    <label className="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            checked={
+                                values.informationAccurateConfirmed
+                            }
                             disabled={isSaving}
-                            className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
-                        >
-                            {isSaving
-                                ? "Saving…"
-                                : "Save profile"}
-                        </button>
-                    </section>
-                ) : null}
+                            onChange={(
+                                event: ChangeEvent<HTMLInputElement>,
+                            ): void =>
+                                updateRoot(
+                                    "informationAccurateConfirmed",
+                                    event.target.checked,
+                                )
+                            }
+                            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+                        />
+
+                        <span className="text-sm leading-6">
+                            I confirm that this profile
+                            information is accurate.
+                        </span>
+                    </label>
+
+                    <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
+                    >
+                        {isSaving
+                            ? "Saving..."
+                            : "Save profile"}
+                    </button>
+                </section>
             </form>
         </main>
     );

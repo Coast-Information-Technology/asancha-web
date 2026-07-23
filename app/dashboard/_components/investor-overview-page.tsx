@@ -16,21 +16,14 @@
 
 import Link from "next/link";
 import {
-    useCallback,
-    useEffect,
     useState,
     type ReactNode,
 } from "react";
 
-import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     DashboardAction,
     DashboardState,
 } from "../_types/dashboard.types";
-import {
-    USE_DASHBOARD_DUMMY_DATA,
-    getPreviewDashboardState,
-} from "../_lib/dashboard-preview-state";
 
 function formatStatus(status: string): string {
     return status
@@ -41,50 +34,13 @@ function formatStatus(status: string): string {
 }
 
 export function InvestorOverviewPage() {
-    const [dashboardState, setDashboardState] =
+    const [dashboardState] =
         useState<DashboardState | null>(null);
 
-    const [isLoading, setIsLoading] =
-        useState(true);
+    const [isLoading] = useState(false);
 
-    const [errorMessage, setErrorMessage] =
+    const [errorMessage] =
         useState<string | null>(null);
-
-    const loadState =
-        useCallback(async (): Promise<void> => {
-            setIsLoading(true);
-            setErrorMessage(null);
-
-            try {
-                if (USE_DASHBOARD_DUMMY_DATA) {
-                    setDashboardState(
-                        getPreviewDashboardState<DashboardState>(
-                            "investor",
-                        ),
-                    );
-                    return;
-                }
-
-                const state =
-                    await authApiGet<DashboardState>(
-                        "/me/dashboard-state",
-                    );
-
-                setDashboardState(state);
-            } catch {
-                setErrorMessage(
-                    "We could not load your investor dashboard.",
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        }, []);
-
-    useEffect((): void => {
-        queueMicrotask(() => {
-            void loadState();
-        });
-    }, [loadState]);
 
     const summary =
         dashboardState?.investorSummary;

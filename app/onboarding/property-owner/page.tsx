@@ -13,8 +13,9 @@
 
 import type { Metadata } from "next";
 
-import { OnboardingFormPage } from "../_components/onboarding-form-page";
-import { PROPERTY_OWNER_ONBOARDING_CONFIG } from "../_config/onboarding-page-config";
+import {
+    PropertyOwnerOnboardingForm,
+} from "./_components/property-owner-onboarding-form";
 
 export const metadata: Metadata = {
     title: "Property Owner Onboarding",
@@ -23,11 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function PropertyOwnerOnboardingPage() {
-    return (
-        <OnboardingFormPage
-            config={
-                PROPERTY_OWNER_ONBOARDING_CONFIG
-            }
-        />
-    );
+    return <PropertyOwnerOnboardingForm />;
 }

@@ -88,7 +88,7 @@ const platformSteps = [
 ] as const;
 
 const marketplaceStats = [
-  ["3", "preview opportunities"],
+  ["Live", "marketplace discovery"],
   ["5", "public user roles"],
   ["24/7", "self-serve discovery"],
 ] as const;
@@ -99,7 +99,6 @@ const trustItems = [
   "Document and verification-aware workflows",
   "Clear separation between public and protected actions",
   "Controlled API partner application path",
-  "Dummy marketplace data ready for UI iteration",
 ] as const;
 
 const sectionReveal = {
@@ -212,12 +211,6 @@ export function HomePageExperience() {
                 Create account
               </Link>
 
-              <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-                href="/dashboard-ui"
-              >
-                Preview dashboards
-              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -269,11 +262,11 @@ export function HomePageExperience() {
                   </span>
                   <div>
                     <h3 className="font-bold text-foreground">
-                      Dummy marketplace data is active
+                      Marketplace data comes from the backend
                     </h3>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      Use the public marketplace now to refine listing cards,
-                      filters, search, detail pages, and calls to action.
+                      Published listings, filters, detail pages, and calls to
+                      action now reflect API responses.
                     </p>
                   </div>
                 </div>
@@ -557,9 +550,9 @@ export function HomePageExperience() {
 
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/dashboard-ui"
+                href="/dashboard"
               >
-                Preview dashboards
+                Go to dashboard
               </Link>
             </div>
           </div>

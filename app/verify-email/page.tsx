@@ -15,7 +15,7 @@
 
 import type { Metadata } from "next";
 
-import { EmailVerifyStatus } from "../auth/email-verify/_components/email-verify-status";
+import { EmailVerifyStatus } from "./_components/email-verify-status";
 
 export const metadata: Metadata = {
   title: "Verify email | Asancha",

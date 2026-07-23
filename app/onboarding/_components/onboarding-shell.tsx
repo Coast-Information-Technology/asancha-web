@@ -17,6 +17,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 export interface OnboardingShellProps {
@@ -34,11 +35,15 @@ export function OnboardingShell({
                         href="/"
                         className="inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] focus-visible:ring-offset-2"
                     >
-                        <span
-                            aria-hidden="true"
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--asancha-radius-md)] bg-[var(--primary)] font-bold text-[var(--primary-foreground)]"
-                        >
-                            A
+                        <span className="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-[var(--asancha-radius-md)] bg-white">
+                            <Image
+                                alt="Asancha"
+                                src="/logo.png"
+                                width={44}
+                                height={44}
+                                className="h-11 w-auto object-contain"
+                                priority
+                            />
                         </span>
 
                         <span>

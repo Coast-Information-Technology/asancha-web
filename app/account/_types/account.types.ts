@@ -108,36 +108,32 @@ export interface AccountOverview {
 }
 
 export interface AccountGeneralProfile {
-    profilePublicId: string;
+    publicId: string;
 
-    firstName: string;
-    lastName: string;
+    firstName: string | null;
+    lastName: string | null;
 
-    displayName: string;
+    displayName: string | null;
 
     phoneNumber: string | null;
+    preferredContactMethod:
+        | "email"
+        | "phone"
+        | "whatsapp"
+        | "platform_message"
+        | null;
+    profileImageUrl: string | null;
 
-    dateOfBirth: string | null;
-
-    address: {
-        addressLine1: string;
-        addressLine2: string | null;
-        townCity: string;
-        county: string | null;
-        postcode: string;
-        country: string;
-    };
-
-    completionStatus:
+    profileCompletionStatus:
         | "not_started"
         | "in_progress"
         | "completed";
 
-    canEdit: boolean;
+    activeBusinessProfileType:
+        AccountBusinessProfileType | null;
 
-    safeUserMessage: string | null;
-
-    updatedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface AccountGeneralProfileFormValues {
@@ -146,17 +142,13 @@ export interface AccountGeneralProfileFormValues {
 
     displayName: string;
 
-    phoneNumber: string | null;
-    dateOfBirth: string | null;
-
-    address: {
-        addressLine1: string;
-        addressLine2: string | null;
-        townCity: string;
-        county: string | null;
-        postcode: string;
-        country: string;
-    };
+    phoneNumber: string;
+    preferredContactMethod:
+        | "email"
+        | "phone"
+        | "whatsapp"
+        | "platform_message";
+    profileImageUrl: string;
 
     informationAccurateConfirmed: boolean;
 }
@@ -509,27 +501,30 @@ export interface BusinessProfileDetail {
     safeUserMessage: string | null;
 }
 
-export type UpdateAccountGeneralProfilePayload =
-    Record<string, unknown> & {
-        data:
-            AccountGeneralProfileFormValues;
-    };
+export interface UpdateAccountGeneralProfilePayload
+    extends Record<string, unknown> {
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    phoneNumber: string;
+    preferredContactMethod:
+        | "email"
+        | "phone"
+        | "whatsapp"
+        | "platform_message";
+    profileImageUrl: string | null;
+}
 
 export type ChangePasswordPayload =
     Record<string, unknown> & {
-        data: {
-            currentPassword: string;
-            newPassword: string;
-            confirmNewPassword: string;
-        };
+        currentPassword: string;
+        newPassword: string;
     };
 
 export type RequestEmailChangePayload =
     Record<string, unknown> & {
-        data: {
-            newEmail: string;
-            currentPassword: string | null;
-        };
+        newEmail: string;
+        password: string;
     };
 
 export type UpdateNotificationPreferencesPayload =
@@ -551,17 +546,15 @@ export type CreateSupportRequestPayload =
 
 export type CreateBusinessProfilePayload =
     Record<string, unknown> & {
-        data: {
-            profileType:
-                AccountBusinessProfileType;
+        profileType:
+            AccountBusinessProfileType;
 
-            companyPublicId:
-                string | null;
+        companyPublicId?:
+            string | null;
 
-            acceptedPolicies: Array<{
-                policyType: string;
-                policyVersion: string;
-                accepted: boolean;
-            }>;
-        };
+        acceptedPolicies?: Array<{
+            policyType: string;
+            policyVersion: string;
+            accepted: boolean;
+        }>;
     };

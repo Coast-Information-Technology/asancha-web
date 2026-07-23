@@ -1,6 +1,6 @@
 "use client";
 
-// File: app/auth/email-verify/_components/email-verify-status.tsx
+// File: app/verify-email/_components/email-verify-status.tsx
 
 /**
  * Asancha Email Verify Status Component
@@ -236,7 +236,7 @@ export function EmailVerifyStatus({
         {isMissing || isError ? (
           <Link
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-secondary bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:border-primary hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href={AUTH_PAGE_ROUTES.verifyEmail}
+            href={AUTH_PAGE_ROUTES.resendVerification}
           >
             Resend verification email
           </Link>

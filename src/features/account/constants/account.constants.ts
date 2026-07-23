@@ -55,11 +55,11 @@ export const ACCOUNT_API_ENDPOINTS = {
   session: (sessionPublicId: string): string =>
     `/me/sessions/${encodeURIComponent(sessionPublicId)}`,
 
-  generalProfile: "/profiles/me",
-  completeGeneralProfile: "/profiles/me/complete",
+  generalProfile: "/profiles/me/general",
+  completeGeneralProfile: "/profiles/me/general/complete",
   businessProfiles: "/profiles/me/business-profiles",
-  activeBusinessProfile: "/profiles/me/active",
-  switchBusinessProfile: "/profiles/me/switch",
+  activeBusinessProfile: "/profiles/me/active-business-profile",
+  switchBusinessProfile: "/profiles/me/active-business-profile",
 
   requiredPolicies: (context: string): string =>
     `/policies/required/${encodeURIComponent(context)}`,

@@ -55,17 +55,17 @@ export default function ForgotPasswordPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        Enter your email address and we will send password reset instructions.
+        We'll email you a link to reset your password.
       </p>
 
       {submitted ? (
         <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
           <h2 className="text-lg font-bold text-foreground">
-            Check your email
+            Check your inbox
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            If we find an account for that email, reset instructions will
-            arrive shortly.
+            If we find an account for that email, a reset link will arrive
+            shortly. Check your spam folder if it doesn't appear.
           </p>
           <Link
             className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"

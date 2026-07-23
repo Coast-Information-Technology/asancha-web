@@ -159,8 +159,7 @@ export function SignupFlow() {
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Step {stepNumber} of 3. Choose your role, add your login details, and
-          verify your email.
+          Choose your role, add your login details, and verify your email.
         </p>
 
         <p className="mt-4 text-sm text-muted-foreground">
@@ -196,8 +195,8 @@ export function SignupFlow() {
         </div>
 
         {selectedRole ? (
-          <p className="mt-4 inline-flex rounded-md bg-accent px-3 py-1 text-xs font-bold text-primary">
-            Selected role: {getRoleLabel(selectedRole)}
+          <p className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1 text-xs font-bold text-primary">
+            ✓ {getRoleLabel(selectedRole)}
           </p>
         ) : null}
       </div>

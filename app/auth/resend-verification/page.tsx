@@ -1,6 +1,6 @@
 "use client";
 
-// File: app/auth/verify-email/page.tsx
+// File: app/auth/resend-verification/page.tsx
 
 /**
  * Asancha Verification Email Resend Page
@@ -30,7 +30,7 @@ import { Input } from "@/src/components/ui/input/input";
 import { authApi } from "@/src/features/auth/api/auth.api";
 import { AUTH_SAFE_MESSAGES } from "@/src/features/auth/constants/auth.constants";
 
-interface VerifyEmailFormErrors {
+interface ResendVerificationFormErrors {
   email?: string;
   form?: string;
 }
@@ -42,10 +42,10 @@ function getInitialEmail(searchParams: URLSearchParams): string {
 /**
  * Renders the verification email resend page.
  */
-export default function VerifyEmailPage() {
+export default function ResendVerificationPage() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(() => getInitialEmail(searchParams));
-  const [errors, setErrors] = useState<VerifyEmailFormErrors>({});
+  const [errors, setErrors] = useState<ResendVerificationFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 

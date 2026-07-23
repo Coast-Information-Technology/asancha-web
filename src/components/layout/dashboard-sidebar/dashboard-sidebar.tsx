@@ -19,6 +19,7 @@
  * Backend dashboard-state, locked actions, and resource permissions remain final.
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   BadgeCheck,
@@ -46,14 +47,12 @@ import {
 } from "lucide-react";
 
 import type { BusinessProfileType } from "@/src/lib/auth/role-guards";
-import { getRoleLabel } from "@/src/lib/auth/role-guards";
 import { getDashboardNavigationSectionsByProfileType } from "@/src/lib/navigation/dashboard-navigation";
 import { isActiveNavigationItem } from "@/src/lib/navigation/public-navigation";
 import type { NavigationItem } from "@/src/lib/navigation/public-navigation";
 
 interface DashboardSidebarProps {
   activeProfileType: BusinessProfileType;
-  activeProfileName?: string | null;
   pathname: string;
 }
 
@@ -156,7 +155,6 @@ function getSidebarIcon(item: NavigationItem): LucideIcon {
  * Renders the desktop dashboard sidebar.
  */
 export function DashboardSidebar({
-  activeProfileName,
   activeProfileType,
   pathname,
 }: DashboardSidebarProps) {
@@ -168,29 +166,20 @@ export function DashboardSidebar({
       <div className="sticky top-0 flex h-screen flex-col">
         <div className="border-b border-border p-5">
           <Link
-            className="inline-flex items-center gap-2 rounded-lg font-extrabold text-foreground focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href="/dashboard"
+            aria-label="Asancha home"
+            className="inline-flex justify-self-center rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/20"
+            href="/"
           >
-            <span
-              aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground"
-            >
-              A
-            </span>
-            <span>Asancha</span>
+            <Image
+              alt="Asancha logo"
+              className="h-auto w-20"
+              height={80}
+              src="/logo.png"
+              style={{ height: "auto" }}
+              width={80}
+            />
           </Link>
 
-          <div className="mt-5 rounded-xl border border-border bg-background p-4 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-              Current workspace
-            </p>
-            <p className="mt-1 text-sm font-bold text-foreground">
-              {activeProfileName || getRoleLabel(activeProfileType)}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Static role navigation with account-aware workspace links.
-            </p>
-          </div>
         </div>
 
         <nav

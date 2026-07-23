@@ -28,7 +28,7 @@
 import { apiGet, apiPost } from "../../../lib/api/api-client";
 import type { AsanchaApiResponse } from "../../../lib/api/api-response";
 import { authApiGet, authApiPost } from "../../../lib/api/auth-fetch";
-import { getRefreshToken, setAuthTokens } from "../lib/auth-token-store";
+import { setAuthTokens } from "@/src/features/auth/lib/auth-token-store";
 
 import {
   AUTH_API_ENDPOINTS,
@@ -67,6 +67,7 @@ import type {
 } from "../types/auth.types";
 import {
   getDashboardPathForBusinessProfile,
+  isBusinessProfileType,
   isPublicAccountRole,
 } from "../../../lib/auth/role-guards";
 
@@ -123,6 +124,34 @@ interface BackendRefreshResult {
   sessionId?: string;
 }
 
+interface BackendGeneralProfileSummary {
+  profileCompletionStatus: "not_started" | "in_progress" | "completed";
+  activeBusinessProfileType: PublicAccountRole | null;
+}
+
+interface BackendActiveBusinessProfileSummary {
+  activeBusinessProfile: {
+    profileType: PublicAccountRole;
+  } | null;
+}
+
+interface BackendOnboardingStartResult {
+  publicId: string;
+  profileType: PublicAccountRole;
+  businessProfileType?: PublicAccountRole;
+  status: OnboardingStatus;
+  verificationStatus: string;
+  data: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const INTERNAL_AUTH_API_ENDPOINTS = {
+  signIn: "/api/auth/login",
+  signOut: "/api/auth/logout",
+  refresh: "/api/auth/refresh",
+} as const;
+
 /**
  * Creates a URL query string from defined string values.
  *
@@ -143,6 +172,34 @@ function createQueryString(
   const queryString = searchParams.toString();
 
   return queryString.length > 0 ? `?${queryString}` : "";
+}
+
+async function internalAuthPost<TResponse, TBody>(
+  path: string,
+  body?: TBody,
+): Promise<TResponse> {
+  const response = await fetch(path, {
+    method: "POST",
+    body: body === undefined ? undefined : JSON.stringify(body),
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  const responseBody = (await response.json().catch(() => null)) as
+    | AsanchaApiResponse<TResponse>
+    | null;
+
+  if (!response.ok || !responseBody?.success) {
+    throw new Error(
+      responseBody?.error?.message ||
+        responseBody?.message ||
+        "Authentication request failed.",
+    );
+  }
+
+  return responseBody.data;
 }
 
 /**
@@ -248,7 +305,7 @@ function getPostSignInPath(user: BackendSignInUser): string {
   if (!user.isVerified) {
     const searchParams = new URLSearchParams({ email: user.email });
 
-    return `${AUTH_PAGE_ROUTES.verifyEmail}?${searchParams.toString()}`;
+    return `${AUTH_PAGE_ROUTES.resendVerification}?${searchParams.toString()}`;
   }
 
   return getDashboardPathForBusinessProfile(user.role);
@@ -371,6 +428,106 @@ function storeBackendAuthTokens(
   });
 }
 
+function getBearerHeaders(accessToken: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+  };
+}
+
+function getDashboardPathForProfileType(
+  profileType: PublicAccountRole | null | undefined,
+): string | null {
+  if (!profileType || !isBusinessProfileType(profileType)) {
+    return null;
+  }
+
+  return getDashboardPathForBusinessProfile(profileType);
+}
+
+async function startRoleOnboarding(
+  profileType: PublicAccountRole,
+  accessToken: string,
+): Promise<BackendOnboardingStartResult | null> {
+  try {
+    return await authApiPost<
+      BackendOnboardingStartResult,
+      { profileType: PublicAccountRole }
+    >(
+      "/onboarding/start",
+      { profileType },
+      {
+        headers: getBearerHeaders(accessToken),
+      },
+    );
+  } catch {
+    return null;
+  }
+}
+
+async function resolveBackendPostSignInPath(
+  result: BackendSignInResult,
+): Promise<string> {
+  const fallbackPath = getPostSignInPath(result.user);
+
+  if (
+    !result.accessToken ||
+    result.user.isSuspended ||
+    !isPublicAccountRole(result.user.role) ||
+    !result.user.isVerified
+  ) {
+    return fallbackPath;
+  }
+
+  try {
+    await startRoleOnboarding(
+      result.user.role,
+      result.accessToken,
+    );
+
+    const generalProfile =
+      await authApiGet<BackendGeneralProfileSummary>(
+        "/profiles/me/general",
+        {
+          headers: getBearerHeaders(result.accessToken),
+        },
+      );
+
+    if (
+      generalProfile.profileCompletionStatus !== "completed"
+    ) {
+      return "/onboarding/general-profile";
+    }
+
+    const activeProfile =
+      await authApiGet<BackendActiveBusinessProfileSummary>(
+        "/profiles/me/active-business-profile",
+        {
+          headers: getBearerHeaders(result.accessToken),
+        },
+      ).catch(() => null);
+
+    const activeProfileDashboardPath = getDashboardPathForProfileType(
+      activeProfile?.activeBusinessProfile?.profileType,
+    );
+
+    if (activeProfileDashboardPath) {
+      return activeProfileDashboardPath;
+    }
+
+    const generalProfileDashboardPath = getDashboardPathForProfileType(
+      generalProfile.activeBusinessProfileType,
+    );
+
+    if (generalProfileDashboardPath) {
+      return generalProfileDashboardPath;
+    }
+
+    return fallbackPath;
+  } catch {
+    return fallbackPath;
+  }
+}
+
 /**
  * Signs a public user into Asancha.
  *
@@ -378,14 +535,26 @@ function storeBackendAuthTokens(
  * server-managed authentication cookies.
  */
 async function signIn(payload: SignInPayload): Promise<SignInResult> {
-  const result = await apiPost<SignInResult | BackendSignInResult, SignInPayload>(
-    AUTH_API_ENDPOINTS.signIn,
+  const result = await internalAuthPost<
+    SignInResult | BackendSignInResult,
+    SignInPayload
+  >(
+    INTERNAL_AUTH_API_ENDPOINTS.signIn,
     payload,
   );
 
   storeBackendAuthTokens(result);
 
-  return normalizeSignInResult(result);
+  const normalizedResult = normalizeSignInResult(result);
+
+  if (isFrontendSignInResult(result)) {
+    return normalizedResult;
+  }
+
+  return {
+    ...normalizedResult,
+    nextPath: await resolveBackendPostSignInPath(result),
+  };
 }
 
 /**
@@ -409,21 +578,10 @@ async function getSession(): Promise<AuthSessionResult> {
  * or exposed by this frontend function.
  */
 async function refreshSession(): Promise<RefreshSessionResult> {
-  const refreshToken = getRefreshToken();
-
-  if (!refreshToken) {
-    return {
-      session: {
-        authenticated: false,
-        user: null,
-      },
-    };
-  }
-
-  const result = await authApiPost<
+  const result = await internalAuthPost<
     RefreshSessionResult | BackendRefreshResult,
-    { refreshToken: string }
-  >(AUTH_API_ENDPOINTS.refresh, { refreshToken });
+    null
+  >(INTERNAL_AUTH_API_ENDPOINTS.refresh, null);
 
   storeBackendAuthTokens(result);
 
@@ -445,7 +603,10 @@ async function refreshSession(): Promise<RefreshSessionResult> {
  * the applicable authentication cookies.
  */
 async function signOut(): Promise<SignOutResult> {
-  return authApiPost<SignOutResult>(AUTH_API_ENDPOINTS.signOut);
+  return internalAuthPost<SignOutResult, null>(
+    INTERNAL_AUTH_API_ENDPOINTS.signOut,
+    null,
+  );
 }
 
 /**

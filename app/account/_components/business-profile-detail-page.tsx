@@ -23,8 +23,98 @@ import {
 
 import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
+    AccountBusinessProfileSummary,
+    AccountBusinessProfileType,
     BusinessProfileDetail,
 } from "../_types/account.types";
+
+interface BackendBusinessProfileSummary {
+    publicId: string;
+    profileType: AccountBusinessProfileType;
+    verificationStatus: string;
+    isVerified: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    summary: Record<string, unknown>;
+}
+
+function formatProfileType(value: string): string {
+    return value
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (character) =>
+            character.toUpperCase(),
+        );
+}
+
+function toAccountBusinessProfileSummary(
+    profile: BackendBusinessProfileSummary,
+): AccountBusinessProfileSummary {
+    const dashboardPath =
+        profile.profileType === "api_partner"
+            ? "/api-partner/dashboard"
+            : `/dashboard/${profile.profileType.replace(
+                  /_/g,
+                  "-",
+              )}`;
+
+    return {
+        profilePublicId: profile.publicId,
+        profileType: profile.profileType,
+        displayName: formatProfileType(
+            profile.profileType,
+        ),
+        onboardingStatus: "completed",
+        verificationStatus: profile.isVerified
+            ? "approved"
+            : "pending",
+        lifecycleStatus: profile.isActive
+            ? "active"
+            : "inactive",
+        isActive: profile.isActive,
+        canSwitch: profile.isActive,
+        canEdit: true,
+        pendingActionCount: 0,
+        dashboardPath,
+        detailPath: `/account/business-profiles/${encodeURIComponent(
+            profile.profileType,
+        )}`,
+        continueSetupPath: null,
+        switchLockedReason: profile.isActive
+            ? null
+            : "This business profile is inactive.",
+        safeUserMessage: null,
+    };
+}
+
+function normalizeBusinessProfileDetail(
+    result:
+        | BusinessProfileDetail
+        | BackendBusinessProfileSummary,
+): BusinessProfileDetail {
+    if ("profile" in result) {
+        return result;
+    }
+
+    const profile =
+        toAccountBusinessProfileSummary(result);
+
+    return {
+        profile,
+        statusSummary: {
+            onboardingStatus:
+                profile.onboardingStatus,
+            verificationStatus:
+                profile.verificationStatus,
+            documentStatus: "not_started",
+            policyStatus: "not_started",
+            paymentStatus: "none",
+        },
+        actions: [],
+        recentActivity: [],
+        safeUserMessage: null,
+    };
+}
 
 export interface BusinessProfileDetailPageProps {
     profilePublicId: string;
@@ -61,13 +151,20 @@ export function BusinessProfileDetailPage({
 
             try {
                 const result =
-                    await authApiGet<BusinessProfileDetail>(
+                    await authApiGet<
+                        | BusinessProfileDetail
+                        | BackendBusinessProfileSummary
+                    >(
                         `/profiles/me/business-profiles/${encodeURIComponent(
                             profilePublicId,
                         )}`,
                     );
 
-                setDetail(result);
+                setDetail(
+                    normalizeBusinessProfileDetail(
+                        result,
+                    ),
+                );
             } catch {
                 setErrorMessage(
                     "We could not load this business profile.",
@@ -78,7 +175,9 @@ export function BusinessProfileDetailPage({
         }, [profilePublicId]);
 
     useEffect((): void => {
-        void loadProfile();
+        queueMicrotask(() => {
+            void loadProfile();
+        });
     }, [loadProfile]);
 
     if (isLoading) {

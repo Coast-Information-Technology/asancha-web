@@ -28,7 +28,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import {
   PUBLIC_GUEST_ACTIONS,
@@ -36,12 +36,34 @@ import {
   isActiveNavigationItem,
   type NavigationItem,
 } from "@/src/lib/navigation/public-navigation";
+import { authApiGet } from "@/src/lib/api/auth-fetch";
+import {
+  getDashboardPathForBusinessProfile,
+  isBusinessProfileType,
+  type BusinessProfileType,
+} from "@/src/lib/auth/role-guards";
 
 import styles from "./public-header.module.css";
 import { MenuIcon } from "lucide-react";
 
 interface PublicHeaderProps {
   isAuthenticated?: boolean;
+}
+
+interface PublicActiveBusinessProfileSummary {
+  activeBusinessProfile: {
+    profileType: BusinessProfileType;
+  } | null;
+}
+
+interface PublicGeneralProfileSummary {
+  profileCompletionStatus: "not_started" | "in_progress" | "completed";
+  activeBusinessProfileType: BusinessProfileType | null;
+}
+
+interface PublicAuthSessionAction {
+  authenticated: boolean;
+  dashboardHref: string | null;
 }
 
 interface DesktopNavigationItemProps {
@@ -245,12 +267,98 @@ function MobileNavigationItem({
 export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState<string | null>(
+    isAuthenticated ? "/dashboard" : null,
+  );
 
-  const actionItems = isAuthenticated
+  useEffect(() => {
+    let ignoreResult = false;
+
+    async function resolveDashboardAction(): Promise<void> {
+      try {
+        const response = await fetch("/api/auth/session", {
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+        const envelope = (await response.json().catch(() => null)) as {
+          success?: boolean;
+          data?: PublicAuthSessionAction | null;
+        } | null;
+
+        if (ignoreResult) {
+          return;
+        }
+
+        if (response.ok && envelope?.success && envelope.data?.authenticated) {
+          setDashboardHref(envelope.data.dashboardHref ?? "/dashboard");
+          return;
+        }
+      } catch {
+        // Fall back to direct client checks below.
+      }
+
+      try {
+        const activeProfile =
+          await authApiGet<PublicActiveBusinessProfileSummary>(
+            "/profiles/me/active-business-profile",
+          );
+
+        if (ignoreResult) {
+          return;
+        }
+
+        const profileType = activeProfile.activeBusinessProfile?.profileType;
+
+        setDashboardHref(
+          profileType && isBusinessProfileType(profileType)
+            ? getDashboardPathForBusinessProfile(profileType)
+            : "/dashboard",
+        );
+      } catch {
+        try {
+          const generalProfile =
+            await authApiGet<PublicGeneralProfileSummary>(
+              "/profiles/me/general",
+            );
+
+          if (ignoreResult) {
+            return;
+          }
+
+          if (generalProfile.profileCompletionStatus !== "completed") {
+            setDashboardHref("/onboarding/general-profile");
+            return;
+          }
+
+          const profileType = generalProfile.activeBusinessProfileType;
+
+          setDashboardHref(
+            profileType && isBusinessProfileType(profileType)
+              ? getDashboardPathForBusinessProfile(profileType)
+              : "/dashboard",
+          );
+        } catch {
+          if (!ignoreResult) {
+            setDashboardHref(null);
+          }
+        }
+      }
+    }
+
+    void resolveDashboardAction();
+
+    return () => {
+      ignoreResult = true;
+    };
+  }, [pathname]);
+
+  const actionItems = dashboardHref
     ? [
         {
           label: "Dashboard",
-          href: "/dashboard",
+          href: dashboardHref,
           description: "Go to your dashboard.",
           access: "authenticated" as const,
         },
@@ -276,6 +384,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
             height={80}
             priority
             src="/logo.png"
+            style={{ height: "auto" }}
             width={80}
           />
         </Link>

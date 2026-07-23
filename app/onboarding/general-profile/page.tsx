@@ -9,8 +9,7 @@
 
 import type { Metadata } from "next";
 
-import { OnboardingFormPage } from "../_components/onboarding-form-page";
-import { GENERAL_PROFILE_ONBOARDING_CONFIG } from "../_config/onboarding-page-config";
+import { GeneralProfilePageClient } from "./_components/general-profile-page-client";
 
 export const metadata: Metadata = {
     title: "General Profile Setup",
@@ -19,11 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function GeneralProfileOnboardingPage() {
-    return (
-        <OnboardingFormPage
-            config={
-                GENERAL_PROFILE_ONBOARDING_CONFIG
-            }
-        />
-    );
+    return <GeneralProfilePageClient />;
 }

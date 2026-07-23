@@ -173,9 +173,9 @@ export const PUBLIC_AUTH_SUPPORT_NAVIGATION = [
     access: "guest_preferred",
   },
   {
-    label: "Verify Email",
-    href: "/auth/verify-email",
-    description: "Continue email verification where required.",
+    label: "Resend Verification",
+    href: "/auth/resend-verification",
+    description: "Request a new email verification link.",
     iconName: "MailCheck",
     access: "public",
   },

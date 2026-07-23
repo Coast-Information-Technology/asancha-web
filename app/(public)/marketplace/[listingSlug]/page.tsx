@@ -35,10 +35,6 @@ import {
   MARKETPLACE_PAGE_ROUTES,
   MARKETPLACE_SAFE_MESSAGES,
 } from "@/src/features/marketplace/constants/marketplace.constants";
-import {
-  getDummyMarketplaceListing,
-  USE_MARKETPLACE_DUMMY_DATA,
-} from "@/src/features/marketplace/lib/marketplace-dummy-data";
 import type {
   MarketplaceListingDetail,
   MarketplacePublicMedia,
@@ -68,10 +64,6 @@ const getPublicListing = cache(
     }
 
     try {
-      if (USE_MARKETPLACE_DUMMY_DATA) {
-        return getDummyMarketplaceListing(normalizedSlug);
-      }
-
       return await marketplaceApi.getListing(normalizedSlug);
     } catch {
       return null;

@@ -50,14 +50,15 @@ export const API_ROUTES = {
   },
 
   profiles: {
-    me: "/profiles/me",
-    completeGeneralProfile: "/profiles/me/complete",
+    me: "/profiles/me/general",
+    completeGeneralProfile: "/profiles/me/general/complete",
     businessProfiles: "/profiles/me/business-profiles",
-    activeBusinessProfile: "/profiles/me/active",
-    switchBusinessProfile: "/profiles/me/switch",
+    activeBusinessProfile: "/profiles/me/active-business-profile",
+    switchBusinessProfile: "/profiles/me/active-business-profile",
   },
 
   onboarding: {
+    start: "/onboarding/start",
     status: "/onboarding/status",
     generalProfile: "/onboarding/general-profile",
     investor: "/onboarding/investor",
@@ -180,6 +181,10 @@ export function normalizeApiPath(path: string): string {
  */
 export function buildApiUrl(path: string): string {
   const normalizedPath = normalizeApiPath(path);
+
+  if (normalizedPath.startsWith("/api/")) {
+    return normalizedPath;
+  }
 
   if (!API_BASE_URL) {
     return normalizedPath;

@@ -17,20 +17,13 @@
 
 import Link from "next/link";
 import {
-    useCallback,
-    useEffect,
     useState,
     type ReactNode,
 } from "react";
 
-import { authApiGet } from "../../../src/lib/api/auth-fetch";
 import type {
     PropertySourcerDashboardState,
 } from "../_types/property-sourcer-dashboard.types";
-import {
-    USE_DASHBOARD_DUMMY_DATA,
-    getPreviewDashboardState,
-} from "../_lib/dashboard-preview-state";
 
 function formatValue(value: string): string {
     return value
@@ -41,52 +34,15 @@ function formatValue(value: string): string {
 }
 
 export function PropertySourcerOverviewPage() {
-    const [dashboardState, setDashboardState] =
+    const [dashboardState] =
         useState<PropertySourcerDashboardState | null>(
             null,
         );
 
-    const [isLoading, setIsLoading] =
-        useState(true);
+    const [isLoading] = useState(false);
 
-    const [errorMessage, setErrorMessage] =
+    const [errorMessage] =
         useState<string | null>(null);
-
-    const loadDashboard =
-        useCallback(async (): Promise<void> => {
-            setIsLoading(true);
-            setErrorMessage(null);
-
-            try {
-                if (USE_DASHBOARD_DUMMY_DATA) {
-                    setDashboardState(
-                        getPreviewDashboardState<PropertySourcerDashboardState>(
-                            "property_sourcer",
-                        ),
-                    );
-                    return;
-                }
-
-                const state =
-                    await authApiGet<PropertySourcerDashboardState>(
-                        "/me/dashboard-state",
-                    );
-
-                setDashboardState(state);
-            } catch {
-                setErrorMessage(
-                    "We could not load your property-sourcer dashboard.",
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        }, []);
-
-    useEffect((): void => {
-        queueMicrotask(() => {
-            void loadDashboard();
-        });
-    }, [loadDashboard]);
 
     if (isLoading) {
         return (
@@ -179,7 +135,7 @@ export function PropertySourcerOverviewPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/dashboard/property-sourcer/deals/new"
-                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--card)] px-5 py-2 text-sm font-semibold text-[var(--card-foreground)]"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-5 py-2 text-sm font-semibold text-background hover:bg-foreground/80"
                     >
                         Submit deal
                     </Link>
