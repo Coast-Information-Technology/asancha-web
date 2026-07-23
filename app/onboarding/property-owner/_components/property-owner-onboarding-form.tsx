@@ -43,6 +43,15 @@ import {
     authApiPost,
     authApiPut,
 } from "../../../../src/lib/api/auth-fetch";
+import {
+    PROPERTY_OWNER_ONBOARDING_FLOW,
+} from "../../_config/role-onboarding-flows";
+import {
+    getRoleStepSaveEndpoint,
+    getRoleStepsEndpoint,
+    getRoleSubmitEndpoint,
+    type RoleOnboardingSubmitPayload,
+} from "../../_lib/role-onboarding-flow";
 
 type PropertyOwnerStepKey =
     | "owner_profile"
@@ -1235,7 +1244,8 @@ export function PropertyOwnerOnboardingForm() {
                             profileType: "property_owner";
                         }
                     >("/onboarding/start", {
-                        profileType: "property_owner",
+                        profileType:
+                            PROPERTY_OWNER_ONBOARDING_FLOW.profileType,
                     });
 
                 if (
@@ -1257,7 +1267,9 @@ export function PropertyOwnerOnboardingForm() {
 
                 const result =
                     await authApiGet<unknown>(
-                        "/onboarding/me/property_owner/steps",
+                        getRoleStepsEndpoint(
+                            PROPERTY_OWNER_ONBOARDING_FLOW,
+                        ),
                     );
 
                 if (!isPropertyOwnerStepsResponse(result)) {
@@ -1434,7 +1446,7 @@ export function PropertyOwnerOnboardingForm() {
             );
             formData.set(
                 "folder",
-                "asancha/onboarding/property-owner",
+                PROPERTY_OWNER_ONBOARDING_FLOW.uploadFolder,
             );
 
             const response = await fetch(
@@ -1581,14 +1593,17 @@ export function PropertyOwnerOnboardingForm() {
             try {
                 const savedSteps =
                     await authApiPut<
-                    PropertyOwnerOnboardingStepsResponse,
-                    PropertyOwnerFormValues
-                >(
-                    `/onboarding/me/property_owner/steps/${activeStep.stepKey}`,
-                    createStepPayload(
-                        activeStepFields,
-                    ),
-                );
+                        PropertyOwnerOnboardingStepsResponse,
+                        PropertyOwnerFormValues
+                    >(
+                        getRoleStepSaveEndpoint(
+                            PROPERTY_OWNER_ONBOARDING_FLOW,
+                            activeStep.stepKey,
+                        ),
+                        createStepPayload(
+                            activeStepFields,
+                        ),
+                    );
 
                 setSuccessMessage(
                     SAFE_MESSAGES.saved,
@@ -1623,23 +1638,19 @@ export function PropertyOwnerOnboardingForm() {
             try {
                 await authApiPost<
                     unknown,
-                    {
-                        confirmAccuracy: true;
-                        submitForReview: true;
-                    }
+                    RoleOnboardingSubmitPayload
                 >(
-                    "/onboarding/me/property_owner/submit",
-                    {
-                        confirmAccuracy: true,
-                        submitForReview: true,
-                    },
+                    getRoleSubmitEndpoint(
+                        PROPERTY_OWNER_ONBOARDING_FLOW,
+                    ),
+                    PROPERTY_OWNER_ONBOARDING_FLOW.submitPayload,
                 );
 
                 setSuccessMessage(
                     SAFE_MESSAGES.submitted,
                 );
                 router.replace(
-                    "/dashboard/property-owner",
+                    PROPERTY_OWNER_ONBOARDING_FLOW.dashboardPath,
                 );
                 router.refresh();
             } catch {
@@ -2026,8 +2037,9 @@ export function PropertyOwnerOnboardingForm() {
                     role="alert"
                     className="rounded-[var(--asancha-radius-md)] border border-[var(--destructive)] p-5 text-sm text-[var(--destructive)]"
                 >
-                    Property owner onboarding is not
-                    available.
+                    {
+                        PROPERTY_OWNER_ONBOARDING_FLOW.unavailableMessage
+                    }
                 </div>
             </main>
         );
@@ -2040,7 +2052,9 @@ export function PropertyOwnerOnboardingForm() {
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--primary)]">
-                                Property owner onboarding
+                                {
+                                    PROPERTY_OWNER_ONBOARDING_FLOW.workspaceLabel
+                                }
                             </p>
                             <h1 className="mt-2 text-2xl font-bold tracking-tight">
                                 Complete your owner setup
@@ -2258,8 +2272,9 @@ export function PropertyOwnerOnboardingForm() {
                                     role="status"
                                     className="rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm text-[var(--muted-foreground)]"
                                 >
-                                    Loading property owner
-                                    onboarding steps…
+                                    {
+                                        PROPERTY_OWNER_ONBOARDING_FLOW.loadingMessage
+                                    }
                                 </div>
                             ) : null}
 
@@ -2390,14 +2405,15 @@ export function PropertyOwnerOnboardingForm() {
                             id="property-owner-submit-confirmation-title"
                             className="text-xl font-bold"
                         >
-                            Submit for review?
+                            {
+                                PROPERTY_OWNER_ONBOARDING_FLOW.submitConfirmationTitle
+                            }
                         </h2>
 
                         <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                            Once submitted, your property
-                            owner profile will be sent for
-                            review. You can go back now if
-                            you need to change anything.
+                            {
+                                PROPERTY_OWNER_ONBOARDING_FLOW.submitConfirmationDescription
+                            }
                         </p>
 
                         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
