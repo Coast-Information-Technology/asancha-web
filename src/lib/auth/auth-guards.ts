@@ -54,6 +54,7 @@ export const GUEST_PREFERRED_ROUTES = [
 ] as const;
 
 export const PUBLIC_AUTH_ROUTE_PREFIXES = [
+  "/auth/api-partner/register",
   "/auth/reset-password",
   "/auth/resend-verification",
   "/auth/google",

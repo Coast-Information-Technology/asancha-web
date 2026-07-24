@@ -98,15 +98,6 @@ const DEFAULT_PROFILE_OPTIONS: AddBusinessProfileOption[] =
             available: true,
             unavailableReason: null,
         },
-        {
-            profileType: "api_partner",
-            title: "API Partner",
-            description:
-                "Apply for controlled partner access, approved scopes, API keys, usage reporting, and webhooks.",
-            available: true,
-            unavailableReason: null,
-            route: "/api-partner/apply",
-        },
     ];
 
 export function AddBusinessProfileDrawer({

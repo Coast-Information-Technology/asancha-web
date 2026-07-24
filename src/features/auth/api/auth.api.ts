@@ -308,6 +308,10 @@ function getPostSignInPath(user: BackendSignInUser): string {
     return `${AUTH_PAGE_ROUTES.resendVerification}?${searchParams.toString()}`;
   }
 
+  if (user.role === "api_partner") {
+    return "/api-partner/dashboard";
+  }
+
   return getDashboardPathForBusinessProfile(user.role);
 }
 
@@ -476,6 +480,10 @@ async function resolveBackendPostSignInPath(
     !result.user.isVerified
   ) {
     return fallbackPath;
+  }
+
+  if (result.user.role === "api_partner") {
+    return "/api-partner/dashboard";
   }
 
   try {

@@ -126,12 +126,4 @@ export const BUSINESS_PROFILE_TYPE_OPTIONS:
             onboardingPath:
                 "/onboarding/service-provider",
         },
-        {
-            profileType: "api_partner",
-            label: "API partner",
-            description:
-                "Apply for controlled API access, approved scopes, usage, and billing.",
-            onboardingPath:
-                "/api-partner/apply",
-        },
     ];

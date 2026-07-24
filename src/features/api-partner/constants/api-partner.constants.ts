@@ -21,28 +21,36 @@ import type {
 } from "../types/api-partner.types";
 
 export const API_PARTNER_API_ENDPOINTS = {
-    dashboard: "/api-access/me/dashboard",
+    applicationSteps: "/api-partner/onboarding/steps",
 
-    application: "/api-access/applications/me",
-    submitApplication: "/api-access/applications",
+    dashboard: "/api-partner/dashboard",
 
-    client: "/api-access/clients/me",
+    applications: "/api-partner/applications",
+    application: "/api-partner/applications/me",
+    applicationContacts: "/api-partner/applications/me/contacts",
+    applicationComplianceVerification:
+        "/api-partner/applications/me/compliance-verification",
+    applicationCommercialSetup:
+        "/api-partner/applications/me/commercial-setup",
+    submitApplication: "/api-partner/applications/me/submit",
 
-    plans: "/api-access/plans",
+    client: "/api-partner/client",
 
-    keys: "/api-access/keys",
+    plans: "/api-partner/plans",
+
+    keys: "/api-partner/keys",
 
     revokeKey: (apiKeyPublicId: string): string =>
-        `/api-access/keys/${encodeURIComponent(
+        `/api-partner/keys/${encodeURIComponent(
             apiKeyPublicId,
         )}/revoke`,
 
-    usage: "/api-access/usage",
+    usage: "/api-partner/usage",
 
-    webhooks: "/api-access/webhooks",
+    webhooks: "/api-partner/webhooks",
 
     webhook: (webhookPublicId: string): string =>
-        `/api-access/webhooks/${encodeURIComponent(
+        `/api-partner/webhooks/${encodeURIComponent(
             webhookPublicId,
         )}`,
 } as const;

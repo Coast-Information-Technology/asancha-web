@@ -424,7 +424,7 @@ export function HowItWorksPageExperience() {
               </Link>
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/api-partner/apply"
+                href="/auth/api-partner/register"
               >
                 Apply for API access
               </Link>

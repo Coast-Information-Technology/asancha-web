@@ -19,6 +19,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? "";
 export const API_ROUTES = {
   auth: {
     register: "/auth/register",
+    registerApiPartner: "/auth/register/api-partner",
     login: "/auth/login",
     logout: "/auth/logout",
     refresh: "/auth/refresh",
@@ -66,7 +67,7 @@ export const API_ROUTES = {
     propertyAgent: "/onboarding/property-agent",
     propertySourcer: "/onboarding/property-sourcer",
     serviceProvider: "/onboarding/service-provider",
-    apiPartner: "/onboarding/api-partner",
+    apiPartner: "/api-partner/apply",
   },
 
   marketplace: {
@@ -133,17 +134,25 @@ export const API_ROUTES = {
   },
 
   apiPartner: {
-    apply: "/api-access/applications",
-    applicationStatus: "/api-access/application-status",
-    dashboard: "/api-access/dashboard",
-    client: "/api-access/client",
-    keys: "/api-access/keys",
-    usage: "/api-access/usage",
-    webhooks: "/api-access/webhooks",
-    docs: "/partner-api/docs",
-    billing: "/api-access/billing",
-    payments: "/api-access/payments",
-    support: "/api-access/support",
+    applicationSteps: "/api-partner/onboarding/steps",
+    applications: "/api-partner/applications",
+    application: "/api-partner/applications/me",
+    applicationContacts: "/api-partner/applications/me/contacts",
+    applicationComplianceVerification:
+      "/api-partner/applications/me/compliance-verification",
+    applicationCommercialSetup:
+      "/api-partner/applications/me/commercial-setup",
+    submitApplication: "/api-partner/applications/me/submit",
+    applicationStatus: "/api-partner/applications/me",
+    dashboard: "/api-partner/dashboard",
+    client: "/api-partner/client",
+    keys: "/api-partner/keys",
+    usage: "/api-partner/usage",
+    webhooks: "/api-partner/webhooks",
+    docs: "/api-partner/docs",
+    billing: "/api-partner/billing",
+    payments: "/api-partner/payments",
+    support: "/api-partner/support",
   },
 } as const;
 

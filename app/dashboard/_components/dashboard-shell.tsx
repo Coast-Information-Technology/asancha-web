@@ -276,7 +276,7 @@ const ONBOARDING_PATHS: Record<
         "/onboarding/service-provider",
 
     api_partner:
-        "/onboarding/api-partner",
+        "/api-partner/apply",
 };
 
 const SAFE_MESSAGES = {

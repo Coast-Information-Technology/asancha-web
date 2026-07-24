@@ -16,8 +16,8 @@
  *
  * Security notes:
  * - Staff roles and guest must never be available as business-profile options.
- * - API partner profile creation remains subject to backend permission and
- *   application rules.
+ * - API partner profiles are handled through the separate controlled
+ *   application flow.
  * - Constants guide frontend behaviour only; backend checks remain final.
  */
 
@@ -117,13 +117,6 @@ export const BUSINESS_PROFILE_OPTIONS = [
       "Provide approved legal, survey, finance, inspection, refurbishment, or related services.",
     policyContext: "service_provider_profile",
   },
-  {
-    value: "api_partner",
-    label: "API Partner",
-    description:
-      "Apply to connect an approved system to Asancha through controlled API access.",
-    policyContext: "api_partner_application",
-  },
 ] as const satisfies ReadonlyArray<{
   value: BusinessProfileType;
   label: string;
@@ -155,7 +148,7 @@ export const PROFILE_ONBOARDING_PATHS = {
   property_agent: "/onboarding/property-agent",
   property_sourcer: "/onboarding/property-sourcer",
   service_provider: "/onboarding/service-provider",
-  api_partner: "/onboarding/api-partner",
+  api_partner: "/api-partner/apply",
 } as const satisfies Record<BusinessProfileType, string>;
 
 export const PROFILE_CREATION_POLICY_GUIDANCE = {
@@ -224,6 +217,10 @@ export function getBusinessProfileOption(profileType: BusinessProfileType) {
 export function getBusinessProfileLabel(
   profileType: BusinessProfileType,
 ): string {
+  if (profileType === "api_partner") {
+    return "API Partner";
+  }
+
   return getBusinessProfileOption(profileType)?.label ?? profileType;
 }
 

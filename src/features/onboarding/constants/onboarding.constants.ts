@@ -67,7 +67,7 @@ export const ONBOARDING_PAGE_ROUTES = {
   propertyAgent: "/onboarding/property-agent",
   propertySourcer: "/onboarding/property-sourcer",
   serviceProvider: "/onboarding/service-provider",
-  apiPartner: "/onboarding/api-partner",
+  apiPartner: "/api-partner/apply",
   status: "/onboarding/status",
   pendingVerification: "/onboarding/pending-verification",
   correctionRequired: "/onboarding/correction-required",

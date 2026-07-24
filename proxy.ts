@@ -77,14 +77,6 @@ function hasAccessTokenCookie(request: NextRequest): boolean {
 }
 
 /**
- * Checks whether the request contains the refresh-token cookie that can renew
- * a missing or expired access token through the backend proxy.
- */
-function hasRefreshTokenCookie(request: NextRequest): boolean {
-  return Boolean(request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value);
-}
-
-/**
  * Clears all local auth cookies before sending the browser to sign-in.
  */
 function redirectToSignInAndClearSession(request: NextRequest): NextResponse {
@@ -149,8 +141,6 @@ function createSignInRedirect(request: NextRequest): URL {
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const hasAccessToken = hasAccessTokenCookie(request);
-  const hasRefreshToken = hasRefreshTokenCookie(request);
-  const hasRenewableSession = hasAccessToken || hasRefreshToken;
 
   const isForbiddenPublicAppRoute = startsWithAny(
     pathname,
@@ -167,7 +157,7 @@ export function proxy(request: NextRequest): NextResponse {
     startsWithAny(pathname, PROTECTED_ROUTE_PREFIXES) ||
     startsWithAny(pathname, PROTECTED_API_PARTNER_ROUTE_PREFIXES);
 
-  if (isProtectedRoute && !hasRenewableSession) {
+  if (isProtectedRoute && !hasAccessToken) {
     return redirectToSignInAndClearSession(request);
   }
 

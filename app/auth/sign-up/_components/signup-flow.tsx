@@ -211,7 +211,7 @@ export function SignupFlow() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link
               className="text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
-              href="/api-partner/apply"
+              href="/auth/api-partner/register"
             >
               Applying as an API partner?
             </Link>

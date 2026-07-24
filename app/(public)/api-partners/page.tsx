@@ -137,7 +137,7 @@ export default function ApiPartnersPage() {
           eyebrow="API partners"
           primaryAction={{
             label: "Apply for API access",
-            href: "/api-partner/apply",
+            href: "/auth/api-partner/register",
           }}
           secondaryAction={{ label: "Ask a partner question", href: "/support" }}
           secondaryDescription="Asancha API access is designed for approved partners who need to connect property workflows, marketplace-related processes, or approved integrations without exposing private system internals."
@@ -376,7 +376,7 @@ export default function ApiPartnersPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/api-partner/apply"
+                href="/auth/api-partner/register"
               >
                 Apply for API Access
               </Link>

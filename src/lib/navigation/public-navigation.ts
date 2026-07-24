@@ -291,7 +291,7 @@ export const PUBLIC_FOOTER_NAVIGATION = [
       },
       {
         label: "Apply",
-        href: "/api-partner/apply",
+        href: "/auth/api-partner/register",
         description: "Submit an API partner application.",
         iconName: "ClipboardCheck",
         access: "api_partner_public",

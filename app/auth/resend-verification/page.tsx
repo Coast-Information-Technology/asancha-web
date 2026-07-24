@@ -23,7 +23,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/src/components/ui/button/button";
 import { Input } from "@/src/components/ui/input/input";
@@ -35,8 +35,69 @@ interface ResendVerificationFormErrors {
   form?: string;
 }
 
+const RESEND_COOLDOWN_SECONDS = 120;
+const RESEND_COOLDOWN_STORAGE_KEY = "asancha.resend-verification.cooldowns";
+
 function getInitialEmail(searchParams: URLSearchParams): string {
   return searchParams.get("email")?.trim() ?? "";
+}
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function getCooldowns(): Record<string, number> {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(RESEND_COOLDOWN_STORAGE_KEY) ?? "{}",
+    ) as unknown;
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        ([, value]) => typeof value === "number" && Number.isFinite(value),
+      ),
+    ) as Record<string, number>;
+  } catch {
+    return {};
+  }
+}
+
+function getCooldownRemainingSeconds(email: string): number {
+  const expiresAt = getCooldowns()[normalizeEmail(email)] ?? 0;
+  const remainingMs = expiresAt - Date.now();
+
+  return Math.max(0, Math.ceil(remainingMs / 1000));
+}
+
+function setCooldown(email: string): number {
+  const normalizedEmail = normalizeEmail(email);
+  const expiresAt = Date.now() + RESEND_COOLDOWN_SECONDS * 1000;
+  const cooldowns = getCooldowns();
+
+  window.localStorage.setItem(
+    RESEND_COOLDOWN_STORAGE_KEY,
+    JSON.stringify({
+      ...cooldowns,
+      [normalizedEmail]: expiresAt,
+    }),
+  );
+
+  return RESEND_COOLDOWN_SECONDS;
+}
+
+function formatRemainingTime(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 /**
@@ -44,18 +105,53 @@ function getInitialEmail(searchParams: URLSearchParams): string {
  */
 export default function ResendVerificationPage() {
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState(() => getInitialEmail(searchParams));
+  const initialEmail = useMemo(() => getInitialEmail(searchParams), [searchParams]);
+  const [email, setEmail] = useState(initialEmail);
   const [errors, setErrors] = useState<ResendVerificationFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(() =>
+    getCooldownRemainingSeconds(initialEmail),
+  );
+
+  const normalizedEmail = useMemo(() => normalizeEmail(email), [email]);
+  const resendIsCoolingDown = remainingSeconds > 0;
+
+  useEffect(() => {
+    if (!resendIsCoolingDown) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setRemainingSeconds(getCooldownRemainingSeconds(normalizedEmail));
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [normalizedEmail, resendIsCoolingDown]);
+
+  function handleEmailChange(value: string): void {
+    setEmail(value);
+    setRemainingSeconds(getCooldownRemainingSeconds(value));
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const normalizedEmail = email.trim();
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setErrors({ email: "Enter a valid email address." });
+      setSuccessMessage(null);
+      return;
+    }
+
+    const cooldownRemaining = getCooldownRemainingSeconds(normalizedEmail);
+
+    if (cooldownRemaining > 0) {
+      setRemainingSeconds(cooldownRemaining);
+      setErrors({
+        form: `Please wait ${formatRemainingTime(
+          cooldownRemaining,
+        )} before requesting another verification email.`,
+      });
       setSuccessMessage(null);
       return;
     }
@@ -72,6 +168,7 @@ export default function ResendVerificationPage() {
       setSuccessMessage(
         result.message || AUTH_SAFE_MESSAGES.resendVerificationAccepted,
       );
+      setRemainingSeconds(setCooldown(normalizedEmail));
     } catch (error) {
       setErrors({
         form:
@@ -104,7 +201,7 @@ export default function ResendVerificationPage() {
           disabled={isSubmitting}
           errorMessage={errors.email}
           label="Email address"
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => handleEmailChange(event.target.value)}
           required
           type="email"
           value={email}
@@ -129,12 +226,15 @@ export default function ResendVerificationPage() {
         ) : null}
 
         <Button
+          disabled={resendIsCoolingDown}
           fullWidth
           isLoading={isSubmitting}
           loadingLabel="Sending verification email"
           type="submit"
         >
-          Resend verification email
+          {resendIsCoolingDown
+            ? `Resend available in ${formatRemainingTime(remainingSeconds)}`
+            : "Resend verification email"}
         </Button>
 
         <Link

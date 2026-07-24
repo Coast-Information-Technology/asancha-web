@@ -92,7 +92,7 @@ export const ONBOARDING_PATH_BY_PROFILE_TYPE: Record<
   property_agent: "/onboarding/property-agent",
   property_sourcer: "/onboarding/property-sourcer",
   service_provider: "/onboarding/service-provider",
-  api_partner: "/onboarding/api-partner",
+  api_partner: "/api-partner/apply",
 };
 
 /**

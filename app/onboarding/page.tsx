@@ -150,10 +150,10 @@ export default function OnboardingPage() {
                     </h2>
 
                     <Link
-                        href="/onboarding/api-partner"
+                        href="/api-partner/apply"
                         className="mt-4 inline-flex text-sm font-semibold !text-primary hover:underline"
                     >
-                        View API partner application guidance
+                        Open API partner application
                     </Link>
                 </section>
             </div>

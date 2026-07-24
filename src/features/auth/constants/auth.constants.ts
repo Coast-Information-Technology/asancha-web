@@ -140,6 +140,8 @@ export const AUTH_PAGE_ROUTES = {
   onboarding: "/onboarding",
   dashboard: "/dashboard",
   apiPartnerApply: "/api-partner/apply",
+  apiPartnerRegister: "/auth/api-partner/register",
+  apiPartnerApplication: "/api-partner/apply",
 } as const;
 
 /**
@@ -151,6 +153,7 @@ export const AUTH_PAGE_ROUTES = {
 export const AUTH_API_ENDPOINTS = {
   signupPolicies: "/policies/signup",
   signUp: "/auth/register",
+  apiPartnerSignUp: "/auth/register/api-partner",
   signIn: "/auth/login",
   signOut: "/auth/logout",
   refresh: "/auth/refresh",
