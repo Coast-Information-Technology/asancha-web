@@ -390,7 +390,7 @@ export const LISTING_SAFE_MESSAGES = {
     "Only authorised Asancha staff may approve and publish a listing.",
 
   publicVisibilityRule:
-    "A listing appears publicly only when it is published and marketplace visibility is enabled by the backend.",
+    "A listing appears publicly only when it is published and marketplace visibility is enabled by Asancha.",
 } as const;
 
 export function getListingWorkspaceListPath(

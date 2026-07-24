@@ -113,7 +113,7 @@ export default function PropertyOwnersSolutionPage() {
           "Public marketplace previews should not reveal sensitive property documents.",
           "Owner private contact details should remain protected unless released through approved workflows.",
           "Document submission does not automatically mean approval.",
-          "Frontend visibility does not override backend review, verification, or publication rules.",
+          "Frontend visibility does not override secure review, verification, or publication rules.",
         ]}
         secondaryAction={{ label: "See how it works", href: "/how-it-works" }}
         supportingCopy="The owner journey makes listing preparation more organized while keeping sensitive documents, owner details, and review notes protected."

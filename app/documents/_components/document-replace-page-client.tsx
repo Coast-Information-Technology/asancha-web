@@ -265,10 +265,10 @@ export function DocumentReplacePageClient({
 
                     <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
                         This document cannot currently
-                        be replaced. The backend may
-                        restrict replacement after
-                        approval, deletion, supersession,
-                        or another lifecycle condition.
+                        be replaced. Replacement may be
+                        restricted after approval, deletion,
+                        supersession, or another lifecycle
+                        condition.
                     </p>
 
                     <Link

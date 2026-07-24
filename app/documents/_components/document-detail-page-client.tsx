@@ -122,7 +122,7 @@ export function DocumentDetailPageClient({
 
             const confirmed =
                 window.confirm(
-                    "Delete this document? This action is subject to backend document policy and may not be available after review has started.",
+                    "Delete this document? This action is subject to document policy and may not be available after review has started.",
                 );
 
             if (!confirmed) {

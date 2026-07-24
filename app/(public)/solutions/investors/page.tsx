@@ -103,7 +103,7 @@ export default function InvestorsSolutionPage() {
           "Public previews are not full deal packs.",
           "AI guidance is not financial, legal, or investment advice.",
           "Payment proof submission is not payment approval.",
-          "Visible frontend actions do not override backend approval checks.",
+          "Visible frontend actions do not override approval checks.",
         ]}
         secondaryAction={{ label: "Start as an investor", href: "/auth/sign-up" }}
         supportingCopy="The investor journey is shaped around goals, readiness, preferences, and the level of access required for each action."

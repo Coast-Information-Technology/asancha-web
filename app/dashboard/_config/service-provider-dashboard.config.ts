@@ -143,7 +143,7 @@ export const SERVICE_PROVIDER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "A requested booking is not confirmed until the backend records an accepted or confirmed booking state.",
+            "A requested booking is not confirmed until it is accepted or confirmed.",
     },
 
     documents: {
@@ -243,7 +243,7 @@ export const SERVICE_PROVIDER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Submitting payment proof does not approve a payment. Payment validity remains subject to backend reference and provider verification.",
+            "Submitting payment proof does not approve a payment. Payment validity remains subject to reference and provider verification.",
     },
 } as const satisfies Record<
     string,

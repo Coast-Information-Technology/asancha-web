@@ -188,7 +188,7 @@ export function ServiceProviderServicesPage() {
                 </strong>{" "}
                 Service visibility remains subject to
                 profile, verification, document, review,
-                status, and backend publication rules.
+                status, and platform publication rules.
             </div>
 
             {errorMessage ? (

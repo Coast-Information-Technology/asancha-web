@@ -832,7 +832,7 @@ const SAFE_MESSAGES = {
     loadError:
         "We could not load your property owner onboarding steps. You can still review the first step.",
     lockedStep:
-        "This step is locked until the previous onboarding step is accepted by the backend.",
+        "This step is locked until the previous onboarding step is accepted.",
     requiredFields:
         "Complete the required fields before continuing.",
     saved:
@@ -1580,7 +1580,7 @@ export function PropertyOwnerOnboardingForm() {
 
             if (!hasLoadedBackendSteps) {
                 setErrorMessage(
-                    "Property owner onboarding steps must load from the backend before saving. Refresh the steps and try again.",
+                    "Property owner onboarding steps must load before saving. Refresh the steps and try again.",
                 );
 
                 return false;
@@ -1666,7 +1666,7 @@ export function PropertyOwnerOnboardingForm() {
         async (): Promise<boolean> => {
             if (!hasLoadedBackendSteps) {
                 setErrorMessage(
-                    "Property owner onboarding steps must load from the backend before saving. Refresh the steps and try again.",
+                    "Property owner onboarding steps must load before saving. Refresh the steps and try again.",
                 );
 
                 return false;
@@ -2117,14 +2117,14 @@ export function PropertyOwnerOnboardingForm() {
                     </div>
 
                     <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                        Work through each backend-controlled
-                        step before your property owner
+                        Work through each required step
+                        before your property owner
                         profile is ready for review.
                     </p>
 
                     <div className="mt-5">
                         <div className="flex items-center justify-between gap-3 text-xs font-semibold">
-                            <span>Backend progress</span>
+                            <span>Progress</span>
                             <span>{progressPercent}%</span>
                         </div>
 
@@ -2304,7 +2304,7 @@ export function PropertyOwnerOnboardingForm() {
                                 </div>
                                 <div>
                                     <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
-                                        Current backend step
+                                        Current step
                                     </span>
                                     <strong>
                                         {
@@ -2357,8 +2357,7 @@ export function PropertyOwnerOnboardingForm() {
                                                 Step locked
                                             </h3>
                                             <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-                                                The backend has
-                                                locked this step.
+                                                This step is locked.
                                                 Complete and save
                                                 the previous step
                                                 first.

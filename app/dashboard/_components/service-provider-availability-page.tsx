@@ -366,7 +366,7 @@ export function ServiceProviderAvailabilityPage() {
                 <p className="mt-3 max-w-3xl leading-7 text-[var(--muted-foreground)]">
                     Define normal working hours and
                     booking preferences. Every booking
-                    remains subject to backend capacity
+                    remains subject to platform capacity
                     and conflict checks.
                 </p>
             </header>
@@ -564,7 +564,7 @@ export function ServiceProviderAvailabilityPage() {
                             <span className="text-sm leading-6">
                                 Allow instant booking
                                 where the service and
-                                backend rules permit it.
+                                platform rules permit it.
                             </span>
                         </label>
 

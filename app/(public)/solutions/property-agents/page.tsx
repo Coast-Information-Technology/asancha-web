@@ -113,7 +113,7 @@ export default function PropertyAgentsSolutionPage() {
           "Authority documents should stay protected and should not appear on public listing previews.",
           "Owner or seller private contact details should not be exposed publicly.",
           "Document submission does not automatically mean authority approval.",
-          "Frontend access does not override backend verification, review, or permission checks.",
+          "Frontend access does not override secure verification, review, or permission checks.",
         ]}
         secondaryAction={{ label: "See how it works", href: "/how-it-works" }}
         supportingCopy="The agent journey makes representation clearer while keeping authority documents, owner details, and review decisions protected."

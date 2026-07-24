@@ -101,7 +101,7 @@ export default function ServiceProvidersSolutionPage() {
           {
             title: "Track payment-aware actions",
             description:
-              "Follow references, proof review states, and backend-confirmed payment statuses.",
+              "Follow references, proof review states, and confirmed payment statuses.",
           },
         ]}
         journeyDescription="Service provider workflows connect profile setup, listings, availability, bookings, documents, conversations, and payments."
@@ -113,7 +113,7 @@ export default function ServiceProvidersSolutionPage() {
           "Private booking details should not be exposed on public pages.",
           "Payment proof submission does not automatically mean payment approval.",
           "Provider documents should remain protected behind approved workflows.",
-          "Frontend visibility does not override backend verification, booking, or payment checks.",
+          "Frontend visibility does not override secure verification, booking, or payment checks.",
         ]}
         secondaryAction={{ label: "See how it works", href: "/how-it-works" }}
         supportingCopy="The service provider journey helps users understand what you offer while keeping private booking details, documents, payment information, and restricted data protected."

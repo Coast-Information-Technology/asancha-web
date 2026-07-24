@@ -319,7 +319,7 @@ export const INVESTOR_COLLECTION_CONFIG = {
             "/dashboard/investor/opportunities",
 
         disclaimer:
-            "Submitting a reservation request or payment proof does not confirm a reservation. Backend review remains authoritative.",
+            "Submitting a reservation request or payment proof does not confirm a reservation. Review is still required.",
     },
 
     bookings: {

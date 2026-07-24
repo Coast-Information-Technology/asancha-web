@@ -57,7 +57,7 @@ const partnerBenefits = [
   {
     title: "Approved scopes",
     description:
-      "Partner access should be limited to approved use cases, allowed scopes, and backend-enforced permissions.",
+      "Partner access should be limited to approved use cases, allowed scopes, and enforced permissions.",
   },
   {
     title: "Usage visibility",
@@ -108,8 +108,8 @@ const protectedPartnerAreas = [
 const partnerSafetyNotes = [
   "API partner access is not available through ordinary public signup.",
   "API keys and webhook secrets must never be displayed on public pages.",
-  "Approved access can be limited, suspended, rotated, or revoked by backend rules.",
-  "Frontend partner screens do not override backend permission checks.",
+  "Approved access can be limited, suspended, rotated, or revoked by platform rules.",
+  "Frontend partner screens do not override platform permission checks.",
 ] as const;
 
 /**
@@ -140,7 +140,7 @@ export default function ApiPartnersPage() {
             href: "/api-partner/apply",
           }}
           secondaryAction={{ label: "Ask a partner question", href: "/support" }}
-          secondaryDescription="Asancha API access is designed for approved partners who need to connect property workflows, marketplace-related processes, or platform-approved integrations without exposing private system internals."
+          secondaryDescription="Asancha API access is designed for approved partners who need to connect property workflows, marketplace-related processes, or approved integrations without exposing private system internals."
           title="Controlled API access for approved property partners."
         />
 
@@ -259,7 +259,7 @@ export default function ApiPartnersPage() {
                 </p>
 
                 <p className="mt-4 text-base leading-7 text-muted-foreground">
-                  After approval, partner tools should still depend on backend
+                  After approval, partner tools should still depend on secure
                   authentication, authorization, scope checks, account status,
                   usage controls, and audit logging.
                 </p>

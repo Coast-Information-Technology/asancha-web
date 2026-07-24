@@ -378,7 +378,7 @@ export default async function ListingPreviewPage({
 
               <p className="mt-3 text-xs leading-5 text-muted-foreground">
                 Public pricing is subject to listing availability, verification,
-                and backend confirmation.
+                and platform confirmation.
               </p>
             </div>
           </header>

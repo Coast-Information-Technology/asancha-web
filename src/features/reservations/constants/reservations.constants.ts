@@ -334,7 +334,7 @@ export const RESERVATION_SAFE_MESSAGES = {
         "Your account is currently unable to create reservations.",
 
     confirmationControlled:
-        "Reservation confirmation remains subject to listing availability, payment verification, and backend review.",
+        "Reservation confirmation remains subject to listing availability, payment verification, and review.",
 
     dealPackRestricted:
         "Deal-pack access becomes available only after the reservation is confirmed and all required payment conditions are satisfied.",

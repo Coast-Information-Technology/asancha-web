@@ -4,7 +4,7 @@
  * Asancha Root Email Verification Callback Page
  *
  * Purpose:
- * Supports backend verification links that land at /verify-email?token=...
+ * Supports secure verification links that land at /verify-email?token=...
  * and passes the opaque token to the shared email verification status UI.
  *
  * Security note:

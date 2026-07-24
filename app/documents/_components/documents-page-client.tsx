@@ -213,8 +213,7 @@ export function DocumentsPageClient() {
 
             <div className="mt-5 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
                 Sensitive documents are private and are
-                only available through authorised
-                backend-controlled actions. Uploading
+                only available through authorised actions. Uploading
                 proof of payment does not approve or
                 validate a payment.
             </div>

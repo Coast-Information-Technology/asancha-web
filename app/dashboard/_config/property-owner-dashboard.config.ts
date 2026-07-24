@@ -146,7 +146,7 @@ export const PROPERTY_OWNER_COLLECTION_CONFIG = {
         emptyTitle: "No listings yet",
 
         emptyDescription:
-            "A listing can be created only from a property that satisfies the backend property and ownership requirements.",
+            "A listing can be created only from a property that satisfies the property and ownership requirements.",
 
         primaryActionLabel: "View properties",
 
@@ -154,7 +154,7 @@ export const PROPERTY_OWNER_COLLECTION_CONFIG = {
             "/dashboard/property-owner/properties",
 
         disclaimer:
-            "A property may be approved without having a published listing. Listing publication remains a separate backend-controlled action.",
+            "A property may be approved without having a published listing. Listing publication remains a separate approval step.",
     },
 
     documents: {
@@ -196,7 +196,7 @@ export const PROPERTY_OWNER_COLLECTION_CONFIG = {
             "No verification review has started",
 
         emptyDescription:
-            "A verification review will appear when the backend starts or receives a property-owner verification submission.",
+            "A verification review will appear when a property-owner verification submission is started.",
 
         primaryActionLabel:
             "Open verification centre",
@@ -228,7 +228,7 @@ export const PROPERTY_OWNER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Meeting links and sensitive participant details remain hidden until the backend permits access.",
+            "Meeting links and sensitive participant details remain hidden until the platform permits access.",
     },
 
     conversations: {
@@ -277,7 +277,7 @@ export const PROPERTY_OWNER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Submitting payment proof does not approve a payment. A valid payment must use an Asancha-generated reference and pass backend verification.",
+            "Submitting payment proof does not approve a payment. A valid payment must use an Asancha-generated reference and pass secure verification.",
     },
 } as const satisfies Record<
     string,

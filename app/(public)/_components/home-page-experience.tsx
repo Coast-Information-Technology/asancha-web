@@ -262,7 +262,7 @@ export function HomePageExperience() {
                   </span>
                   <div>
                     <h3 className="font-bold text-foreground">
-                      Marketplace data comes from the backend
+                      Marketplace data is updated by Asancha
                     </h3>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
                       Published listings, filters, detail pages, and calls to

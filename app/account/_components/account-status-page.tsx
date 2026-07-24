@@ -104,9 +104,8 @@ export function AccountStatusPage() {
                 </h1>
 
                 <p className="mt-3 max-w-3xl leading-7 text-[var(--muted-foreground)]">
-                    Review the backend-authoritative
-                    status controlling your current
-                    account and profile actions.
+                    Review the current status controlling your account and
+                    profile actions.
                 </p>
             </header>
 

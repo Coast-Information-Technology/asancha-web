@@ -10,7 +10,7 @@
  * conversions, and conversion rates.
  *
  * Security notes:
- * - Performance data is informational and backend-calculated.
+ * - Performance data is informational and platform-calculated.
  * - Internal revenue, private investor identities, staff metrics, fraud data,
  *   and restricted commercial analytics must not be exposed.
  */
@@ -215,7 +215,7 @@ export function PropertySourcerPerformancePage({
                 </h1>
 
                 <p className="mt-3 max-w-3xl leading-7 text-[var(--muted-foreground)]">
-                    Review safe, backend-calculated
+                    Review safe, platform-calculated
                     activity across your submitted and
                     published deals.
                 </p>

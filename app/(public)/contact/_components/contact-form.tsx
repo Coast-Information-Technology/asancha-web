@@ -87,7 +87,7 @@ export function ContactForm() {
         </h2>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
           The contact endpoint is not connected yet. Your message details are
-          ready for the backend integration step.
+          ready for the integration step.
         </p>
         <Button
           className="mt-5"

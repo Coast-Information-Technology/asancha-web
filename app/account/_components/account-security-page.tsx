@@ -501,7 +501,7 @@ export function AccountSecurityPage() {
                     <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
                         Changing your password may revoke
                         other sessions according to
-                        backend security policy.
+                        platform security policy.
                     </p>
 
                     <div className="mt-5 grid gap-4">

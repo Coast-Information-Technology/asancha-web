@@ -115,7 +115,7 @@ const faqGroups = [
   {
     title: "Protected workflows",
     description:
-      "Verification, documents, payments, bookings, conversations, and partner access may require backend-approved states.",
+      "Verification, documents, payments, bookings, conversations, and partner access may require approved account states.",
   },
 ] as const;
 

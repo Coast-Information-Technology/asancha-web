@@ -213,7 +213,7 @@ export default function SupportPage() {
 
               <p className="mt-4 text-base leading-7 text-muted-foreground">
                 Asancha support should help users understand what they can do
-                publicly, what requires sign-in, and what depends on backend
+                publicly, what requires sign-in, and what depends on platform
                 verification, payment, approval, or access checks.
               </p>
             </div>

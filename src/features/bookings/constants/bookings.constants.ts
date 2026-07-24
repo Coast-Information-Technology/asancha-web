@@ -317,7 +317,7 @@ export const BOOKING_SAFE_MESSAGES = {
         "Meeting details become available only after the booking is confirmed.",
 
     confirmationControlled:
-        "Booking requests require backend review and do not become confirmed automatically.",
+        "Booking requests require review and do not become confirmed automatically.",
 
     calendarIntegrationUnavailable:
         "External calendar synchronisation is not currently available. Use the confirmed booking details shown by Asancha.",

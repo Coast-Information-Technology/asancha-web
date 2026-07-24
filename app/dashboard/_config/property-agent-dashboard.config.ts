@@ -172,7 +172,7 @@ export const PROPERTY_AGENT_COLLECTION_CONFIG = {
         emptyTitle: "No listings yet",
 
         emptyDescription:
-            "Create listings only from represented properties that satisfy authority, property, company, and backend eligibility requirements.",
+            "Create listings only from represented properties that satisfy authority, property, company, and eligibility requirements.",
 
         primaryActionLabel:
             "View represented properties",
@@ -282,7 +282,7 @@ export const PROPERTY_AGENT_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Meeting links and sensitive participant details remain hidden until the backend allows access.",
+            "Meeting links and sensitive participant details remain hidden until the platform allows access.",
     },
 
     conversations: {
@@ -330,7 +330,7 @@ export const PROPERTY_AGENT_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Submitting proof or stating that a payment was made does not approve a payment. Backend verification remains authoritative.",
+            "Submitting proof or stating that a payment was made does not approve a payment. Verification remains required.",
     },
 } as const satisfies Record<
     string,

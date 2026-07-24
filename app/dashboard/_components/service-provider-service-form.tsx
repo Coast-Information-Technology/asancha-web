@@ -270,7 +270,7 @@ export function ServiceProviderServiceForm() {
             <div className="mt-5 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
                 Creating this service saves a service
                 draft only. The service is not public
-                until all backend approval and visibility
+                until all approval and visibility
                 requirements are satisfied.
             </div>
 

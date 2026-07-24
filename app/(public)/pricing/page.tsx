@@ -37,7 +37,7 @@ import { PublicPageHero } from "../_components/public-page-hero";
 export const metadata: Metadata = {
   title: "Pricing | Asancha",
   description:
-    "View public-safe Asancha pricing and fee guidance. Exact fees and payment actions may depend on backend-approved workflows.",
+    "View public-safe Asancha pricing and fee guidance. Exact fees and payment actions may depend on approved workflows.",
   alternates: {
     canonical: "/pricing",
   },
@@ -64,7 +64,7 @@ const pricingAreas = [
   {
     title: "Service provider activity",
     description:
-      "Bookings, service actions, documents, and payment-aware workflows may depend on the service type and backend-confirmed status.",
+      "Bookings, service actions, documents, and payment-aware workflows may depend on the service type and confirmed status.",
   },
   {
     title: "API partner access",
@@ -77,7 +77,7 @@ const paymentRules = [
   "Exact payable amounts should come from the correct platform workflow.",
   "Payment references should be generated or confirmed by Asancha-controlled systems.",
   "Submitting payment proof does not automatically mean payment approval.",
-  "Frontend payment messages do not override backend payment, billing, or approval status.",
+  "Frontend payment messages do not override secure payment, billing, or approval status.",
 ] as const;
 
 const pricingDependsOn = [
@@ -97,7 +97,7 @@ export default function PricingPage() {
     path: "/pricing",
     name: "Asancha Pricing",
     description:
-      "View public-safe Asancha pricing and fee guidance. Exact fees and payment actions may depend on backend-approved workflows.",
+      "View public-safe Asancha pricing and fee guidance. Exact fees and payment actions may depend on approved workflows.",
     breadcrumbs: [
       { name: "Home", path: "/" },
       { name: "Pricing", path: "/pricing" },
@@ -110,7 +110,7 @@ export default function PricingPage() {
 
       <main>
         <PublicPageHero
-          description="Asancha pricing and payment actions should be clear, traceable, and tied to the correct backend-controlled workflow."
+          description="Asancha pricing and payment actions should be clear, traceable, and tied to the correct workflow."
           eyebrow="Pricing"
           primaryAction={{ label: "Contact Asancha", href: "/contact" }}
           secondaryAction={{ label: "Visit support", href: "/support" }}
@@ -280,7 +280,7 @@ export default function PricingPage() {
                 <p className="mt-4 text-base leading-7 text-accent-foreground">
                   Payment provider payloads, private customer records, billing
                   configuration, API secrets, webhook secrets, and internal
-                  payment notes must remain protected by backend-controlled
+                  payment notes must remain protected by approved
                   workflows.
                 </p>
               </div>

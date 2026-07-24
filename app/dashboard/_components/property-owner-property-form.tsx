@@ -377,7 +377,7 @@ export function PropertyOwnerPropertyForm({
 
                 <p className="mt-3 leading-7 text-[var(--muted-foreground)]">
                     {mode === "edit"
-                        ? "Update the property information. Backend lifecycle rules determine which fields may still be changed."
+                        ? "Update the property information. Some fields may be limited by the property lifecycle."
                         : "Create a property record under your active property-owner profile. You can add documents and submit it for review afterward."}
                 </p>
             </header>

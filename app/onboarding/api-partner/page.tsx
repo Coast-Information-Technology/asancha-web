@@ -117,7 +117,7 @@ export default function ApiPartnerOnboardingPage() {
                         </li>
                         <li>
                             Scopes, subscriptions and payment
-                            requirements are backend-controlled.
+                            requirements are reviewed before access.
                         </li>
                         <li>
                             Full API keys are shown once and must be

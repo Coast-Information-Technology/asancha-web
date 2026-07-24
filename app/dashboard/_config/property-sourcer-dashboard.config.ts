@@ -209,7 +209,7 @@ export const PROPERTY_SOURCER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Meeting links and sensitive participant information remain hidden until the backend permits access.",
+            "Meeting links and sensitive participant information remain hidden until the platform permits access.",
     },
 
     conversations: {
@@ -250,7 +250,7 @@ export const PROPERTY_SOURCER_COLLECTION_CONFIG = {
         primaryActionPath: null,
 
         disclaimer:
-            "Submitting payment proof does not approve a payment. Every valid payment must use an Asancha-generated reference and pass backend verification.",
+            "Submitting payment proof does not approve a payment. Every valid payment must use an Asancha-generated reference and pass secure verification.",
     },
 
     paymentHistory: {

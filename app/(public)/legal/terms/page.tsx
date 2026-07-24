@@ -72,7 +72,7 @@ export default function TermsPage() {
             <p>
               Some actions may require account setup, profile completion,
               verification, payment review, approval, or API partner access.
-              Frontend access does not replace backend enforcement.
+              Frontend access does not replace platform enforcement.
             </p>
 
             <h2 className="text-2xl font-bold text-foreground">No guarantees</h2>
