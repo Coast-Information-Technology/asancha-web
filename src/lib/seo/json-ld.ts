@@ -211,6 +211,67 @@ export function createFaqPageJsonLd(
 }
 
 /**
+ * Builds the public FAQs page graph with visible FAQ content and breadcrumbs.
+ */
+export function createFaqsPageJsonLd(
+  items: readonly FaqJsonLdItemInput[],
+): JsonLdData {
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}/faqs`;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "FAQPage",
+        "@id": `${pageUrl}#faq-page`,
+        url: pageUrl,
+        name: "Frequently Asked Questions | Asancha",
+        headline: "Frequently Asked Questions",
+        description:
+          "Answers about Asancha property browsing, accounts, onboarding, verification, property submissions, payments, reservations, professional services, API Partner access, privacy, and support.",
+        isPartOf: {
+          "@id": `${siteUrl}/#website`,
+        },
+        about: {
+          "@id": `${siteUrl}/#organization`,
+        },
+        breadcrumb: {
+          "@id": `${pageUrl}#breadcrumb`,
+        },
+        inLanguage: "en-GB",
+        mainEntity: items.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${siteUrl}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "FAQs",
+            item: pageUrl,
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/**
  * Builds CollectionPage JSON-LD for the public marketplace page.
  */
 export function createMarketplaceCollectionJsonLd(): JsonLdData {
