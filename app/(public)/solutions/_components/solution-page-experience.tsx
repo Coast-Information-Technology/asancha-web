@@ -49,6 +49,18 @@ interface SolutionCard {
   icon: SolutionIconName;
 }
 
+interface SolutionTextBlock {
+  title: string;
+  description: string;
+}
+
+interface SolutionFeatureSection {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  items: string[];
+}
+
 interface SolutionPageExperienceProps {
   eyebrow: string;
   title: string;
@@ -62,9 +74,15 @@ interface SolutionPageExperienceProps {
     label: string;
     href: string;
   };
+  trustIndicators?: string[];
+  challengeEyebrow?: string;
+  challengeHeading?: string;
+  challengeDescription?: string;
+  challenges?: SolutionTextBlock[];
   benefitsHeading: string;
   benefitsDescription: string;
   benefits: SolutionCard[];
+  featureSections?: SolutionFeatureSection[];
   journeyHeading: string;
   journeyDescription: string;
   journey: Array<{
@@ -78,6 +96,10 @@ interface SolutionPageExperienceProps {
   safetyHeading: string;
   safetyDescription: string;
   safetyNotes: string[];
+  faqs?: Array<{
+    question: string;
+    answer: string;
+  }>;
   finalCtaHeading: string;
   finalCtaDescription: string;
 }
@@ -156,9 +178,15 @@ export function SolutionPageExperience({
   supportingCopy,
   primaryAction,
   secondaryAction,
+  trustIndicators = [],
+  challengeEyebrow,
+  challengeHeading,
+  challengeDescription,
+  challenges = [],
   benefitsHeading,
   benefitsDescription,
   benefits,
+  featureSections = [],
   journeyHeading,
   journeyDescription,
   journey,
@@ -169,11 +197,12 @@ export function SolutionPageExperience({
   safetyHeading,
   safetyDescription,
   safetyNotes,
+  faqs = [],
   finalCtaHeading,
   finalCtaDescription,
 }: SolutionPageExperienceProps) {
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-x-clip">
       <section className="relative isolate overflow-hidden bg-foreground text-primary-foreground">
         <div
           aria-hidden="true"
@@ -201,7 +230,7 @@ export function SolutionPageExperience({
               </motion.p>
 
               <motion.h1
-                className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl"
+                className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal sm:text-6xl"
                 variants={cardReveal}
               >
                 {title}
@@ -239,6 +268,29 @@ export function SolutionPageExperience({
                   {secondaryAction.label}
                 </Link>
               </motion.div>
+
+              {trustIndicators.length > 0 ? (
+                <motion.ul
+                  className="mt-8 grid gap-3 sm:grid-cols-2"
+                  variants={staggerContainer}
+                >
+                  {trustIndicators.map((indicator) => (
+                    <motion.li
+                      className="flex items-center gap-2 text-sm font-bold text-primary-foreground/80"
+                      key={indicator}
+                      variants={cardReveal}
+                    >
+                      <CheckCircle2
+                        aria-hidden="true"
+                        className="shrink-0 text-primary"
+                        size={16}
+                        strokeWidth={2.5}
+                      />
+                      <span>{indicator}</span>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              ) : null}
             </div>
 
             <motion.div
@@ -269,6 +321,62 @@ export function SolutionPageExperience({
         </div>
       </section>
 
+      {challenges.length > 0 ? (
+        <AnimatedSection
+          className="border-b border-border bg-background"
+          labelledBy="solution-challenge-heading"
+        >
+          <div className="asancha-page-container py-16">
+            <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
+              <div className="lg:sticky lg:top-24">
+                <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                  {challengeEyebrow}
+                </p>
+                <h2
+                  className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+                  id="solution-challenge-heading"
+                >
+                  {challengeHeading}
+                </h2>
+                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                  {challengeDescription}
+                </p>
+              </div>
+
+              <motion.div
+                className="grid gap-4 sm:grid-cols-2"
+                initial="hidden"
+                viewport={{ once: true, amount: 0.15 }}
+                variants={staggerContainer}
+                whileInView="show"
+              >
+                {challenges.map((challenge) => (
+                  <motion.article
+                    className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                    key={challenge.title}
+                    variants={cardReveal}
+                  >
+                    <span className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-primary">
+                      <LockKeyhole
+                        aria-hidden="true"
+                        size={17}
+                        strokeWidth={2.5}
+                      />
+                    </span>
+                    <h3 className="mt-4 font-bold text-card-foreground">
+                      {challenge.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {challenge.description}
+                    </p>
+                  </motion.article>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </AnimatedSection>
+      ) : null}
+
       <AnimatedSection
         className="border-b border-border bg-background"
         labelledBy="solution-benefits-heading"
@@ -279,7 +387,7 @@ export function SolutionPageExperience({
               Benefits
             </p>
             <h2
-              className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
               id="solution-benefits-heading"
             >
               {benefitsHeading}
@@ -322,6 +430,57 @@ export function SolutionPageExperience({
         </div>
       </AnimatedSection>
 
+      {featureSections.map((featureSection, sectionIndex) => (
+        <AnimatedSection
+          className={sectionIndex % 2 === 0 ? "bg-card" : "bg-muted"}
+          key={featureSection.heading}
+          labelledBy={`solution-feature-${sectionIndex}-heading`}
+        >
+          <div className="asancha-page-container py-16">
+            <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                  {featureSection.eyebrow}
+                </p>
+                <h2
+                  className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+                  id={`solution-feature-${sectionIndex}-heading`}
+                >
+                  {featureSection.heading}
+                </h2>
+                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                  {featureSection.description}
+                </p>
+              </div>
+
+              <motion.ul
+                className="grid gap-3 sm:grid-cols-2"
+                initial="hidden"
+                viewport={{ once: true, amount: 0.15 }}
+                variants={staggerContainer}
+                whileInView="show"
+              >
+                {featureSection.items.map((item) => (
+                  <motion.li
+                    className="flex gap-3 rounded-lg border border-border bg-background p-4 text-sm font-bold text-foreground shadow-sm"
+                    key={item}
+                    variants={cardReveal}
+                  >
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 shrink-0 text-primary"
+                      size={17}
+                      strokeWidth={2.5}
+                    />
+                    <span>{item}</span>
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </div>
+          </div>
+        </AnimatedSection>
+      ))}
+
       <AnimatedSection
         className="bg-muted"
         labelledBy="solution-journey-heading"
@@ -332,7 +491,7 @@ export function SolutionPageExperience({
               Journey
             </p>
             <h2
-              className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
               id="solution-journey-heading"
             >
               {journeyHeading}
@@ -384,7 +543,7 @@ export function SolutionPageExperience({
                 {workflowEyebrow}
               </p>
               <h2
-                className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
                 id="solution-workflow-heading"
               >
                 {workflowHeading}
@@ -432,7 +591,7 @@ export function SolutionPageExperience({
                 Trust boundaries
               </p>
               <h2
-                className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
                 id="solution-safety-heading"
               >
                 {safetyHeading}
@@ -467,6 +626,43 @@ export function SolutionPageExperience({
         </div>
       </AnimatedSection>
 
+      {faqs.length > 0 ? (
+        <AnimatedSection
+          className="bg-background"
+          labelledBy="solution-faq-heading"
+        >
+          <div className="asancha-page-container py-16">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                Questions
+              </p>
+              <h2
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+                id="solution-faq-heading"
+              >
+                Common questions before you start.
+              </h2>
+            </div>
+
+            <div className="mt-10 grid gap-4 lg:grid-cols-2">
+              {faqs.map((faq) => (
+                <article
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                  key={faq.question}
+                >
+                  <h3 className="font-bold text-card-foreground">
+                    {faq.question}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {faq.answer}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+      ) : null}
+
       <section className="bg-primary" aria-labelledby="solution-final-heading">
         <motion.div
           className="asancha-page-container py-16 text-primary-foreground"
@@ -481,7 +677,7 @@ export function SolutionPageExperience({
                 Next step
               </p>
               <h2
-                className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl"
+                className="mt-3 max-w-3xl text-3xl font-extrabold tracking-normal sm:text-4xl"
                 id="solution-final-heading"
               >
                 {finalCtaHeading}
@@ -500,9 +696,9 @@ export function SolutionPageExperience({
               </Link>
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/marketplace"
+                href={secondaryAction.href}
               >
-                Browse marketplace
+                {secondaryAction.label}
               </Link>
             </div>
           </div>

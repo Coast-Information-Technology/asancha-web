@@ -134,6 +134,8 @@ export const API_ROUTES = {
   },
 
   apiPartner: {
+    me: "/api-partner/me",
+    usageMe: "/api-partner/usage/me",
     applicationSteps: "/api-partner/onboarding/steps",
     applications: "/api-partner/applications",
     application: "/api-partner/applications/me",
@@ -144,6 +146,12 @@ export const API_ROUTES = {
       "/api-partner/applications/me/commercial-setup",
     submitApplication: "/api-partner/applications/me/submit",
     applicationStatus: "/api-partner/applications/me",
+    apiClients: "/api-partner/api-clients",
+    apiClientsMe: "/api-partner/api-clients/me",
+    rotateApiClientKey: (apiClientPublicId: string): string =>
+      `/api-partner/api-clients/${encodeURIComponent(
+        apiClientPublicId,
+      )}/rotate-key`,
     dashboard: "/api-partner/dashboard",
     client: "/api-partner/client",
     keys: "/api-partner/keys",

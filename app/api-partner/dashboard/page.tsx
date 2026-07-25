@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 
-import { ApiPartnerDashboardPageClient } from "./_components/api-partner-dashboard-page-client";
+import { DashboardView } from "../_components/api-partner-views";
 
 export const metadata: Metadata = {
   title: "API Partner Dashboard | Asancha",
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function ApiPartnerDashboardPage() {
-  return <ApiPartnerDashboardPageClient />;
+  return <DashboardView />;
 }

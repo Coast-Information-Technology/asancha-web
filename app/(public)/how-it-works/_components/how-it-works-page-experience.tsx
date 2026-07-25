@@ -14,7 +14,6 @@ import {
   FileCheck2,
   KeyRound,
   Route,
-  Search,
   ShieldCheck,
   UserRoundPlus,
 } from "lucide-react";
@@ -22,40 +21,40 @@ import type { ReactNode } from "react";
 
 const journeySteps = [
   {
-    title: "Browse public previews",
+    title: "Choose your role",
     description:
-      "Start with marketplace listings, role pages, pricing, FAQs, and platform guidance.",
-    icon: Search,
+      "Start as an investor, property owner, property agent, property sourcer, or service provider.",
+    icon: Route,
   },
   {
-    title: "Create an account",
+    title: "Create your account",
     description:
-      "Choose the role you want to start with and verify your email address.",
+      "Set up login details and deliberately accept the required account-level policies.",
     icon: UserRoundPlus,
   },
   {
-    title: "Complete setup",
+    title: "Verify your email",
     description:
-      "Add profile details, accept required policies, and provide role-specific information.",
+      "Confirm control of your email address before continuing into setup and protected actions.",
     icon: FileCheck2,
   },
   {
-    title: "Use your workspace",
+    title: "Complete your profiles",
     description:
-      "Move through dashboards, listings, documents, bookings, conversations, and payments.",
+      "Add general profile details, then complete the onboarding path for your selected role.",
     icon: Building2,
   },
   {
-    title: "Unlock actions",
+    title: "Access your dashboard",
     description:
-      "Some actions become available after verification, review, payment, or approval.",
+      "Use your role workspace while review continues, with clear status and next actions.",
     icon: ShieldCheck,
   },
   {
-    title: "Grow the workflow",
+    title: "Take approved actions",
     description:
-      "Add more roles, use recommendations, or apply for partner access when needed.",
-    icon: Route,
+      "Save, compare, book, communicate, pay, reserve, or access restricted information where permitted.",
+    icon: CheckCircle2,
   },
 ] as const;
 
@@ -78,9 +77,9 @@ const protectedActions = [
 
 const safetyRules = [
   {
-    title: "Guidance is not approval",
+    title: "Dashboard access is not full approval",
     description:
-      "A visible page or button helps users navigate, but protected actions still depend on account state.",
+      "Users may access a role dashboard while verification or review continues, but sensitive actions can remain locked.",
   },
   {
     title: "Payment proof needs review",
@@ -92,6 +91,39 @@ const safetyRules = [
     description:
       "AI-supported guidance can explain matches and warnings, but it does not guarantee outcomes.",
   },
+] as const;
+
+const supplySources = [
+  {
+    title: "Property owners",
+    description: "Owners may submit property they own or control.",
+  },
+  {
+    title: "Property agents",
+    description:
+      "Agents may submit property on behalf of an owner, landlord, vendor, or developer.",
+  },
+  {
+    title: "Property sourcers",
+    description:
+      "Sourcers may submit investment-focused opportunities for review.",
+  },
+  {
+    title: "Approved partners",
+    description:
+      "Approved API or data partners may provide property information within their permitted scope.",
+  },
+] as const;
+
+const reviewStages = [
+  "Draft",
+  "Submitted",
+  "Under review",
+  "Correction required",
+  "Approved",
+  "Published",
+  "Reserved",
+  "Completed or sold",
 ] as const;
 
 const sectionReveal = {
@@ -144,7 +176,7 @@ function AnimatedSection({
 
 export function HowItWorksPageExperience() {
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-x-clip">
       <section className="relative isolate overflow-hidden bg-foreground text-primary-foreground">
         <div
           aria-hidden="true"
@@ -164,42 +196,52 @@ export function HowItWorksPageExperience() {
           >
             <motion.p
               className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground/85 backdrop-blur-md"
-              variants={cardReveal}
-            >
-              <Route aria-hidden="true" size={14} strokeWidth={2.5} />
-              How it works
-            </motion.p>
+                variants={cardReveal}
+              >
+                <Route aria-hidden="true" size={14} strokeWidth={2.5} />
+                How Asancha works
+              </motion.p>
 
             <motion.h1
-              className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl"
+              className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal sm:text-6xl"
               variants={cardReveal}
             >
-              From public discovery to the right property workflow.
+              A clearer way to discover and progress property opportunities.
             </motion.h1>
 
             <motion.p
               className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/80"
               variants={cardReveal}
             >
-              Asancha helps users understand what they can browse, what they can
-              do next, and when account setup or review is needed.
+              Asancha brings property sourcing, property intelligence, investor
+              requirements, verification, documents, communication, and
+              property-related actions into one structured platform.
             </motion.p>
 
             <motion.div className="mt-9 flex flex-col gap-3 sm:flex-row" variants={cardReveal}>
               <Link
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-                href="/marketplace"
+                href="/auth/sign-up"
               >
-                Browse marketplace
+                Create an account
                 <ArrowRight aria-hidden="true" size={17} strokeWidth={2.5} />
               </Link>
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-                href="/auth/sign-up"
+                href="/marketplace"
               >
-                Create account
+                Explore properties
               </Link>
             </motion.div>
+
+            <motion.p
+              className="mt-6 max-w-3xl text-sm leading-6 text-primary-foreground/70"
+              variants={cardReveal}
+            >
+              You can browse safe public property previews without an account.
+              Creating an account gives you access to role-specific setup,
+              preferences, dashboard features, and eligible property actions.
+            </motion.p>
           </motion.div>
         </div>
       </section>
@@ -211,11 +253,16 @@ export function HowItWorksPageExperience() {
               Public user journey
             </p>
             <h2
-              className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
               id="public-journey-heading"
             >
-              Clear stages make the platform easier to understand.
+              Choose the role that best describes you.
             </h2>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">
+              Your first Asancha profile determines the onboarding path and
+              workspace you begin with. Existing users may later add another
+              supported business profile without registering again.
+            </p>
           </div>
 
           <motion.ol
@@ -255,6 +302,51 @@ export function HowItWorksPageExperience() {
         </div>
       </AnimatedSection>
 
+      <AnimatedSection className="bg-card" labelledBy="property-supply-heading">
+        <div className="asancha-page-container py-16">
+          <div className="grid gap-10 lg:grid-cols-[0.84fr_1.16fr] lg:items-start">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                Property supply
+              </p>
+              <h2
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+                id="property-supply-heading"
+              >
+                Opportunities can come from different approved sources.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-muted-foreground">
+                The source affects how property information is reviewed,
+                structured, verified, and displayed. A property being submitted
+                does not automatically mean that it is publicly listed or
+                approved.
+              </p>
+            </div>
+
+            <motion.div
+              className="grid gap-4 sm:grid-cols-2"
+              initial="hidden"
+              viewport={{ once: true, amount: 0.15 }}
+              variants={staggerContainer}
+              whileInView="show"
+            >
+              {supplySources.map((source) => (
+                <motion.article
+                  className="rounded-xl border border-border bg-background p-5 shadow-sm"
+                  key={source.title}
+                  variants={cardReveal}
+                >
+                  <h3 className="font-bold text-foreground">{source.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {source.description}
+                  </p>
+                </motion.article>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      </AnimatedSection>
+
       <AnimatedSection className="bg-muted" labelledBy="role-flows-heading">
         <div className="asancha-page-container py-16">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
@@ -263,14 +355,15 @@ export function HowItWorksPageExperience() {
                 Role-specific flows
               </p>
               <h2
-                className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
                 id="role-flows-heading"
               >
-                Each user type gets a more relevant path.
+                Set up the profile that matches your property role.
               </h2>
               <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Role-based workspaces keep tasks focused, scannable, and easier
-                to improve as the product grows.
+                Each property role requires different information. Completing
+                onboarding does not automatically mean that verification is
+                approved.
               </p>
             </div>
 
@@ -304,6 +397,51 @@ export function HowItWorksPageExperience() {
         </div>
       </AnimatedSection>
 
+      <AnimatedSection className="bg-background" labelledBy="review-process-heading">
+        <div className="asancha-page-container py-16">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-start">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                Quality and access
+              </p>
+              <h2
+                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+                id="review-process-heading"
+              >
+                Submitted properties move through a structured review process.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-muted-foreground">
+                Review may consider property completeness, source and authority,
+                supporting documents, listing standards, public and private
+                information separation, investment metrics, condition, and
+                compliance requirements.
+              </p>
+            </div>
+
+            <motion.ol
+              className="relative grid gap-3 before:absolute before:bottom-3 before:left-4 before:top-3 before:w-px before:bg-border"
+              initial="hidden"
+              viewport={{ once: true, amount: 0.15 }}
+              variants={staggerContainer}
+              whileInView="show"
+            >
+              {reviewStages.map((stage, index) => (
+                <motion.li
+                  className="relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 text-sm font-bold text-card-foreground shadow-sm"
+                  key={stage}
+                  variants={cardReveal}
+                >
+                  <span className="z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-xs text-primary-foreground">
+                    {index + 1}
+                  </span>
+                  <span>{stage}</span>
+                </motion.li>
+              ))}
+            </motion.ol>
+          </div>
+        </div>
+      </AnimatedSection>
+
       <AnimatedSection className="bg-card" labelledBy="protected-actions-heading">
         <div className="asancha-page-container py-16">
           <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-start">
@@ -312,10 +450,10 @@ export function HowItWorksPageExperience() {
                 Protected actions
               </p>
               <h2
-                className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
-                id="protected-actions-heading"
-              >
-                Some actions need more context before they unlock.
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+              id="protected-actions-heading"
+            >
+                Progress from discovery to the next approved action.
               </h2>
               <p className="mt-4 text-base leading-7 text-muted-foreground">
                 Public discovery stays open. Actions involving private records,
@@ -354,15 +492,21 @@ export function HowItWorksPageExperience() {
       <AnimatedSection className="border-y border-border bg-background" labelledBy="workflow-safety-heading">
         <div className="asancha-page-container py-16">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-primary">
-              Safety rules
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+              For technology partners
             </p>
             <h2
-              className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
               id="workflow-safety-heading"
             >
-              Clear guidance without false certainty.
+              API access follows a separate approval process.
             </h2>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">
+              API partners do not register through the normal public-user signup
+              flow. Approved technology partners apply, go through review,
+              receive scoped access, and manage keys, usage, billing, and
+              support through the API partner workspace.
+            </p>
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -403,28 +547,33 @@ export function HowItWorksPageExperience() {
                 Next step
               </p>
               <h2
-                className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl"
+                className="mt-3 max-w-3xl text-3xl font-extrabold tracking-normal sm:text-4xl"
                 id="how-final-cta-heading"
               >
-                Browse first, then continue through the right account path.
+                Choose your next step.
               </h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/80">
+                Create an account to set up your property profile, define your
+                requirements, submit opportunities, offer services, and access a
+                role-specific workspace.
+              </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/marketplace"
-              >
-                Browse marketplace
-              </Link>
-              <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
                 href="/auth/sign-up"
               >
-                Create account
+                Create an account
               </Link>
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/auth/api-partner/register"
+                href="/marketplace"
+              >
+                Explore properties
+              </Link>
+              <Link
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
+                href="/api-partner/apply"
               >
                 Apply for API access
               </Link>

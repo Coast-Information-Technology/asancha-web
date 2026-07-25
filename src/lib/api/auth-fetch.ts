@@ -51,7 +51,11 @@ interface RefreshTokenEnvelope {
 
 let pendingTokenRefresh: Promise<boolean> | null = null;
 
-function buildAuthenticatedApiUrl(path: string): string {
+function buildAuthenticatedApiUrl(path: string | undefined): string {
+  if (!path) {
+    throw new Error("API route is missing for this request.");
+  }
+
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   return `/api/backend${normalizedPath}`;

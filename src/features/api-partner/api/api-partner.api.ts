@@ -92,7 +92,7 @@ async function createApiKey(
     payload: CreateApiKeyPayload,
 ): Promise<CreateApiKeyResult> {
     return authApiPost<CreateApiKeyResult>(
-        API_PARTNER_API_ENDPOINTS.keys,
+        API_PARTNER_API_ENDPOINTS.apiClients,
         payload,
     );
 }

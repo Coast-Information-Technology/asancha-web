@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: "API Partner Application | Asancha",
   description:
     "Complete the Asancha API partner application after registration and email verification.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function ApiPartnerApplyPage() {

@@ -21,6 +21,8 @@ import type {
 } from "../types/api-partner.types";
 
 export const API_PARTNER_API_ENDPOINTS = {
+    me: "/api-partner/me",
+    usageMe: "/api-partner/usage/me",
     applicationSteps: "/api-partner/onboarding/steps",
 
     dashboard: "/api-partner/dashboard",
@@ -34,18 +36,25 @@ export const API_PARTNER_API_ENDPOINTS = {
         "/api-partner/applications/me/commercial-setup",
     submitApplication: "/api-partner/applications/me/submit",
 
-    client: "/api-partner/client",
+    apiClients: "/api-partner/api-clients",
+    apiClientsMe: "/api-partner/api-clients/me",
+    rotateApiClientKey: (apiClientPublicId: string): string =>
+        `/api-partner/api-clients/${encodeURIComponent(
+            apiClientPublicId,
+        )}/rotate-key`,
+
+    client: "/api-partner/me",
 
     plans: "/api-partner/plans",
 
-    keys: "/api-partner/keys",
+    keys: "/api-partner/api-clients/me",
 
     revokeKey: (apiKeyPublicId: string): string =>
         `/api-partner/keys/${encodeURIComponent(
             apiKeyPublicId,
         )}/revoke`,
 
-    usage: "/api-partner/usage",
+    usage: "/api-partner/usage/me",
 
     webhooks: "/api-partner/webhooks",
 
@@ -77,6 +86,52 @@ export const API_PARTNER_PAGE_ROUTES = {
     payments: "/api-partner/payments",
     support: "/api-partner/support",
 } as const;
+
+export const API_PARTNER_ROUTES = {
+    ...API_PARTNER_PAGE_ROUTES,
+    keyActivity: "/api-partner/keys/activity",
+    newKey: "/api-partner/keys/new",
+    webhookDeliveries: "/api-partner/webhooks/deliveries",
+} as const;
+
+export const API_PARTNER_NAVIGATION = [
+    {
+        label: "Overview",
+        href: API_PARTNER_PAGE_ROUTES.dashboard,
+    },
+    {
+        label: "Client",
+        href: API_PARTNER_PAGE_ROUTES.client,
+    },
+    {
+        label: "API Keys",
+        href: API_PARTNER_PAGE_ROUTES.keys,
+    },
+    {
+        label: "Usage",
+        href: API_PARTNER_PAGE_ROUTES.usage,
+    },
+    {
+        label: "Webhooks",
+        href: API_PARTNER_PAGE_ROUTES.webhooks,
+    },
+    {
+        label: "Documentation",
+        href: API_PARTNER_PAGE_ROUTES.docs,
+    },
+    {
+        label: "Billing",
+        href: API_PARTNER_PAGE_ROUTES.billing,
+    },
+    {
+        label: "Payments",
+        href: API_PARTNER_PAGE_ROUTES.payments,
+    },
+    {
+        label: "Support",
+        href: API_PARTNER_PAGE_ROUTES.support,
+    },
+] as const;
 
 export const API_PARTNER_SCOPE_OPTIONS = [
     {
