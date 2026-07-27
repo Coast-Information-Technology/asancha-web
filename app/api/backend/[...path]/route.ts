@@ -8,21 +8,12 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   setAuthSessionCookies,
 } from "@/src/features/auth/server/auth-session-cookies";
-import { API_ROUTES, buildApiUrl } from "@/src/lib/api/api-routes";
+import { buildApiUrl } from "@/src/lib/api/api-routes";
 
 import {
-  getEnvelopeData,
-  proxyBackendAuthRequest,
-  readJsonBody,
-} from "../../auth/_lib/backend-auth-proxy";
-
-interface BackendRefreshData {
-  accessToken?: string | null;
-  accessExpiresAt?: string | null;
-  refreshToken?: string | null;
-  refreshExpiresAt?: string | null;
-  sessionId?: string | null;
-}
+  BackendRefreshData,
+  refreshBackendSession,
+} from "../../auth/_lib/backend-session-refresh";
 
 const HOP_BY_HOP_HEADERS = new Set([
   "accept-encoding",
@@ -96,30 +87,6 @@ function createProxyHeaders(
   return headers;
 }
 
-async function refreshAccessToken(
-  request: NextRequest,
-): Promise<BackendRefreshData | null> {
-  const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
-  const refreshTokenValue =
-    typeof refreshToken === "string" ? refreshToken.trim() : "";
-
-  if (!refreshTokenValue) {
-    return null;
-  }
-
-  const backendResponse = await proxyBackendAuthRequest(API_ROUTES.auth.refresh, {
-    method: "POST",
-    body: JSON.stringify({ refreshToken: refreshTokenValue }),
-  });
-  const responseBody = await readJsonBody(backendResponse);
-
-  if (!backendResponse.ok) {
-    return null;
-  }
-
-  return getEnvelopeData<BackendRefreshData>(responseBody);
-}
-
 async function forwardRequest(
   request: NextRequest,
   accessToken: string | null,
@@ -139,37 +106,38 @@ async function handleRequest(request: NextRequest): Promise<NextResponse> {
     request.method === "GET" || request.method === "HEAD"
       ? undefined
       : await request.arrayBuffer();
-  let accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
+  const initialAccessToken =
+    request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
   const fallbackAuthorization = request.headers.get("authorization");
   let backendResponse = await forwardRequest(
     request,
-    accessToken,
+    initialAccessToken,
     fallbackAuthorization,
     requestBody,
   );
   let refreshedTokens: BackendRefreshData | null = null;
+  let refreshRejected = false;
 
   if (backendResponse.status === 401) {
-    refreshedTokens = await refreshAccessToken(request);
-    accessToken = refreshedTokens?.accessToken ?? null;
+    const refreshToken = request.cookies
+      .get(REFRESH_TOKEN_COOKIE_NAME)
+      ?.value?.trim();
 
-    if (accessToken) {
-      backendResponse = await forwardRequest(
-        request,
-        accessToken,
-        null,
-        requestBody,
-      );
+    if (refreshToken) {
+      const refreshResult = await refreshBackendSession(refreshToken);
 
-      if (backendResponse.status === 401 && fallbackAuthorization) {
+      if (refreshResult.status === "success") {
+        refreshedTokens = refreshResult.tokens;
         backendResponse = await forwardRequest(
           request,
+          refreshedTokens.accessToken ?? null,
           null,
-          fallbackAuthorization,
           requestBody,
         );
+      } else if (refreshResult.status === "rejected") {
+        refreshRejected = true;
       }
-    } else if (fallbackAuthorization) {
+    } else if (fallbackAuthorization && initialAccessToken) {
       backendResponse = await forwardRequest(
         request,
         null,
@@ -182,11 +150,11 @@ async function handleRequest(request: NextRequest): Promise<NextResponse> {
   const responseText = await backendResponse.text();
   const response = createClientResponse(backendResponse, responseText);
 
-  if (refreshedTokens && backendResponse.ok) {
+  if (refreshedTokens) {
     setAuthSessionCookies(response, refreshedTokens);
   }
 
-  if (backendResponse.status === 401) {
+  if (refreshRejected) {
     clearAuthSessionCookies(response);
   }
 

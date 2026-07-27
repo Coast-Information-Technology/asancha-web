@@ -49,6 +49,7 @@ import styles from "./api-partner.module.css";
 
 const navigationIcons = new Map<string, LucideIcon>([
   ["/api-partner/dashboard", Gauge],
+  ["/api-partner/apps", ServerCog],
   ["/api-partner/client", ServerCog],
   ["/api-partner/keys", KeyRound],
   ["/api-partner/usage", BarChart3],

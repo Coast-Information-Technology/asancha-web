@@ -641,7 +641,7 @@ export function DashboardView() {
           <p className={styles.muted}>
             {application?.safeUserMessage ||
               (approved
-                ? "Manage your client profile, API keys, and usage from this console."
+                ? "Manage your apps, API keys, and usage from this console."
                 : "Track the application status here and return when access is approved.")}
           </p>
           <div className={styles.actions}>
@@ -707,7 +707,7 @@ export function DashboardView() {
               <StatusBadge status={status} />
             </div>
             <div className={styles.row}>
-              <strong>Active clients</strong>
+              <strong>Active apps</strong>
               <span>{clients.filter((client) => client.status === "active").length}</span>
             </div>
             <div className={styles.row}>
@@ -720,10 +720,10 @@ export function DashboardView() {
 
       <div className={styles.grid}>
         <StatCard
-          actionHref={approved ? "/api-partner/client" : undefined}
-          actionLabel="Open client"
+          actionHref={approved ? "/api-partner/apps" : undefined}
+          actionLabel="Open apps"
           icon={ServerCog}
-          label="Client"
+          label="Apps"
           tone="Partner profile and contact details."
           value={profile?.status ? normalizeStatus(profile.status) : "Pending"}
         />
@@ -732,7 +732,7 @@ export function DashboardView() {
           actionLabel="Manage keys"
           icon={KeyRound}
           label="API keys"
-          tone="Active and revoked API client keys."
+          tone="Active and revoked API app keys."
           value={clients.length.toLocaleString()}
         />
         <StatCard
@@ -922,7 +922,15 @@ export function ApplyView() {
   );
 }
 
-export function ClientView() {
+interface ClientViewProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export function ClientView({
+  title = "Apps",
+  subtitle = "View and update the partner app details connected to API access.",
+}: ClientViewProps = {}) {
   const profileQuery = useAsyncResource(
     useCallback(
       () => authApiGet<ApiPartnerProfile>(API_ROUTES.apiPartner.me),
@@ -952,8 +960,8 @@ export function ClientView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        title="Client"
-        subtitle="View and update your API partner profile details."
+        title={title}
+        subtitle={subtitle}
         actions={<StatusBadge status={profileQuery.data.status} />}
       />
 
@@ -1011,7 +1019,7 @@ export function KeysView() {
       () => authApiGet<ApiClientSummary[]>(API_ROUTES.apiPartner.apiClientsMe),
       [],
     ),
-    "We could not load your API clients.",
+    "We could not load your API apps.",
   );
   const [isRotating, setIsRotating] = useState(false);
   const [rotationReason, setRotationReason] = useState("");

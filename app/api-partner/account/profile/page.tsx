@@ -9,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function ApiPartnerAccountProfilePage() {
-  return <ClientView />;
+  return (
+    <ClientView
+      title="Profile"
+      subtitle="View and update your API partner account profile."
+    />
+  );
 }

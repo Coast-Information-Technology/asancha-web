@@ -113,7 +113,9 @@ async function refreshAuthTokens(): Promise<boolean> {
       const body = (await response.json().catch(() => null)) as unknown;
 
       if (!response.ok || !isRefreshTokenEnvelope(body) || !body.success) {
-        clearAuthTokens();
+        if (response.status === 401 || response.status === 403) {
+          clearAuthTokens();
+        }
         return false;
       }
 
@@ -123,10 +125,7 @@ async function refreshAuthTokens(): Promise<boolean> {
 
       return Boolean(body.data?.accessToken);
     })
-    .catch(() => {
-      clearAuthTokens();
-      return false;
-    })
+    .catch(() => false)
     .finally(() => {
       pendingTokenRefresh = null;
     });

@@ -7,21 +7,8 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   setAuthSessionCookies,
 } from "@/src/features/auth/server/auth-session-cookies";
-import { API_ROUTES } from "@/src/lib/api/api-routes";
 
-import {
-  getEnvelopeData,
-  proxyBackendAuthRequest,
-  readJsonBody,
-} from "../_lib/backend-auth-proxy";
-
-interface BackendRefreshData {
-  accessToken?: string | null;
-  accessExpiresAt?: string | null;
-  refreshToken?: string | null;
-  refreshExpiresAt?: string | null;
-  sessionId?: string | null;
-}
+import { refreshBackendSession } from "../_lib/backend-session-refresh";
 
 interface RefreshRequestBody {
   refreshToken?: string | null;
@@ -67,22 +54,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return response;
   }
 
-  const backendResponse = await proxyBackendAuthRequest(API_ROUTES.auth.refresh, {
-    method: "POST",
-    body: JSON.stringify({ refreshToken: refreshTokenValue }),
-  });
-  const body = await readJsonBody(backendResponse);
-  const response = NextResponse.json(body, {
-    status: backendResponse.status,
+  const refreshResult = await refreshBackendSession(refreshTokenValue);
+  const response = NextResponse.json(refreshResult.body, {
+    status: refreshResult.httpStatus,
   });
 
-  if (backendResponse.ok) {
-    const data = getEnvelopeData<BackendRefreshData>(body);
-
-    if (data) {
-      setAuthSessionCookies(response, data);
-    }
-  } else {
+  if (refreshResult.status === "success") {
+    setAuthSessionCookies(response, refreshResult.tokens);
+  } else if (refreshResult.status === "rejected") {
     clearAuthSessionCookies(response);
   }
 

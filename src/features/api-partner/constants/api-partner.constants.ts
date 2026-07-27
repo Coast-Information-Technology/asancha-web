@@ -70,6 +70,7 @@ export const API_PARTNER_PAGE_ROUTES = {
     applicationStatus:
         "/api-partner/application-status",
     dashboard: "/api-partner/dashboard",
+    apps: "/api-partner/apps",
     client: "/api-partner/client",
     keys: "/api-partner/keys",
     usage: "/api-partner/usage",
@@ -100,8 +101,8 @@ export const API_PARTNER_NAVIGATION = [
         href: API_PARTNER_PAGE_ROUTES.dashboard,
     },
     {
-        label: "Client",
-        href: API_PARTNER_PAGE_ROUTES.client,
+        label: "Apps",
+        href: API_PARTNER_PAGE_ROUTES.apps,
     },
     {
         label: "API Keys",
