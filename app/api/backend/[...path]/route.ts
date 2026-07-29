@@ -30,6 +30,12 @@ const HOP_BY_HOP_HEADERS = new Set([
   "upgrade",
 ]);
 
+const FORWARDED_REQUEST_HEADERS = new Set([
+  "accept",
+  "content-type",
+  "x-asancha-client",
+]);
+
 function createClientResponse(
   backendResponse: Response,
   responseBody: string,
@@ -63,17 +69,22 @@ function createProxyHeaders(
   const headers = new Headers();
 
   request.headers.forEach((value, key) => {
-    if (!HOP_BY_HOP_HEADERS.has(key.toLowerCase()) && key !== "cookie") {
+    const normalizedKey = key.toLowerCase();
+
+    if (
+      FORWARDED_REQUEST_HEADERS.has(normalizedKey) &&
+      !HOP_BY_HOP_HEADERS.has(normalizedKey)
+    ) {
       headers.set(key, value);
     }
   });
 
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`);
+  if (fallbackAuthorization && !headers.has("Authorization")) {
+    headers.set("Authorization", fallbackAuthorization);
   }
 
-  if (!accessToken && fallbackAuthorization && !headers.has("Authorization")) {
-    headers.set("Authorization", fallbackAuthorization);
+  if (accessToken && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
   if (!headers.has("Accept")) {
