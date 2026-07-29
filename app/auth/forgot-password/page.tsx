@@ -23,6 +23,8 @@ import { useState } from "react";
 
 import { Button } from "@/src/components/ui/button/button";
 import { Input } from "@/src/components/ui/input/input";
+import { authApi } from "@/src/features/auth/api/auth.api";
+import { AUTH_SAFE_MESSAGES } from "@/src/features/auth/constants/auth.constants";
 
 /**
  * Renders the forgot password page.
@@ -30,18 +32,43 @@ import { Input } from "@/src/components/ui/input/input";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [formMessage, setFormMessage] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setErrorMessage("Enter a valid email address.");
+      setFormMessage(undefined);
       return;
     }
 
     setErrorMessage(undefined);
-    setSubmitted(true);
+    setFormMessage(undefined);
+    setIsSubmitting(true);
+
+    try {
+      const result = await authApi.forgotPassword({
+        email: normalizedEmail,
+      });
+
+      setFormMessage(
+        result.message || AUTH_SAFE_MESSAGES.forgotPasswordAccepted,
+      );
+      setSubmitted(true);
+    } catch (error) {
+      setFormMessage(
+        error instanceof Error
+          ? error.message
+          : AUTH_SAFE_MESSAGES.genericError,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -55,7 +82,7 @@ export default function ForgotPasswordPage() {
       </h1>
 
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        We'll email you a link to reset your password.
+        We will email you a link to reset your password.
       </p>
 
       {submitted ? (
@@ -64,8 +91,8 @@ export default function ForgotPasswordPage() {
             Check your inbox
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            If we find an account for that email, a reset link will arrive
-            shortly. Check your spam folder if it doesn't appear.
+            {formMessage ||
+              "If we find an account for that email, a reset link will arrive shortly. Check your spam folder if it does not appear."}
           </p>
           <Link
             className="mt-5 inline-flex text-sm font-bold text-primary hover:text-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
@@ -78,6 +105,7 @@ export default function ForgotPasswordPage() {
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
           <Input
             autoComplete="email"
+            disabled={isSubmitting}
             errorMessage={errorMessage}
             label="Email address"
             onChange={(event) => setEmail(event.target.value)}
@@ -86,7 +114,21 @@ export default function ForgotPasswordPage() {
             value={email}
           />
 
-          <Button fullWidth type="submit">
+          {formMessage ? (
+            <p
+              className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm leading-6 text-destructive"
+              role="alert"
+            >
+              {formMessage}
+            </p>
+          ) : null}
+
+          <Button
+            fullWidth
+            isLoading={isSubmitting}
+            loadingLabel="Sending reset instructions"
+            type="submit"
+          >
             Send reset instructions
           </Button>
 

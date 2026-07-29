@@ -425,7 +425,7 @@ export function HomePageExperience() {
             </motion.p>
 
             <motion.h1
-              className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-primary-foreground sm:text-4xl lg:text-5xl"
+              className="mt-6 max-w-3xl text-3xl font-extrabold leading-tight tracking-normal text-primary-foreground sm:text-4xl lg:text-5xl"
               variants={cardReveal}
             >
               Find Better Property Opportunities With Greater Intelligence

@@ -15,7 +15,15 @@
  */
 
 import Link from "next/link";
-import { RefreshCw, ShieldCheck, TriangleAlert } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  MailCheck,
+  RefreshCw,
+  RotateCcw,
+  ShieldCheck,
+  TriangleAlert,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/src/components/ui/button/button";
@@ -171,76 +179,153 @@ export function EmailVerifyStatus({
   const isVerified = verificationState.status === "verified";
   const isError = verificationState.status === "error";
   const isMissing = verificationState.status === "missing";
+  const statusLabel = isVerifying
+    ? "Verifying link"
+    : isVerified
+      ? "Email verified"
+      : "Action needed";
+  const statusTone = isVerified
+    ? "border-primary/30 bg-primary/10 text-primary"
+    : isError || isMissing
+      ? "border-destructive/30 bg-destructive/10 text-destructive"
+      : "border-border bg-muted text-muted-foreground";
 
   return (
-    <section className="rounded-lg border border-border bg-card/95 p-6 shadow-xl shadow-slate-950/10 sm:p-8">
-      <p className="text-sm font-bold uppercase tracking-wide text-primary">
-        Email verification
-      </p>
-
-      <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
-        {isVerified ? "Email verified" : "Verify your email"}
-      </h1>
-
-      <div className="mt-8 rounded-lg border border-border bg-muted/80 p-5">
-        <div className="flex items-start gap-3">
+    <section className="overflow-hidden rounded-2xl border border-border bg-card/95 shadow-2xl shadow-slate-950/15">
+      <div className="border-b border-border bg-muted/45 px-6 py-5 sm:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-bold uppercase tracking-wide text-primary">
+            Email verification
+          </p>
           <span
-            className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-primary"
+            className={`inline-flex min-h-8 items-center gap-2 rounded-full border px-3 text-xs font-extrabold ${statusTone}`}
+          >
+            {isVerifying ? (
+              <RefreshCw
+                aria-hidden="true"
+                className="animate-spin"
+                size={14}
+                strokeWidth={2.6}
+              />
+            ) : isVerified ? (
+              <CheckCircle2 aria-hidden="true" size={14} strokeWidth={2.6} />
+            ) : (
+              <TriangleAlert aria-hidden="true" size={14} strokeWidth={2.6} />
+            )}
+            {statusLabel}
+          </span>
+        </div>
+      </div>
+
+      <div className="px-6 py-8 sm:px-8 sm:py-10">
+        <div className="grid gap-7 lg:grid-cols-[auto_1fr] lg:items-start">
+          <span
             aria-hidden="true"
+            className={`grid h-16 w-16 place-items-center rounded-2xl border ${
+              isVerified
+                ? "border-primary/25 bg-primary/10 text-primary"
+                : isError || isMissing
+                  ? "border-destructive/25 bg-destructive/10 text-destructive"
+                  : "border-border bg-muted text-primary"
+            }`}
           >
             {isVerified ? (
-              <ShieldCheck size={20} strokeWidth={2.5} />
+              <MailCheck size={30} strokeWidth={2.4} />
             ) : isError || isMissing ? (
-              <TriangleAlert size={20} strokeWidth={2.5} />
+              <TriangleAlert size={30} strokeWidth={2.4} />
             ) : (
-              <RefreshCw className="animate-spin" size={20} strokeWidth={2.5} />
+              <RefreshCw className="animate-spin" size={30} strokeWidth={2.4} />
             )}
           </span>
 
           <div>
-            <h2 className="text-lg font-bold text-foreground">
+            <h1 className="text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
               {isVerifying
-                ? "Checking verification link"
+                ? "Confirming your email"
                 : isVerified
-                  ? "Verification complete"
-                  : "Verification could not be completed"}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  ? "Your email is verified"
+                  : "We could not verify this link"}
+            </h1>
+
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
               {verificationState.message}
             </p>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              {isVerified ? (
+                <Link
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
+                  href={verificationState.nextPath}
+                >
+                  Continue to sign in
+                  <ArrowRight aria-hidden="true" size={17} strokeWidth={2.5} />
+                </Link>
+              ) : null}
+
+              {isError ? (
+                <Button
+                  className="min-h-12 rounded-xl"
+                  isLoading={isVerifying}
+                  loadingLabel="Verifying"
+                  onClick={verifyToken}
+                  type="button"
+                >
+                  <RotateCcw aria-hidden="true" size={17} strokeWidth={2.5} />
+                  Try again
+                </Button>
+              ) : null}
+
+              {isMissing || isError ? (
+                <Link
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-bold text-foreground hover:border-primary hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
+                  href={AUTH_PAGE_ROUTES.resendVerification}
+                >
+                  Resend verification email
+                </Link>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        {isVerified ? (
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href={verificationState.nextPath}
-          >
-            Continue
-          </Link>
-        ) : null}
+        <div className="mt-9 grid gap-3 border-t border-border pt-6 sm:grid-cols-3">
+          {[
+            {
+              title: "Account access",
+              copy: isVerified
+                ? "Use your email and password to sign in."
+                : "Use the latest verification email from Asancha.",
+            },
+            {
+              title: "Profile setup",
+              copy: "After sign in, complete the profile details needed for your workspace.",
+            },
+            {
+              title: "Dashboard",
+              copy: "Your role dashboard opens with your next actions and account status.",
+            },
+          ].map((item, index) => (
+            <div
+              className="rounded-xl border border-border bg-background/70 p-4"
+              key={item.title}
+            >
+              <span className="text-xs font-extrabold text-primary">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h2 className="mt-2 text-sm font-extrabold text-foreground">
+                {item.title}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {item.copy}
+              </p>
+            </div>
+          ))}
+        </div>
 
-        {isError ? (
-          <Button
-            isLoading={isVerifying}
-            loadingLabel="Verifying"
-            onClick={verifyToken}
-            type="button"
-          >
-            Try again
-          </Button>
-        ) : null}
-
-        {isMissing || isError ? (
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-secondary bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:border-primary hover:bg-accent hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/20"
-            href={AUTH_PAGE_ROUTES.resendVerification}
-          >
-            Resend verification email
-          </Link>
-        ) : null}
+        <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+          <ShieldCheck aria-hidden="true" size={15} strokeWidth={2.5} />
+          Verification links are checked securely and the token is never shown
+          on this page.
+        </div>
       </div>
     </section>
   );
