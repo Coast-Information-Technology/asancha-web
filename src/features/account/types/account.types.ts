@@ -264,7 +264,7 @@ export interface AddBusinessProfileResult {
 }
 
 export interface SwitchBusinessProfilePayload {
-  profilePublicId: string;
+  profileType: BusinessProfileType;
 }
 
 export interface SwitchBusinessProfileResult {

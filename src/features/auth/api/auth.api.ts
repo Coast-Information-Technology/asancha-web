@@ -135,17 +135,6 @@ interface BackendActiveBusinessProfileSummary {
   } | null;
 }
 
-interface BackendOnboardingStartResult {
-  publicId: string;
-  profileType: PublicAccountRole;
-  businessProfileType?: PublicAccountRole;
-  status: OnboardingStatus;
-  verificationStatus: string;
-  data: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
-}
-
 const INTERNAL_AUTH_API_ENDPOINTS = {
   signIn: "/api/auth/login",
   signOut: "/api/auth/logout",
@@ -448,26 +437,6 @@ function getDashboardPathForProfileType(
   return getDashboardPathForBusinessProfile(profileType);
 }
 
-async function startRoleOnboarding(
-  profileType: PublicAccountRole,
-  accessToken: string,
-): Promise<BackendOnboardingStartResult | null> {
-  try {
-    return await authApiPost<
-      BackendOnboardingStartResult,
-      { profileType: PublicAccountRole }
-    >(
-      "/onboarding/start",
-      { profileType },
-      {
-        headers: getBearerHeaders(accessToken),
-      },
-    );
-  } catch {
-    return null;
-  }
-}
-
 async function resolveBackendPostSignInPath(
   result: BackendSignInResult,
 ): Promise<string> {
@@ -487,11 +456,6 @@ async function resolveBackendPostSignInPath(
   }
 
   try {
-    await startRoleOnboarding(
-      result.user.role,
-      result.accessToken,
-    );
-
     const generalProfile =
       await authApiGet<BackendGeneralProfileSummary>(
         "/profiles/me/general",

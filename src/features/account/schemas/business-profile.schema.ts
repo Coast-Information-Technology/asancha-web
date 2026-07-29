@@ -140,7 +140,7 @@ export const businessProfileSchema = z
   });
 
 export const switchBusinessProfileSchema = z.object({
-  profilePublicId: publicIdSchema,
+  profileType: businessProfileTypeSchema,
 });
 
 export const profilePolicyContextSchema = z.enum([

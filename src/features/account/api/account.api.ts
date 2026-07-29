@@ -152,7 +152,7 @@ async function addBusinessProfile(
 async function switchBusinessProfile(
   payload: SwitchBusinessProfilePayload,
 ): Promise<SwitchBusinessProfileResult> {
-  return authApiPost<SwitchBusinessProfileResult, SwitchBusinessProfilePayload>(
+  return authApiPatch<SwitchBusinessProfileResult, SwitchBusinessProfilePayload>(
     ACCOUNT_API_ENDPOINTS.switchBusinessProfile,
     payload,
   );
