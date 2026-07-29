@@ -101,7 +101,7 @@
 }
 
 .dropdownTrigger {
-  cursor: default;
+  cursor: pointer;
   gap: 0.35rem;
   list-style: none;
 }

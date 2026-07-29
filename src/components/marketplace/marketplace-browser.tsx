@@ -70,7 +70,9 @@ export function MarketplaceBrowser() {
   }, [loadFilterConfiguration, loadMarketplace]);
 
   useEffect(() => {
-    setDraftFilters(filters);
+    queueMicrotask(() => {
+      setDraftFilters(filters);
+    });
   }, [filters]);
 
   const handleDraftFiltersChange = useCallback(

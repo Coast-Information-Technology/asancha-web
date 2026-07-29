@@ -31,6 +31,7 @@
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
+  cursor: pointer;
   transition:
     background-color 150ms ease,
     border-color 150ms ease,

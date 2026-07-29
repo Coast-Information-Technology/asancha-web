@@ -8,7 +8,6 @@ import {
   ArrowRight,
   BadgeCheck,
   Building2,
-  CheckCircle2,
   FileText,
   LineChart,
   LockKeyhole,
@@ -114,7 +113,7 @@ function AnimatedSection({
 
 export function MarketplacePageExperience() {
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-x-clip">
       <section
         aria-labelledby="marketplace-heading"
         className="relative isolate overflow-hidden bg-foreground text-primary-foreground"
