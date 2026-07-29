@@ -35,6 +35,9 @@ import {
 
 import {
   ACCOUNT_API_ENDPOINTS,
+  getBusinessProfileLabel,
+  getProfileDashboardPath,
+  getProfileOnboardingPath,
   getProfilePolicyContext,
 } from "../constants/account.constants";
 import type {
@@ -62,6 +65,102 @@ interface CreatePolicyAcceptancePayload extends PolicyAcceptanceInput {
   companyPublicId?: string;
   relatedType?: string;
   relatedPublicId?: string;
+}
+
+interface BackendSwitchBusinessProfileResult {
+  activeBusinessProfile: {
+    publicId: string;
+    profileType: BusinessProfileType;
+    verificationStatus: BusinessProfileSummary["verificationStatus"];
+    isVerified: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    summary?: Record<string, unknown>;
+  };
+}
+
+function getSummaryString(
+  summary: Record<string, unknown> | undefined,
+  keys: readonly string[],
+): string | null {
+  if (!summary) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = summary[key];
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function normalizeSwitchBusinessProfileResult(
+  result: BackendSwitchBusinessProfileResult,
+): SwitchBusinessProfileResult {
+  const profile = result.activeBusinessProfile;
+  const displayName =
+    getSummaryString(profile.summary, [
+      "displayName",
+      "businessName",
+      "companyName",
+      "agencyName",
+      "serviceName",
+      "tradingName",
+      "fullName",
+      "name",
+      "category",
+      "type",
+    ]) ?? getBusinessProfileLabel(profile.profileType);
+
+  return {
+    activeBusinessProfile: {
+      profilePublicId: profile.publicId,
+      profileType: profile.profileType,
+      displayName,
+      imageUrl: null,
+      companyPublicId: null,
+      companyName:
+        getSummaryString(profile.summary, [
+          "companyName",
+          "agencyName",
+          "businessName",
+          "tradingName",
+        ]) ?? null,
+      status: profile.isActive ? "active" : "inactive",
+      onboardingStatus: "in_progress",
+      verificationStatus: profile.verificationStatus,
+      kycStatus: profile.isVerified ? "approved" : "pending",
+      completionPercentage: 0,
+      pendingActionCount: 0,
+      isActive: true,
+      canSwitch: false,
+      switchRestrictionReason: null,
+      policySummary: {
+        required: 0,
+        accepted: 0,
+        missingPolicyTypes: [],
+        reacceptanceRequiredPolicyTypes: [],
+        isComplete: true,
+      },
+      documentSummary: {
+        required: 0,
+        submitted: 0,
+        inReview: 0,
+        approved: 0,
+        rejected: 0,
+        replacementRequired: 0,
+      },
+      dashboardPath: getProfileDashboardPath(profile.profileType),
+      onboardingPath: getProfileOnboardingPath(profile.profileType),
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    },
+  };
 }
 
 async function getAccount(): Promise<AccountSummary> {
@@ -152,10 +251,15 @@ async function addBusinessProfile(
 async function switchBusinessProfile(
   payload: SwitchBusinessProfilePayload,
 ): Promise<SwitchBusinessProfileResult> {
-  return authApiPatch<SwitchBusinessProfileResult, SwitchBusinessProfilePayload>(
+  const result = await authApiPatch<
+    BackendSwitchBusinessProfileResult,
+    SwitchBusinessProfilePayload
+  >(
     ACCOUNT_API_ENDPOINTS.switchBusinessProfile,
     payload,
   );
+
+  return normalizeSwitchBusinessProfileResult(result);
 }
 
 async function getSecuritySummary(): Promise<AccountSecuritySummary> {

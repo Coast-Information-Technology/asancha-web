@@ -126,12 +126,6 @@ interface SwitchBusinessProfilePayload
 interface SwitchBusinessProfileResult {
     activeBusinessProfile:
         BackendBusinessProfileSummary | null;
-
-    dashboardPath: string | null;
-
-    switched: true;
-
-    message: string;
 }
 
 interface DashboardNotificationSummary {
@@ -1269,9 +1263,8 @@ export function DashboardShell({
                     );
 
                 setSuccessMessage(
-                    result.message ||
-                        SAFE_MESSAGES
-                            .profileSwitchSuccess,
+                    SAFE_MESSAGES
+                        .profileSwitchSuccess,
                 );
 
                 const refreshedState =
@@ -1294,7 +1287,6 @@ export function DashboardShell({
 
                 const targetPath:
                     string =
-                    result.dashboardPath ??
                     refreshedState
                         ?.activeBusinessProfile
                         ?.dashboardPath ??

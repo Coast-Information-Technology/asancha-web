@@ -268,10 +268,7 @@ export interface SwitchBusinessProfilePayload {
 }
 
 export interface SwitchBusinessProfileResult {
-  activeProfile: BusinessProfileSummary;
-  switched: true;
-  dashboardPath: string;
-  message: string;
+  activeBusinessProfile: BusinessProfileSummary;
 }
 
 export interface AccountSecuritySummary {

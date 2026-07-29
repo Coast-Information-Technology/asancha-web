@@ -470,15 +470,16 @@ export function useAccount(): UseAccountResult {
 
       try {
         const result = await accountApi.switchBusinessProfile(payload);
+        const activeProfile = result.activeBusinessProfile;
 
         setAccountState((currentState) => {
           const updatedProfiles = replaceBusinessProfile(
             markActiveBusinessProfile(
               currentState.businessProfiles,
-              result.activeProfile.profilePublicId,
+              activeProfile.profilePublicId,
             ),
             {
-              ...result.activeProfile,
+              ...activeProfile,
               isActive: true,
             },
           );
@@ -488,14 +489,14 @@ export function useAccount(): UseAccountResult {
             requestState: "success",
             businessProfiles: updatedProfiles,
             activeBusinessProfile: {
-              ...result.activeProfile,
+              ...activeProfile,
               isActive: true,
             },
             account: currentState.account
               ? {
                   ...currentState.account,
                   activeBusinessProfile: {
-                    ...result.activeProfile,
+                    ...activeProfile,
                     isActive: true,
                   },
                   availableBusinessProfiles: updatedProfiles,
@@ -503,8 +504,7 @@ export function useAccount(): UseAccountResult {
               : null,
             isSwitching: false,
             errorMessage: null,
-            successMessage:
-              result.message || ACCOUNT_SAFE_MESSAGES.profileSwitched,
+            successMessage: ACCOUNT_SAFE_MESSAGES.profileSwitched,
           };
         });
 
