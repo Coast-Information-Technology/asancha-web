@@ -24,12 +24,14 @@
  */
 
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { JsonLd } from "@/src/components/seo/json-ld";
+import { ACCESS_TOKEN_COOKIE_NAME } from "@/src/features/auth/server/auth-session-cookies";
 import { marketplaceApi } from "@/src/features/marketplace/api/marketplace.api";
 import {
   MARKETPLACE_PAGE_ROUTES,
@@ -44,11 +46,20 @@ import {
   createBreadcrumbJsonLd,
   createPublicListingPreviewJsonLd,
 } from "@/src/lib/seo/json-ld";
+import {
+  getDashboardPathForBusinessProfile,
+  isBusinessProfileType,
+} from "@/src/lib/auth/role-guards";
 
 interface ListingPreviewPageProps {
   params: Promise<{
     listingSlug: string;
   }>;
+}
+
+interface ListingAccessContext {
+  hasAccessToken: boolean;
+  dashboardHref: string;
 }
 
 /**
@@ -154,12 +165,75 @@ function getPublicImages(
 }
 
 /**
+ * Reads the role claim from the access token for frontend route guidance only.
+ * Backend authorization remains the final authority for protected actions.
+ */
+function getDashboardHrefFromAccessToken(
+  accessToken: string | null | undefined,
+): string {
+  if (!accessToken) {
+    return "/dashboard";
+  }
+
+  const [, payload] = accessToken.split(".");
+
+  if (!payload) {
+    return "/dashboard";
+  }
+
+  try {
+    const normalizedPayload = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(payload.length / 4) * 4, "=");
+    const decodedPayload = JSON.parse(
+      Buffer.from(normalizedPayload, "base64").toString("utf8"),
+    ) as { role?: unknown };
+
+    return isBusinessProfileType(decodedPayload.role)
+      ? getDashboardPathForBusinessProfile(decodedPayload.role)
+      : "/dashboard";
+  } catch {
+    return "/dashboard";
+  }
+}
+
+/**
+ * Resolves public listing actions based on access-token presence.
+ */
+async function getListingAccessContext(): Promise<ListingAccessContext> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
+
+  return {
+    hasAccessToken: Boolean(accessToken),
+    dashboardHref: getDashboardHrefFromAccessToken(accessToken),
+  };
+}
+
+/**
  * Returns the appropriate public route for a restricted section.
  */
 function getRestrictionActionPath(
   section: MarketplaceRestrictedSection,
   listingSlug: string,
+  accessContext: ListingAccessContext,
 ): string {
+  if (accessContext.hasAccessToken) {
+    switch (section.reason) {
+      case "profile_required":
+        return "/account/business-profiles/add";
+
+      case "authentication_required":
+      case "verification_required":
+      case "payment_required":
+      case "reservation_required":
+      case "permission_required":
+      default:
+        return section.actionPath || accessContext.dashboardHref;
+    }
+  }
+
   if (section.actionPath) {
     return section.actionPath;
   }
@@ -246,7 +320,10 @@ export default async function ListingPreviewPage({
   params,
 }: ListingPreviewPageProps) {
   const { listingSlug } = await params;
-  const listing = await getPublicListing(listingSlug);
+  const [listing, accessContext] = await Promise.all([
+    getPublicListing(listingSlug),
+    getListingAccessContext(),
+  ]);
 
   if (!listing) {
     notFound();
@@ -699,6 +776,7 @@ export default async function ListingPreviewPage({
                             href={getRestrictionActionPath(
                               section,
                               listing.slug,
+                              accessContext,
                             )}
                           >
                             {section.actionLabel}
@@ -718,24 +796,36 @@ export default async function ListingPreviewPage({
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Create an account or sign in to save this listing and check
-                  which protected actions are available to your active profile.
+                  {accessContext.hasAccessToken
+                    ? "Continue to your dashboard to check which protected actions are available to your active profile."
+                    : "Create an account or sign in to save this listing and check which protected actions are available to your active profile."}
                 </p>
 
                 <div className="mt-5 grid gap-3">
-                  <Link
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-ring/20"
-                    href={`/auth/sign-in?returnTo=${signInReturnPath}`}
-                  >
-                    Sign in to continue
-                  </Link>
+                  {accessContext.hasAccessToken ? (
+                    <Link
+                      className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                      href={accessContext.dashboardHref}
+                    >
+                      Continue to dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                        href={`/auth/sign-in?returnTo=${signInReturnPath}`}
+                      >
+                        Sign in to continue
+                      </Link>
 
-                  <Link
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
-                    href="/auth/sign-up"
-                  >
-                    Create an account
-                  </Link>
+                      <Link
+                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+                        href="/auth/sign-up"
+                      >
+                        Create an account
+                      </Link>
+                    </>
+                  )}
 
                   <Link
                     className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
