@@ -69,7 +69,7 @@ export function PublicPageHero({
           </motion.p>
 
           <motion.h1
-            className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl"
+            className="mt-6 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl"
             variants={itemReveal}
           >
             {title}
