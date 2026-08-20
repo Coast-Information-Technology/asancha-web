@@ -36,6 +36,42 @@ import {
 
 import { MarketplacePageExperience } from "./_components/marketplace-page-experience";
 
+import { MARKETPLACE_STRATEGY_OPTIONS } from "@/src/features/marketplace/constants/marketplace.constants";
+import type {
+  MarketplaceFilters,
+  MarketplaceInvestmentStrategy,
+} from "@/src/features/marketplace/types/marketplace.types";
+
+interface MarketplacePageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+function firstSearchParam(
+  value: string | string[] | undefined,
+): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parseMaximumPrice(value: string | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : null;
+}
+
+function parseStrategy(
+  value: string | undefined,
+): MarketplaceInvestmentStrategy[] {
+  const isSupported = MARKETPLACE_STRATEGY_OPTIONS.some(
+    (option) => option.value === value,
+  );
+
+  return isSupported ? [value as MarketplaceInvestmentStrategy] : [];
+}
+
 export const metadata: Metadata = {
   title: "Property Marketplace | Asancha",
   description:
@@ -55,7 +91,17 @@ export const metadata: Metadata = {
 /**
  * Renders the public marketplace discovery page.
  */
-export default function MarketplacePage() {
+export default async function MarketplacePage({
+  searchParams,
+}: MarketplacePageProps) {
+  const resolvedSearchParams = await searchParams;
+  const initialFilters: Partial<MarketplaceFilters> = {
+    search: firstSearchParam(resolvedSearchParams.search)?.trim() ?? "",
+    maximumPrice: parseMaximumPrice(
+      firstSearchParam(resolvedSearchParams.maximumPrice),
+    ),
+    strategies: parseStrategy(firstSearchParam(resolvedSearchParams.strategy)),
+  };
   const jsonLd = [
     createMarketplaceCollectionJsonLd(),
     createBreadcrumbJsonLd([
@@ -73,7 +119,7 @@ export default function MarketplacePage() {
   return (
     <>
       <JsonLd data={jsonLd} id="marketplace-json-ld" />
-      <MarketplacePageExperience />
+      <MarketplacePageExperience initialFilters={initialFilters} />
     </>
   );
 }

@@ -1253,21 +1253,22 @@ export function createHomePageJsonLdBundle(): JsonLdData {
           "@id": `${homepageUrl}#logo`,
         },
         description:
-          "Asancha is a UK-focused AI-powered property intelligence and property sourcing company helping investors and property professionals discover, understand, submit, and manage property opportunities.",
+          "Asancha is a UK property sourcing and investment platform connecting investors with property opportunities from owners, agents and sourcers, supported by investment intelligence and trusted progression.",
         areaServed: {
           "@type": "Country",
           name: "United Kingdom",
         },
         knowsAbout: [
           "Property sourcing",
-          "Property intelligence",
           "Property investment opportunities",
-          "Property matching",
+          "Property investment intelligence",
+          "Property opportunity matching",
           "Property analysis",
           "Property verification",
           "Property technology",
           "UK property market",
         ],
+        sameAs: [],
         contactPoint: [
           {
             "@type": "ContactPoint",
@@ -1282,8 +1283,7 @@ export function createHomePageJsonLdBundle(): JsonLdData {
         "@id": `${homepageUrl}#website`,
         url: homepageUrl,
         name: "Asancha",
-        description:
-          "AI-powered property intelligence and property sourcing across the United Kingdom.",
+        description: "UK property sourcing and investment platform.",
         publisher: {
           "@id": `${homepageUrl}#organization`,
         },
@@ -1301,10 +1301,10 @@ export function createHomePageJsonLdBundle(): JsonLdData {
         "@type": "WebPage",
         "@id": `${homepageUrl}#webpage`,
         url: homepageUrl,
-        name: "Asancha | AI-Powered Property Intelligence and Property Sourcing",
-        headline: "Find Better Property Opportunities With Greater Intelligence",
+        name: "Asancha | UK Property Sourcing & Investment Platform",
+        headline: "Source Smarter Property Opportunities, All in One Place",
         description:
-          "Create an Asancha account to discover UK property opportunities supported by structured property sourcing, personalised matching, verification workflows, and AI-powered property intelligence.",
+          "Source and discover UK property opportunities from owners, agents and sourcers with investment intelligence, explainable matching and trusted progression through Asancha.",
         isPartOf: {
           "@id": `${homepageUrl}#website`,
         },
@@ -1326,6 +1326,14 @@ export function createHomePageJsonLdBundle(): JsonLdData {
         inLanguage: "en-GB",
         potentialAction: [
           {
+            "@type": "ViewAction",
+            name: "Find property opportunities",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${siteUrl}/marketplace`,
+            },
+          },
+          {
             "@type": "RegisterAction",
             name: "Create an Asancha account",
             target: {
@@ -1333,22 +1341,14 @@ export function createHomePageJsonLdBundle(): JsonLdData {
               urlTemplate: `${siteUrl}/auth/sign-up`,
             },
           },
-          {
-            "@type": "ViewAction",
-            name: "Explore property opportunities",
-            target: {
-              "@type": "EntryPoint",
-              urlTemplate: `${siteUrl}/marketplace`,
-            },
-          },
         ],
       },
       {
         "@type": "Service",
         "@id": `${homepageUrl}#property-sourcing-service`,
-        name: "AI-Powered Property Intelligence and Property Sourcing",
+        name: "UK Property Sourcing & Investment Platform",
         description:
-          "Structured UK property sourcing supported by property intelligence, personalised opportunity matching, verification workflows, and AI-assisted insights.",
+          "UK property sourcing supported by investment intelligence, explainable opportunity matching, verification controls and connected progression.",
         provider: {
           "@id": `${homepageUrl}#organization`,
         },
@@ -1358,9 +1358,9 @@ export function createHomePageJsonLdBundle(): JsonLdData {
         },
         serviceType: [
           "Property sourcing",
-          "Property intelligence",
+          "Property opportunity discovery",
+          "Property investment intelligence",
           "Property opportunity matching",
-          "Property opportunity analysis",
           "Property submission and review",
         ],
         audience: [
@@ -1391,10 +1391,10 @@ export function createHomePageJsonLdBundle(): JsonLdData {
         ],
         offers: {
           "@type": "Offer",
-          url: `${siteUrl}/auth/sign-up`,
+          url: `${siteUrl}/marketplace`,
           availability: "https://schema.org/OnlineOnly",
           description:
-            "Create an account to access role-specific property sourcing, property intelligence, and platform features.",
+            "Browse public property opportunities and create an account when protected platform capabilities are required.",
         },
       },
       {

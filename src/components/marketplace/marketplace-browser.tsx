@@ -38,7 +38,15 @@ import { MarketplaceEmptyState } from "./marketplace-empty-state";
 /**
  * Renders the complete interactive public marketplace experience.
  */
-export function MarketplaceBrowser() {
+export function MarketplaceBrowser({
+  initialFilters,
+}: {
+  initialFilters?: Partial<MarketplaceFilters>;
+}) {
+  const [resolvedInitialFilters] = useState<MarketplaceFilters>(() => ({
+    ...DEFAULT_MARKETPLACE_FILTERS,
+    ...initialFilters,
+  }));
   const {
     listings,
     filterConfiguration,
@@ -57,17 +65,17 @@ export function MarketplaceBrowser() {
   } = useMarketplace();
 
   const [draftFilters, setDraftFilters] = useState<MarketplaceFilters>(
-    DEFAULT_MARKETPLACE_FILTERS,
+    resolvedInitialFilters,
   );
 
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     void Promise.all([
-      loadMarketplace(DEFAULT_MARKETPLACE_FILTERS),
+      loadMarketplace(resolvedInitialFilters),
       loadFilterConfiguration(),
     ]);
-  }, [loadFilterConfiguration, loadMarketplace]);
+  }, [loadFilterConfiguration, loadMarketplace, resolvedInitialFilters]);
 
   useEffect(() => {
     queueMicrotask(() => {

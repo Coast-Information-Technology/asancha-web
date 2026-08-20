@@ -28,7 +28,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
   PUBLIC_GUEST_ACTIONS,
@@ -76,12 +76,21 @@ interface DesktopNavigationItemProps {
  */
 function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasChildren = Boolean(item.children && item.children.length > 0);
   const isActive =
     isActiveNavigationItem(item, pathname) ||
     Boolean(
       item.children?.some((child) => isActiveNavigationItem(child, pathname)),
     );
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   if (!hasChildren) {
     return (
@@ -95,16 +104,35 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
     );
   }
 
+  function clearCloseTimer(): void {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }
+
+  function openDropdown(): void {
+    clearCloseTimer();
+    setIsOpen(true);
+  }
+
+  function scheduleDropdownClose(): void {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setIsOpen(false);
+      closeTimerRef.current = null;
+    }, 180);
+  }
+
   function preventDesktopToggle(
-    event:
-      | React.MouseEvent<HTMLElement>
-      | React.KeyboardEvent<HTMLElement>,
+    event: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>,
   ) {
     event.preventDefault();
   }
 
   function handleBlur(event: React.FocusEvent<HTMLDetailsElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) {
+      clearCloseTimer();
       setIsOpen(false);
     }
   }
@@ -113,9 +141,9 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
     <details
       className={styles.dropdown}
       onBlur={handleBlur}
-      onFocus={() => setIsOpen(true)}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onFocus={openDropdown}
+      onMouseEnter={openDropdown}
+      onMouseLeave={scheduleDropdownClose}
       open={isOpen}
     >
       <summary
@@ -318,10 +346,9 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
         );
       } catch {
         try {
-          const generalProfile =
-            await authApiGet<PublicGeneralProfileSummary>(
-              "/profiles/me/general",
-            );
+          const generalProfile = await authApiGet<PublicGeneralProfileSummary>(
+            "/profiles/me/general",
+          );
 
           if (ignoreResult) {
             return;

@@ -96,7 +96,15 @@ const SOCIAL_LINKS = [
  */
 export function PublicFooter() {
   return (
-    <footer className="border-t border-gray-200 bg-gray-950 text-white">
+    <footer className="relative isolate overflow-hidden border-t border-white/10 bg-gray-950 text-white">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 bg-[url('/images/og/asancha-homepage-og.jpg')] bg-cover bg-[72%_center] sm:bg-center"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(3,7,18,0.86)_0%,rgba(3,7,18,0.93)_55%,rgba(3,7,18,0.96)_100%)]"
+      />
       <div className="asancha-page-container py-12">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
           <section aria-labelledby="public-footer-brand-heading">

@@ -20,6 +20,7 @@ import {
 import type { ReactNode } from "react";
 
 import { MarketplaceBrowser } from "@/src/components/marketplace/marketplace-browser";
+import type { MarketplaceFilters } from "@/src/features/marketplace/types/marketplace.types";
 
 const marketplaceUses = [
   {
@@ -111,7 +112,11 @@ function AnimatedSection({
   );
 }
 
-export function MarketplacePageExperience() {
+export function MarketplacePageExperience({
+  initialFilters,
+}: {
+  initialFilters?: Partial<MarketplaceFilters>;
+}) {
   return (
     <main className="overflow-x-clip">
       <section
@@ -156,8 +161,8 @@ export function MarketplacePageExperience() {
                 variants={cardReveal}
               >
                 Browse public-safe property and investment previews across the
-                UK, then continue into the right account, profile,
-                verification, or approval path when an action needs more trust.
+                UK, then continue into the right account, profile, verification,
+                or approval path when an action needs more trust.
               </motion.p>
 
               <motion.div
@@ -352,11 +357,9 @@ export function MarketplacePageExperience() {
                 for public marketplace visibility.
               </p>
             </div>
-
-            
           </div>
 
-          <MarketplaceBrowser />
+          <MarketplaceBrowser initialFilters={initialFilters} />
         </div>
       </AnimatedSection>
     </main>

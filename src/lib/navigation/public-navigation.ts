@@ -52,24 +52,17 @@ export interface NavigationSection {
 
 export const PUBLIC_HEADER_NAVIGATION = [
   {
-    label: "Home",
-    href: "/",
-    description: "Return to the Asancha homepage.",
-    iconName: "Home",
-    access: "public",
-  },
-  {
-    label: "About",
-    href: "/about",
-    description: "Learn about Asancha.",
-    iconName: "Info",
-    access: "public",
-  },
-  {
-    label: "Marketplace",
+    label: "Find Properties",
     href: "/marketplace",
-    description: "Browse safe public property and opportunity previews.",
+    description: "Browse public property opportunities.",
     iconName: "Building2",
+    access: "public",
+  },
+  {
+    label: "List a Property",
+    href: "/solutions/property-owners",
+    description: "Start the controlled property submission journey.",
+    iconName: "HousePlus",
     access: "public",
   },
   {
@@ -80,26 +73,12 @@ export const PUBLIC_HEADER_NAVIGATION = [
     access: "public",
   },
   {
-    label: "Solutions",
-    href: "/solutions",
-    description: "Explore role-specific Asancha solutions.",
+    label: "Professionals",
+    href: "/professionals",
+    description: "Explore professional routes through Asancha.",
     iconName: "Layers3",
     access: "public",
     children: [
-      {
-        label: "Investors",
-        href: "/solutions/investors",
-        description: "Find property opportunities and manage investments.",
-        iconName: "ChartNoAxesCombined",
-        access: "public",
-      },
-      {
-        label: "Property Owners",
-        href: "/solutions/property-owners",
-        description: "List and manage property opportunities.",
-        iconName: "House",
-        access: "public",
-      },
       {
         label: "Property Agents",
         href: "/solutions/property-agents",
@@ -121,28 +100,20 @@ export const PUBLIC_HEADER_NAVIGATION = [
         iconName: "Wrench",
         access: "public",
       },
+      {
+        label: "API Partners",
+        href: "/api-partners",
+        description: "Connect approved systems through controlled API access.",
+        iconName: "Plug",
+        access: "public",
+      },
     ],
   },
   {
-    label: "API Partners",
-    href: "/api-partners",
-    description: "Learn about controlled API partner access.",
-    iconName: "Plug",
-    access: "public",
-  },
-  {
-    label: "Pricing",
-    href: "/pricing",
-    description:
-      "View public pricing and platform fee information where enabled.",
-    iconName: "BadgePoundSterling",
-    access: "public",
-  },
-  {
-    label: "Contact",
-    href: "/contact",
-    description: "Contact Asancha for general enquiries.",
-    iconName: "Mail",
+    label: "About",
+    href: "/about",
+    description: "Learn about Asancha.",
+    iconName: "Info",
     access: "public",
   },
 ] as const satisfies readonly NavigationItem[];
