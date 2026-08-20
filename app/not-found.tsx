@@ -27,7 +27,7 @@ import Link from "next/link";
  */
 export default function NotFound() {
   return (
-    <section className="asancha-screen-center">
+    <main className="asancha-screen-center" id="main-content" tabIndex={-1}>
       <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
           404
@@ -58,6 +58,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </section>
+    </main>
   );
 }

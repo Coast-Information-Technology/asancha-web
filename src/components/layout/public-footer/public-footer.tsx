@@ -110,11 +110,11 @@ export function PublicFooter() {
           <section aria-labelledby="public-footer-brand-heading">
             <Link
               aria-label="Asancha home"
-              className="inline-flex rounded-md focus:outline-none focus:ring-4 focus:ring-blue-300"
+              className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
               href="/"
             >
               <Image
-                alt="Asancha logo"
+                alt=""
                 className="h-auto w-20"
                 height={80}
                 src="/logo.png"
@@ -138,8 +138,8 @@ export function PublicFooter() {
                 {SOCIAL_LINKS.map(({ href, Icon, label }) => (
                   <li key={label}>
                     <a
-                      aria-label={`Asancha on ${label}`}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:border-primary hover:bg-primary focus:outline-none focus:ring-4 focus:ring-blue-300"
+                      aria-label={`Asancha on ${label} (opens in a new tab)`}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:border-primary hover:bg-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
                       href={href}
                       rel="noreferrer"
                       target="_blank"
@@ -163,7 +163,7 @@ export function PublicFooter() {
                   {section.items.map((item) => (
                     <li key={item.href}>
                       <Link
-                        className="text-sm text-gray-300 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        className="rounded-sm text-sm text-gray-300 hover:text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
                         href={item.href}
                       >
                         {item.label}

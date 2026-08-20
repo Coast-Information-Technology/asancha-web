@@ -104,11 +104,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </a>
 
         <ToastProvider>
-          <div className="asancha-app-root">
-            <main id="main-content" tabIndex={-1}>
-              {children}
-            </main>
-          </div>
+          <div className="asancha-app-root">{children}</div>
         </ToastProvider>
       </body>
     </html>

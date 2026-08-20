@@ -2002,7 +2002,9 @@ export function DashboardShell({
                             errorMessage,
                         }}
                     >
-                        {children}
+                        <div id="main-content" tabIndex={-1}>
+                            {children}
+                        </div>
                     </DashboardStateProvider>
                 </div>
 

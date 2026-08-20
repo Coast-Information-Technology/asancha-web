@@ -17,7 +17,7 @@
  *
  * Accessibility note:
  * Uses semantic header/nav markup, exposes mobile menu expanded state,
- * and uses native details/summary for keyboard-friendly desktop dropdowns.
+ * and uses keyboard-operable disclosure buttons for navigation dropdowns.
  *
  * Security note:
  * Navigation is frontend guidance only.
@@ -28,7 +28,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { MenuIcon } from "lucide-react";
 
 import {
   PUBLIC_GUEST_ACTIONS,
@@ -44,7 +45,6 @@ import {
 } from "@/src/lib/auth/role-guards";
 
 import styles from "./public-header.module.css";
-import { MenuIcon } from "lucide-react";
 
 interface PublicHeaderProps {
   isAuthenticated?: boolean;
@@ -77,20 +77,43 @@ interface DesktopNavigationItemProps {
 function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const hasChildren = Boolean(item.children && item.children.length > 0);
   const isActive =
     isActiveNavigationItem(item, pathname) ||
     Boolean(
       item.children?.some((child) => isActiveNavigationItem(child, pathname)),
     );
+  const itemId = item.href.replace(/[^a-z0-9]/gi, "-");
+  const triggerId = `desktop-navigation-trigger-${itemId}`;
+  const panelId = `desktop-navigation-panel-${itemId}`;
 
   useEffect(() => {
+    function handlePointerDown(event: PointerEvent): void {
+      if (
+        isOpen &&
+        event.target instanceof Node &&
+        !dropdownRef.current?.contains(event.target)
+      ) {
+        if (closeTimerRef.current !== null) {
+          clearTimeout(closeTimerRef.current);
+          closeTimerRef.current = null;
+        }
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
     return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+
       if (closeTimerRef.current !== null) {
         clearTimeout(closeTimerRef.current);
       }
     };
-  }, []);
+  }, [isOpen]);
 
   if (!hasChildren) {
     return (
@@ -124,49 +147,60 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
     }, 180);
   }
 
-  function preventDesktopToggle(
-    event: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>,
-  ) {
-    event.preventDefault();
-  }
-
-  function handleBlur(event: React.FocusEvent<HTMLDetailsElement>) {
+  function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) {
       clearCloseTimer();
       setIsOpen(false);
     }
   }
 
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Escape" || !isOpen) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    clearCloseTimer();
+    setIsOpen(false);
+    triggerRef.current?.focus();
+  }
+
   return (
-    <details
+    <div
       className={styles.dropdown}
+      data-open={isOpen}
       onBlur={handleBlur}
-      onFocus={openDropdown}
+      onKeyDown={handleKeyDown}
       onMouseEnter={openDropdown}
       onMouseLeave={scheduleDropdownClose}
-      open={isOpen}
+      ref={dropdownRef}
     >
-      <summary
-        aria-current={isActive ? "page" : undefined}
+      <button
+        aria-controls={panelId}
         aria-expanded={isOpen}
-        aria-haspopup="true"
         className={`${styles.navItem} ${styles.dropdownTrigger} ${
           isActive ? styles.navItemActive : ""
         }`}
-        onClick={preventDesktopToggle}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            preventDesktopToggle(event);
-          }
+        id={triggerId}
+        onClick={() => {
+          clearCloseTimer();
+          setIsOpen((current) => !current);
         }}
+        ref={triggerRef}
+        type="button"
       >
         <span>{item.label}</span>
         <span aria-hidden="true" className={styles.dropdownChevron}>
           {"\u25be"}
         </span>
-      </summary>
+      </button>
 
-      <div className={styles.dropdownPanel}>
+      <div
+        aria-labelledby={triggerId}
+        className={styles.dropdownPanel}
+        id={panelId}
+      >
         <div className={styles.dropdownHeader}>
           <p className={styles.dropdownTitle}>{item.label}</p>
           {item.description ? (
@@ -186,6 +220,7 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
                     childActive ? styles.dropdownItemActive : ""
                   }`}
                   href={child.href}
+                  onClick={() => setIsOpen(false)}
                 >
                   <span className={styles.dropdownItemLabel}>
                     {child.label}
@@ -201,7 +236,7 @@ function DesktopNavigationItem({ item, pathname }: DesktopNavigationItemProps) {
           })}
         </ul>
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -226,6 +261,7 @@ function MobileNavigationItem({
       item.children?.some((child) => isActiveNavigationItem(child, pathname)),
     );
   const [isOpen, setIsOpen] = useState(isActive);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const childNavigationId = `mobile-navigation-${item.href.replace(/[^a-z0-9]/gi, "-")}`;
 
   if (!hasChildren) {
@@ -242,15 +278,25 @@ function MobileNavigationItem({
   }
 
   return (
-    <div className={styles.mobileNavGroup}>
+    <div
+      className={styles.mobileNavGroup}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && isOpen) {
+          event.preventDefault();
+          event.stopPropagation();
+          setIsOpen(false);
+          triggerRef.current?.focus();
+        }
+      }}
+    >
       <button
         aria-controls={childNavigationId}
-        aria-current={isActive ? "page" : undefined}
         aria-expanded={isOpen}
         className={`${styles.navItem} ${styles.mobileNavTrigger} ${
           isActive ? styles.navItemActive : ""
         }`}
         onClick={() => setIsOpen((current) => !current)}
+        ref={triggerRef}
         type="button"
       >
         <span>{item.label}</span>
@@ -264,27 +310,30 @@ function MobileNavigationItem({
         </span>
       </button>
 
-      {isOpen ? (
-        <div className={styles.mobileChildNav} id={childNavigationId}>
-          {item.children?.map((child) => {
-            const childActive = isActiveNavigationItem(child, pathname);
+      <ul
+        className={styles.mobileChildNav}
+        hidden={!isOpen}
+        id={childNavigationId}
+      >
+        {item.children?.map((child) => {
+          const childActive = isActiveNavigationItem(child, pathname);
 
-            return (
+          return (
+            <li key={child.href}>
               <Link
                 aria-current={childActive ? "page" : undefined}
                 className={`${styles.mobileChildNavItem} ${
                   childActive ? styles.mobileChildNavItemActive : ""
                 }`}
                 href={child.href}
-                key={child.href}
                 onClick={onNavigate}
               >
                 {child.label}
               </Link>
-            );
-          })}
-        </div>
-      ) : null}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -295,6 +344,7 @@ function MobileNavigationItem({
 export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const [dashboardHref, setDashboardHref] = useState<string | null>(
     isAuthenticated ? "/dashboard" : null,
   );
@@ -406,7 +456,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           onClick={closeMobileMenu}
         >
           <Image
-            alt="Asancha logo"
+            alt=""
             className={styles.logoImage}
             height={80}
             priority
@@ -417,14 +467,16 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
         </Link>
 
         <nav aria-label="Primary navigation" className={styles.desktopNav}>
-          {PUBLIC_HEADER_NAVIGATION.map((item) => (
-            <Fragment key={item.href}>
-              <DesktopNavigationItem item={item} pathname={pathname} />
-            </Fragment>
-          ))}
+          <ul className={styles.desktopNavList}>
+            {PUBLIC_HEADER_NAVIGATION.map((item) => (
+              <li key={item.href}>
+                <DesktopNavigationItem item={item} pathname={pathname} />
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        <div className={styles.actions}>
+        <nav aria-label="Account actions" className={styles.actions}>
           {actionItems.map((item, index) => (
             <Link
               className={
@@ -438,7 +490,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
 
         <button
           aria-controls="asancha-mobile-public-navigation"
@@ -448,6 +500,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           }
           className={styles.mobileButton}
           onClick={() => setMobileMenuOpen((current) => !current)}
+          ref={mobileMenuButtonRef}
           type="button"
         >
           <span aria-hidden="true">{mobileMenuOpen ? "×" : <MenuIcon />}</span>
@@ -458,23 +511,36 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
         <div
           className={styles.mobilePanel}
           id="asancha-mobile-public-navigation"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setMobileMenuOpen(false);
+              mobileMenuButtonRef.current?.focus();
+            }
+          }}
         >
           <div className={styles.mobilePanelInner}>
             <nav
               aria-label="Mobile primary navigation"
               className={styles.mobileNav}
             >
-              {PUBLIC_HEADER_NAVIGATION.map((item) => (
-                <MobileNavigationItem
-                  item={item}
-                  key={item.href}
-                  onNavigate={closeMobileMenu}
-                  pathname={pathname}
-                />
-              ))}
+              <ul className={styles.mobileNavList}>
+                {PUBLIC_HEADER_NAVIGATION.map((item) => (
+                  <li key={item.href}>
+                    <MobileNavigationItem
+                      item={item}
+                      onNavigate={closeMobileMenu}
+                      pathname={pathname}
+                    />
+                  </li>
+                ))}
+              </ul>
             </nav>
 
-            <div className={styles.mobileActions}>
+            <nav
+              aria-label="Mobile account actions"
+              className={styles.mobileActions}
+            >
               {actionItems.map((item) => (
                 <Link
                   className={`${styles.actionLink} ${styles.actionLinkPrimary} ${styles.mobileActionLink}`}
@@ -485,7 +551,7 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
                   {item.label}
                 </Link>
               ))}
-            </div>
+            </nav>
           </div>
         </div>
       ) : null}

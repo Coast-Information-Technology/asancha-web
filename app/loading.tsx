@@ -25,25 +25,21 @@
  */
 export default function Loading() {
   return (
-    <section
-      aria-busy="true"
-      aria-live="polite"
-      className="asancha-screen-center"
-    >
+    <div aria-live="polite" className="asancha-screen-center" role="status">
       <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
         <div
           aria-hidden="true"
           className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-700"
         />
 
-        <h1 className="mt-5 text-lg font-semibold text-gray-950">
+        <p className="mt-5 text-lg font-semibold text-gray-950">
           Loading Asancha
-        </h1>
+        </p>
 
         <p className="mt-2 text-sm text-gray-600">
           Please wait while we prepare this page.
         </p>
       </div>
-    </section>
+    </div>
   );
 }

@@ -77,7 +77,9 @@ export function OnboardingShell({
                 </div>
             </header>
 
-            {children}
+            <div id="main-content" tabIndex={-1}>
+                {children}
+            </div>
 
             <footer className="border-t border-[var(--border)] bg-[var(--card)]">
                 <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-6 text-sm text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">

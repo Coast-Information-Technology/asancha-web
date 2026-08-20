@@ -63,7 +63,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </header>
 
-      <main className={styles.main}>
+      <main className={styles.main} id="main-content" tabIndex={-1}>
         <section
           aria-label="Asancha account access"
           className={styles.contextPanel}
@@ -85,8 +85,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               <div>
                 <p className={styles.signalTitle}>Find opportunities</p>
                 <p className={styles.signalCopy}>
-                  Browse public property previews and save the ones you want
-                  to revisit.
+                  Browse public property previews and save the ones you want to
+                  revisit.
                 </p>
               </div>
             </div>

@@ -46,7 +46,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <html lang="en-GB">
       <body>
-        <main className="asancha-screen-center">
+        <main className="asancha-screen-center" id="main-content" tabIndex={-1}>
           <section className="w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
               Application error

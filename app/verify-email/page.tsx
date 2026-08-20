@@ -50,5 +50,9 @@ export default async function VerifyEmailPage({
     getSingleSearchParam(params?.userPublicId) ||
     getSingleSearchParam(params?.user);
 
-  return <EmailVerifyStatus token={token} userPublicId={userPublicId} />;
+  return (
+    <main id="main-content" tabIndex={-1}>
+      <EmailVerifyStatus token={token} userPublicId={userPublicId} />
+    </main>
+  );
 }

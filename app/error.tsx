@@ -43,7 +43,7 @@ export default function RootError({ error, reset }: RootErrorProps) {
   }, [error.digest]);
 
   return (
-    <section className="asancha-screen-center">
+    <main className="asancha-screen-center" id="main-content" tabIndex={-1}>
       <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
           Something went wrong
@@ -75,6 +75,6 @@ export default function RootError({ error, reset }: RootErrorProps) {
           </a>
         </div>
       </div>
-    </section>
+    </main>
   );
 }

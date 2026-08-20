@@ -587,7 +587,7 @@ export function ApiPartnerApplyPageClient({
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+    <div className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <Link className="text-sm font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)]" href="/">
         Asancha
       </Link>
@@ -627,6 +627,6 @@ export function ApiPartnerApplyPageClient({
       <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm sm:p-8">
         {mode === "registration" ? renderRegistration() : renderApplication()}
       </section>
-    </main>
+    </div>
   );
 }

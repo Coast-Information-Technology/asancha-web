@@ -42,7 +42,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     <>
       <PublicHeader />
 
-      {children}
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
 
       <PublicFooter />
     </>

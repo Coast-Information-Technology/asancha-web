@@ -62,8 +62,15 @@
 
 .desktopNav {
   display: none;
+}
+
+.desktopNavList {
+  display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .navItem {
@@ -101,13 +108,11 @@
 }
 
 .dropdownTrigger {
+  border: 0;
+  background: transparent;
   cursor: pointer;
+  font: inherit;
   gap: 0.35rem;
-  list-style: none;
-}
-
-.dropdownTrigger::-webkit-details-marker {
-  display: none;
 }
 
 .dropdownChevron {
@@ -116,10 +121,18 @@
   transition: transform 150ms ease;
 }
 
-.dropdown[open] .dropdownChevron,
-.dropdown:hover .dropdownChevron,
-.dropdown:focus-within .dropdownChevron {
+.dropdown[data-open="true"] .dropdownChevron {
   transform: rotate(180deg);
+}
+
+.dropdown[data-open="true"]::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: min(28rem, calc(100vw - 2rem));
+  height: 0.75rem;
+  transform: translateX(-50%);
 }
 
 .dropdownPanel {
@@ -145,9 +158,7 @@
     visibility 150ms ease;
 }
 
-.dropdown[open] .dropdownPanel,
-.dropdown:hover .dropdownPanel,
-.dropdown:focus-within .dropdownPanel {
+.dropdown[data-open="true"] .dropdownPanel {
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
@@ -319,8 +330,15 @@
 }
 
 .mobileNav {
+  display: block;
+}
+
+.mobileNavList {
   display: grid;
   gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .mobileNavGroup {
@@ -350,7 +368,13 @@
 .mobileChildNav {
   display: grid;
   gap: 0.25rem;
-  padding-left: 1rem;
+  margin: 0;
+  padding: 0 0 0 1rem;
+  list-style: none;
+}
+
+.mobileChildNav[hidden] {
+  display: none;
 }
 
 .mobileChildNavItem {
@@ -394,7 +418,7 @@
 
 @media (min-width: 1024px) {
   .desktopNav {
-    display: flex;
+    display: block;
   }
 
   .actions {

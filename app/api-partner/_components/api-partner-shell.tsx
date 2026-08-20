@@ -311,7 +311,9 @@ export function ApiPartnerShell({ children }: { children: ReactNode }) {
             {navigation}
           </div>
         </aside>
-        <main className={styles.main}>{children}</main>
+        <main className={styles.main} id="main-content" tabIndex={-1}>
+          {children}
+        </main>
       </div>
 
       {mobileOpen ? (

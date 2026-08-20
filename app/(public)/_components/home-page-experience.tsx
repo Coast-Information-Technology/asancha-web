@@ -2,7 +2,7 @@
 
 // File: app/(public)/_components/home-page-experience.tsx
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   BadgeCheck,
@@ -19,7 +19,6 @@ import {
   ShieldCheck,
   Target,
   Wrench,
-  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -79,17 +78,17 @@ const ecosystemRoles = [
   },
 ] as const;
 
-const whyAsancha = [
+const journeyPhases = [
   {
     title: "Discover",
     description:
-      "Search and explore property opportunities using clear sourcing criteria.",
+      "Browse public property opportunities and search by location, budget, strategy and other permitted sourcing criteria.",
     icon: Search,
   },
   {
     title: "Evaluate",
     description:
-      "Review structured property facts, calculations, estimates and permitted investment information.",
+      "Review property information, calculations, estimates and permitted investment intelligence. Sign in only when a protected capability is required.",
     icon: Calculator,
   },
   {
@@ -101,7 +100,7 @@ const whyAsancha = [
   {
     title: "Progress",
     description:
-      "When eligible, move into protected information, verification, meetings, reservation or other approved next steps.",
+      "Complete the requirements relevant to the next protected action, then continue through eligible platform workflows.",
     icon: ArrowRight,
   },
 ] as const;
@@ -118,24 +117,6 @@ const matchReasons = [
   ["Preferred location", "Match criterion", true],
   ["Refurbishment required", "Consideration", true],
   ["Preferred 3+ bedrooms not met", "Mismatch", false],
-] as const;
-
-const journeySteps = [
-  {
-    title: "Discover",
-    description:
-      "Browse public property opportunities and search by location, budget, strategy and other permitted sourcing criteria.",
-  },
-  {
-    title: "Evaluate",
-    description:
-      "Review available property information, calculations, estimates, matching and permitted investment intelligence. Sign in only when a protected capability is required.",
-  },
-  {
-    title: "Progress",
-    description:
-      "Complete the account, profile, policy, verification or entitlement requirements relevant to the next protected action, then continue through eligible workflows.",
-  },
 ] as const;
 
 const trustPillars = [
@@ -192,7 +173,7 @@ function PrimaryLink({
 }) {
   return (
     <Link
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold !text-white transition hover:bg-primary/80 focus:outline-none focus:ring-4 focus:ring-ring/30"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold !text-white transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
       href={href}
     >
       {children}
@@ -214,8 +195,8 @@ function SecondaryLink({
     <Link
       className={
         inverted
-          ? "inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm transition hover:bg-primary-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-          : "inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-background px-6 py-3 text-sm font-bold text-foreground transition hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+          ? "inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm transition hover:bg-primary-foreground/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+          : "inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-background px-6 py-3 text-sm font-bold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
       }
       href={href}
     >
@@ -257,32 +238,6 @@ function SectionIntro({
   );
 }
 
-function FeatureCard({
-  description,
-  icon: Icon,
-  title,
-}: {
-  description: string;
-  icon: LucideIcon;
-  title: string;
-}) {
-  return (
-    <motion.article
-      className="rounded-xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/45 hover:shadow-md"
-      variants={cardReveal}
-      whileHover={{ y: -4 }}
-    >
-      <span className="grid h-11 w-11 place-items-center rounded-lg bg-accent text-primary">
-        <Icon aria-hidden="true" size={20} strokeWidth={2.5} />
-      </span>
-      <h3 className="mt-5 text-lg font-bold text-card-foreground">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
-    </motion.article>
-  );
-}
-
 function AnimatedSection({
   children,
   className,
@@ -292,14 +247,16 @@ function AnimatedSection({
   className?: string;
   labelledBy: string;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.section
       aria-labelledby={labelledBy}
       className={className}
-      initial="hidden"
-      variants={sectionReveal}
+      initial={shouldReduceMotion ? undefined : "hidden"}
+      variants={shouldReduceMotion ? undefined : sectionReveal}
       viewport={{ once: true, amount: 0.12 }}
-      whileInView="show"
+      whileInView={shouldReduceMotion ? undefined : "show"}
     >
       {children}
     </motion.section>
@@ -307,9 +264,14 @@ function AnimatedSection({
 }
 
 export function HomePageExperience() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <main className="overflow-x-clip">
-      <section className="relative isolate overflow-hidden bg-foreground text-primary-foreground">
+      <section
+        aria-labelledby="homepage-hero-heading"
+        className="relative isolate overflow-hidden bg-foreground text-primary-foreground"
+      >
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-20 bg-[url('/images/og/asancha-homepage-og.jpg')] bg-cover bg-[68%_center] sm:bg-center"
@@ -321,10 +283,10 @@ export function HomePageExperience() {
 
         <div className="asancha-page-container py-16 sm:py-20 lg:py-24">
           <motion.div
-            animate="show"
+            animate={shouldReduceMotion ? undefined : "show"}
             className="max-w-5xl"
-            initial="hidden"
-            variants={staggerContainer}
+            initial={shouldReduceMotion ? undefined : "hidden"}
+            variants={shouldReduceMotion ? undefined : staggerContainer}
           >
             <motion.p
               className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground/80 sm:text-sm"
@@ -334,6 +296,7 @@ export function HomePageExperience() {
             </motion.p>
             <motion.h1
               className="mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-primary-foreground sm:text-5xl lg:text-6xl"
+              id="homepage-hero-heading"
               variants={cardReveal}
             >
               Source Smarter Property Opportunities, All in One Place
@@ -347,7 +310,7 @@ export function HomePageExperience() {
               and trusted professionals to help evaluate and progress deals with
               confidence.
             </motion.p>
-            <motion.div
+            <motion.nav
               aria-label="Homepage primary actions"
               className="mt-8 flex flex-col gap-3 sm:flex-row"
               variants={cardReveal}
@@ -356,10 +319,11 @@ export function HomePageExperience() {
               <SecondaryLink href="/solutions/property-owners" inverted>
                 List a Property
               </SecondaryLink>
-            </motion.div>
+            </motion.nav>
 
             <motion.form
               action="/marketplace"
+              aria-label="Search property opportunities"
               className="mt-9 grid gap-3 rounded-2xl border border-primary-foreground/20 bg-background/95 p-4 text-foreground shadow-2xl backdrop-blur-md md:grid-cols-[1.25fr_0.85fr_1fr_auto]"
               method="get"
               variants={cardReveal}
@@ -367,7 +331,7 @@ export function HomePageExperience() {
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Location / postcode
                 <input
-                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none placeholder:font-normal focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none placeholder:font-normal focus:border-primary focus:ring-2 focus:ring-primary"
                   name="search"
                   placeholder="Town, city or postcode"
                   type="search"
@@ -376,7 +340,7 @@ export function HomePageExperience() {
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Budget
                 <select
-                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary"
                   defaultValue=""
                   name="maximumPrice"
                 >
@@ -390,7 +354,7 @@ export function HomePageExperience() {
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Investment strategy
                 <select
-                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary"
                   defaultValue=""
                   name="strategy"
                 >
@@ -403,7 +367,7 @@ export function HomePageExperience() {
                 </select>
               </label>
               <button
-                className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition hover:bg-primary/80 focus:outline-none focus:ring-4 focus:ring-ring/30"
+                className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
                 type="submit"
               >
                 <Search aria-hidden="true" size={17} />
@@ -443,7 +407,7 @@ export function HomePageExperience() {
       </section>
 
       <AnimatedSection
-        className="border-b border-border bg-background"
+        className="border-b border-border bg-muted"
         labelledBy="homepage-featured-heading"
       >
         <div className="asancha-page-container py-16">
@@ -551,7 +515,7 @@ export function HomePageExperience() {
                     </div>
                   </dl>
                   <Link
-                    className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold !text-white hover:bg-primary/80"
+                    className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold !text-white hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
                     href={`/marketplace/${listing.slug}`}
                   >
                     View Property
@@ -565,68 +529,51 @@ export function HomePageExperience() {
       </AnimatedSection>
 
       <AnimatedSection
-        className="bg-muted"
-        labelledBy="homepage-ecosystem-heading"
+        className="border-b border-border bg-background"
+        labelledBy="homepage-journey-heading"
       >
         <div className="asancha-page-container py-16">
           <SectionIntro
-            description="Property sourcing is the entry point. Intelligence, matching, verification, professional support and connected progression make the journey more useful, transparent and actionable."
-            id="homepage-ecosystem-heading"
-            title="One Platform. Built Around the Property Sourcing Journey."
+            description="Property sourcing stays at the centre. Clear information, explainable matching and controlled progression help you understand each opportunity and what comes next."
+            eyebrow="Why Asancha · A clearer property sourcing journey"
+            id="homepage-journey-heading"
+            title="Discover. Evaluate. Progress."
           />
-          <motion.div
-            className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
-            initial="hidden"
-            variants={staggerContainer}
+          <motion.ol
+            className="mt-12 border-y border-border lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-border"
+            initial={shouldReduceMotion ? undefined : "hidden"}
+            variants={shouldReduceMotion ? undefined : staggerContainer}
             viewport={{ once: true, amount: 0.12 }}
-            whileInView="show"
+            whileInView={shouldReduceMotion ? undefined : "show"}
           >
-            {ecosystemRoles.map((role) => (
-              <motion.article
-                className="rounded-xl border border-border bg-card p-6 shadow-sm"
-                key={role.title}
+            {journeyPhases.map((phase, index) => (
+              <motion.li
+                className="grid grid-cols-[auto_1fr] gap-4 border-b border-border py-7 last:border-b-0 lg:block lg:border-b-0 lg:px-6 lg:first:pl-0 lg:last:pr-0"
+                key={phase.title}
                 variants={cardReveal}
               >
-                <role.icon
-                  aria-hidden="true"
-                  className="text-primary"
-                  size={24}
-                />
-                <h3 className="mt-4 text-lg font-bold text-card-foreground">
-                  {role.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {role.description}
-                </p>
-                <Link
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
-                  href={role.href}
-                >
-                  Learn more <ArrowRight aria-hidden="true" size={15} />
-                </Link>
-              </motion.article>
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-accent text-primary">
+                  <phase.icon aria-hidden="true" size={19} strokeWidth={2.5} />
+                </span>
+                <div className="min-w-0 lg:mt-5">
+                  <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                    Step {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-1 text-xl font-bold text-foreground">
+                    {phase.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {phase.description}
+                  </p>
+                </div>
+              </motion.li>
             ))}
-          </motion.div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection
-        className="bg-background"
-        labelledBy="homepage-why-heading"
-      >
-        <div className="asancha-page-container py-16">
-          <SectionIntro id="homepage-why-heading" title="Why Asancha" />
-          <motion.div
-            className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4"
-            initial="hidden"
-            variants={staggerContainer}
-            viewport={{ once: true, amount: 0.12 }}
-            whileInView="show"
-          >
-            {whyAsancha.map((item) => (
-              <FeatureCard key={item.title} {...item} />
-            ))}
-          </motion.div>
+          </motion.ol>
+          <div className="mt-8">
+            <SecondaryLink href="/how-it-works">
+              See How Asancha Works
+            </SecondaryLink>
+          </div>
         </div>
       </AnimatedSection>
 
@@ -715,100 +662,126 @@ export function HomePageExperience() {
 
       <AnimatedSection
         className="bg-muted"
-        labelledBy="homepage-journey-heading"
+        labelledBy="homepage-ecosystem-heading"
       >
         <div className="asancha-page-container py-16">
           <SectionIntro
-            eyebrow="A clearer property sourcing journey"
-            id="homepage-journey-heading"
-            title="Discover. Evaluate. Progress."
+            description="Property sourcing is the entry point. Intelligence, matching, verification, professional support and connected progression make the journey more useful, transparent and actionable."
+            id="homepage-ecosystem-heading"
+            title="One Platform. Built Around the Property Sourcing Journey."
           />
-          <ol className="mt-10 grid gap-5 lg:grid-cols-3">
-            {journeySteps.map((step, index) => (
-              <li
-                className="rounded-xl border border-border bg-card p-6 shadow-sm"
-                key={step.title}
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-extrabold text-primary-foreground">
-                  {index + 1}
-                </span>
-                <h3 className="mt-5 text-xl font-bold text-card-foreground">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {step.description}
-                </p>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-8">
-            <SecondaryLink href="/how-it-works">
-              See How Asancha Works
-            </SecondaryLink>
-          </div>
-        </div>
-      </AnimatedSection>
+          <div className="mt-10 grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+              {ecosystemRoles.slice(0, 2).map((role, index) => (
+                <article
+                  className={
+                    index === 0
+                      ? "rounded-2xl bg-foreground p-7 text-primary-foreground shadow-sm"
+                      : "rounded-2xl border border-border bg-card p-7 shadow-sm"
+                  }
+                  key={role.title}
+                >
+                  <span
+                    className={
+                      index === 0
+                        ? "grid h-12 w-12 place-items-center rounded-xl bg-primary-foreground/10"
+                        : "grid h-12 w-12 place-items-center rounded-xl bg-accent text-primary"
+                    }
+                  >
+                    <role.icon aria-hidden="true" size={23} />
+                  </span>
+                  <h3
+                    className={`mt-6 text-2xl font-extrabold ${
+                      index === 0 ? "" : "text-card-foreground"
+                    }`}
+                  >
+                    {role.title}
+                  </h3>
+                  <p
+                    className={`mt-3 text-sm leading-6 ${
+                      index === 0
+                        ? "text-primary-foreground/75"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {role.description}
+                  </p>
+                  <Link
+                    className={`mt-6 inline-flex items-center gap-2 text-sm font-bold hover:underline ${
+                      index === 0 ? "text-primary-foreground" : "text-primary"
+                    }`}
+                    href={role.href}
+                  >
+                    {index === 0 ? "Explore investor route" : "List a property"}
+                    <ArrowRight aria-hidden="true" size={15} />
+                  </Link>
+                </article>
+              ))}
+            </div>
 
-      <AnimatedSection
-        className="bg-background"
-        labelledBy="homepage-trust-heading"
-      >
-        <div className="asancha-page-container py-16">
-          <SectionIntro
-            description="Asancha uses structured verification, controlled access, secure document handling, traceable workflows and clear information labels to help users understand what is known, what is estimated, what is pending and what is required next."
-            eyebrow="Built for more transparent property decisions"
-            id="homepage-trust-heading"
-            title="Clear Information. Controlled Access. Traceable Progress."
-          />
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {trustPillars.map(([title, Icon]) => (
-              <div
-                className="flex gap-3 rounded-xl border border-border bg-card p-5"
-                key={title}
+            <section
+              aria-labelledby="homepage-professionals-heading"
+              className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
+            >
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
+                Connected expertise
+              </p>
+              <h3
+                className="mt-2 text-2xl font-extrabold text-card-foreground"
+                id="homepage-professionals-heading"
               >
-                <Icon
-                  aria-hidden="true"
-                  className="mt-0.5 shrink-0 text-primary"
-                  size={20}
-                />
-                <p className="text-sm font-bold leading-6 text-foreground">
-                  {title}
-                </p>
+                Professional Routes Through Asancha
+              </h3>
+              <div className="mt-6 divide-y divide-border border-y border-border">
+                {professionalRoutes.map((role) => (
+                  <article
+                    className="grid gap-4 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+                    key={role.title}
+                  >
+                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-primary">
+                      <role.icon aria-hidden="true" size={19} />
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-card-foreground">
+                        {role.title}
+                      </h4>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                        {role.description}
+                      </p>
+                    </div>
+                    <Link
+                      aria-label={`Explore the ${role.title} route`}
+                      className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary hover:underline"
+                      href={role.href}
+                    >
+                      Explore <ArrowRight aria-hidden="true" size={15} />
+                    </Link>
+                  </article>
+                ))}
               </div>
-            ))}
+            </section>
           </div>
-          <p className="mt-7 max-w-4xl rounded-xl border border-accent bg-accent p-5 text-sm font-semibold leading-6 text-accent-foreground">
-            Publication is not verification or reservation eligibility. A match
-            score is not verification, and reservation is not a legal purchase
-            or completion. Information and insights do not guarantee value,
-            returns, rental income, finance, planning or completion outcomes.
-          </p>
-        </div>
-      </AnimatedSection>
 
-      <AnimatedSection
-        className="border-y border-border bg-card"
-        labelledBy="homepage-supply-heading"
-      >
-        <div className="asancha-page-container py-16">
-          <div className="grid gap-8 rounded-2xl bg-foreground p-7 text-primary-foreground lg:grid-cols-[1fr_auto] lg:items-end lg:p-10">
+          <section
+            aria-labelledby="homepage-supply-heading"
+            className="mt-8 grid gap-7 rounded-2xl border border-primary/20 bg-accent p-7 lg:grid-cols-[1fr_auto] lg:items-end lg:p-9"
+          >
             <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/65">
+              <p className="text-sm font-bold uppercase tracking-wide text-primary">
                 List a property
               </p>
               <h2
-                className="mt-3 text-3xl font-extrabold sm:text-4xl"
+                className="mt-2 text-2xl font-extrabold text-accent-foreground sm:text-3xl"
                 id="homepage-supply-heading"
               >
                 Bring a Property Opportunity to Asancha
               </h2>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-primary-foreground/78">
-                Property owners, agents and sourcers can submit property
-                opportunities into the appropriate review and publication
-                journey and connect suitable opportunities with an
-                investor-focused audience.
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
+                Property owners, agents and sourcers can submit opportunities
+                into the appropriate review and publication journey and connect
+                suitable opportunities with an investor-focused audience.
               </p>
-              <p className="mt-4 max-w-3xl text-sm leading-6 text-primary-foreground/65">
+              <p className="mt-3 max-w-3xl text-xs font-semibold leading-5 text-muted-foreground">
                 List a Property is an entry point, not an automatic publication
                 promise. Authentication and the appropriate profile context may
                 be required before submission.
@@ -818,49 +791,56 @@ export function HomePageExperience() {
               <PrimaryLink href="/solutions/property-owners">
                 List a Property
               </PrimaryLink>
-              <SecondaryLink href="/how-it-works" inverted>
+              <SecondaryLink href="/how-it-works">
                 How Property Listing Works
               </SecondaryLink>
             </div>
-          </div>
+          </section>
         </div>
       </AnimatedSection>
 
       <AnimatedSection
-        className="bg-muted"
-        labelledBy="homepage-professionals-heading"
+        className="bg-background"
+        labelledBy="homepage-trust-heading"
       >
-        <div className="asancha-page-container py-16">
-          <SectionIntro
-            id="homepage-professionals-heading"
-            title="Professional Routes Through Asancha"
-          />
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {professionalRoutes.map((role) => (
-              <article
-                className="rounded-xl border border-border bg-card p-6"
-                key={role.title}
-              >
-                <role.icon
-                  aria-hidden="true"
-                  className="text-primary"
-                  size={22}
-                />
-                <h3 className="mt-4 text-lg font-bold text-card-foreground">
-                  {role.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {role.description}
-                </p>
-                <Link
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
-                  href={role.href}
-                >
-                  Explore route <ArrowRight aria-hidden="true" size={15} />
-                </Link>
-              </article>
-            ))}
+        <div className="asancha-page-container grid gap-10 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+          <div>
+            <SectionIntro
+              description="Asancha uses structured verification, controlled access, secure document handling, traceable workflows and clear information labels to help users understand what is known, what is estimated, what is pending and what is required next."
+              eyebrow="Built for more transparent property decisions"
+              id="homepage-trust-heading"
+              title="Clear Information. Controlled Access. Traceable Progress."
+            />
+            <p className="mt-7 border-l-4 border-primary bg-accent px-5 py-4 text-sm font-semibold leading-6 text-accent-foreground">
+              Publication is not verification or reservation eligibility. A
+              match score is not verification, and reservation is not a legal
+              purchase or completion. Information and insights do not guarantee
+              value, returns, rental income, finance, planning or completion
+              outcomes.
+            </p>
           </div>
+
+          <ul className="divide-y divide-border border-y border-border">
+            {trustPillars.map(([title, Icon], index) => (
+              <li
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-4 py-5"
+                key={title}
+              >
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-accent text-primary">
+                  <Icon aria-hidden="true" size={19} />
+                </span>
+                <p className="text-sm font-bold leading-6 text-foreground">
+                  {title}
+                </p>
+                <span
+                  aria-hidden="true"
+                  className="text-xs font-extrabold tabular-nums text-muted-foreground"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </AnimatedSection>
 
@@ -870,10 +850,10 @@ export function HomePageExperience() {
       >
         <motion.div
           className="asancha-page-container py-16 text-primary-foreground"
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           viewport={{ once: true, amount: 0.25 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
         >
           <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/70">
             Find your next property opportunity
@@ -891,7 +871,7 @@ export function HomePageExperience() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
               href="/marketplace"
             >
               Explore Properties <ArrowRight aria-hidden="true" size={17} />
