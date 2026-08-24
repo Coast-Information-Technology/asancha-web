@@ -78,17 +78,6 @@ interface SafeOnboardingRecord {
     safeUserMessage: string | null;
 }
 
-interface SafeGeneralProfileRecord {
-    profilePublicId: string;
-
-    completionStatus:
-    | "not_started"
-    | "in_progress"
-    | "completed";
-
-    data: OnboardingFormValues;
-}
-
 interface SaveOnboardingPayload
     extends Record<string, unknown> {
     data: {
@@ -102,18 +91,6 @@ interface SubmitOnboardingPayload
     extends Record<string, unknown> {
     data: {
         profileType: OnboardingProfileType;
-        informationAccurateConfirmed: true;
-    };
-}
-
-interface SaveGeneralProfilePayload
-    extends Record<string, unknown> {
-    data: OnboardingFormValues;
-}
-
-interface CompleteGeneralProfilePayload
-    extends Record<string, unknown> {
-    data: {
         informationAccurateConfirmed: true;
     };
 }
@@ -305,7 +282,7 @@ export function OnboardingFormPage({
                     "general_profile"
                 ) {
                     const profile =
-                        await authApiGet<any>(
+                        await authApiGet<OnboardingFormValues>(
                             "/profiles/me/general",
                         );
 
@@ -368,7 +345,7 @@ export function OnboardingFormPage({
     );
 
     useEffect((): void => {
-        void loadExistingData();
+        void Promise.resolve().then(loadExistingData);
     }, [loadExistingData]);
 
     const updateValue = (
@@ -645,13 +622,8 @@ export function OnboardingFormPage({
                     values,
                 );
 
-                const completePayload = {
-                    confirmCompletion: true,
-                };
-
-                await authApiPost(
+                await authApiPost<unknown>(
                     "/profiles/me/general/complete",
-                    completePayload,
                 );
 
                 setSuccessMessage(

@@ -97,10 +97,6 @@ interface UpdateGeneralProfilePayload {
     profileImageUrl: string | null;
 }
 
-interface CompleteGeneralProfilePayload {
-    confirmCompletion: true;
-}
-
 interface CloudinaryUploadResponse {
     secure_url: string;
 }
@@ -468,12 +464,9 @@ export function GeneralProfilePageClient() {
                 >(GENERAL_PROFILE_ENDPOINT, payload);
 
             const completedProfile =
-                await authApiPost<
-                    GeneralProfile,
-                    CompleteGeneralProfilePayload
-                >(COMPLETE_GENERAL_PROFILE_ENDPOINT, {
-                    confirmCompletion: true,
-                });
+                await authApiPost<GeneralProfile>(
+                    COMPLETE_GENERAL_PROFILE_ENDPOINT,
+                );
 
             setProfile(completedProfile);
             setValues(
