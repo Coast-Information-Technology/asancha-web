@@ -48,5 +48,5 @@ export async function uploadOnboardingDocument(
         },
     });
 
-    return result.document.documentPublicId;
+    return result.documentPublicId;
 }

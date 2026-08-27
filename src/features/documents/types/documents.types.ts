@@ -283,10 +283,9 @@ export interface DocumentUploadPayload {
 }
 
 export interface DocumentUploadResult {
-    document: DocumentDetail;
-    uploaded: true;
-    nextPath: string;
-    message: string;
+    documentPublicId: string;
+    documentType: DocumentType;
+    mimeType: string;
 }
 
 export interface PropertyDocumentUploadValues {

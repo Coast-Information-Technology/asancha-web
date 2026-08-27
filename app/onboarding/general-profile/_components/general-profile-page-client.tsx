@@ -376,7 +376,7 @@ export function GeneralProfilePageClient() {
 
             updateValue(
                 "profileImageDocumentPublicId",
-                result.document.documentPublicId,
+                result.documentPublicId,
             );
             replaceProfileImagePreview(file);
         } catch {

@@ -367,20 +367,11 @@ export function useDocuments(): UseDocumentsResult {
 
                     requestState: "success",
 
-                    documents: replaceDocumentSummary(
-                        currentState.documents,
-                        result.document,
-                    ),
-
-                    selectedDocument: result.document,
-
                     isUploading: false,
-                    isEmpty: false,
 
                     errorMessage: null,
 
                     successMessage:
-                        result.message ||
                         DOCUMENT_SAFE_MESSAGES.uploaded,
                 }));
 
@@ -419,16 +410,9 @@ export function useDocuments(): UseDocumentsResult {
                 setHookState((currentState) => ({
                     ...currentState,
                     requestState: "success",
-                    documents: replaceDocumentSummary(
-                        currentState.documents,
-                        result.document,
-                    ),
-                    selectedDocument: result.document,
                     isUploading: false,
-                    isEmpty: false,
                     errorMessage: null,
                     successMessage:
-                        result.message ||
                         DOCUMENT_SAFE_MESSAGES.uploaded,
                 }));
 

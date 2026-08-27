@@ -243,8 +243,7 @@ export function DocumentUploadPageClient() {
 
             router.push(
                 `/documents/${encodeURIComponent(
-                    result.document
-                        .documentPublicId,
+                    result.documentPublicId,
                 )}`,
             );
 

@@ -161,7 +161,7 @@ export function PropertyDocumentUploadPageClient({
 
                 router.push(
                     DOCUMENT_PAGE_ROUTES.detail(
-                        result.document.documentPublicId,
+                        result.documentPublicId,
                     ),
                 );
             }
