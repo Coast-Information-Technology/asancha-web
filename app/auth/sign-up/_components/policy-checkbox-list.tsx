@@ -21,7 +21,29 @@
  * Backend must version, validate, store, and audit policy acceptance.
  */
 
+import Link from "next/link";
+
 import { Checkbox } from "@/src/components/ui/checkbox/checkbox";
+
+const policyLinkClassName =
+  "cursor-pointer rounded-sm underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:text-primary focus-visible:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30";
+
+function PolicyAcceptanceLink({
+  href,
+  policyName,
+}: {
+  href: string;
+  policyName: string;
+}) {
+  return (
+    <>
+      <Link className={policyLinkClassName} href={href}>
+        {policyName}
+      </Link>
+      .
+    </>
+  );
+}
 
 export interface PolicyAcceptanceValue {
   termsAccepted: boolean;
@@ -53,9 +75,7 @@ export function PolicyCheckboxList({
 
   return (
     <fieldset className="space-y-4">
-      <legend className="text-sm font-bold text-foreground">
-        Agreements
-      </legend>
+      <legend className="text-sm font-bold text-foreground">Agreements</legend>
 
       <Checkbox
         checked={value.termsAccepted}
@@ -63,7 +83,10 @@ export function PolicyCheckboxList({
         errorMessage={
           errorMessage && !value.termsAccepted ? errorMessage : undefined
         }
-        label="I accept the Terms of Use."
+        label="I accept the"
+        labelTrailingContent={
+          <PolicyAcceptanceLink href="/legal/terms" policyName="Terms of Use" />
+        }
         onChange={(event) =>
           updatePolicy("termsAccepted", event.target.checked)
         }
@@ -76,7 +99,13 @@ export function PolicyCheckboxList({
         errorMessage={
           errorMessage && !value.privacyAccepted ? errorMessage : undefined
         }
-        label="I accept the Privacy Policy."
+        label="I accept the"
+        labelTrailingContent={
+          <PolicyAcceptanceLink
+            href="/legal/privacy"
+            policyName="Privacy Policy"
+          />
+        }
         onChange={(event) =>
           updatePolicy("privacyAccepted", event.target.checked)
         }
@@ -91,7 +120,13 @@ export function PolicyCheckboxList({
             ? errorMessage
             : undefined
         }
-        label="I accept the Platform Rules."
+        label="I accept the"
+        labelTrailingContent={
+          <PolicyAcceptanceLink
+            href="/legal/platform-rules"
+            policyName="Platform Rules"
+          />
+        }
         onChange={(event) =>
           updatePolicy("platformRulesAccepted", event.target.checked)
         }
@@ -106,7 +141,13 @@ export function PolicyCheckboxList({
             ? errorMessage
             : undefined
         }
-        label="I accept the Data Processing Consent."
+        label="I accept the"
+        labelTrailingContent={
+          <PolicyAcceptanceLink
+            href="/legal/data-processing"
+            policyName="Data Processing Consent"
+          />
+        }
         onChange={(event) =>
           updatePolicy("dataProcessingConsentAccepted", event.target.checked)
         }

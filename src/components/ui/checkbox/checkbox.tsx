@@ -24,6 +24,7 @@ export interface CheckboxProps extends Omit<
   "type"
 > {
   label: React.ReactNode;
+  labelTrailingContent?: React.ReactNode;
   description?: React.ReactNode;
   errorMessage?: string;
 }
@@ -38,9 +39,21 @@ function joinClassNames(
  * Renders an accessible checkbox field.
  */
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, description, errorMessage, id, label, ...props }, ref) => {
+  (
+    {
+      className,
+      description,
+      errorMessage,
+      id,
+      label,
+      labelTrailingContent,
+      ...props
+    },
+    ref,
+  ) => {
     const generatedId = useId();
     const checkboxId = id ?? generatedId;
+    const labelId = labelTrailingContent ? `${checkboxId}-label` : undefined;
     const descriptionId = description ? `${checkboxId}-description` : undefined;
     const errorMessageId = errorMessage ? `${checkboxId}-error` : undefined;
     const describedBy = [descriptionId, errorMessageId]
@@ -53,6 +66,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           <input
             aria-describedby={describedBy || undefined}
             aria-invalid={Boolean(errorMessage)}
+            aria-labelledby={labelId}
             className={joinClassNames(
               "mt-1 h-4 w-4 rounded border-gray-300 text-gray-950 focus:ring-4 focus:ring-blue-100",
               errorMessage && "border-red-700",
@@ -65,12 +79,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
 
           <div>
-            <label
-              className="cursor-pointer text-sm font-semibold leading-6 text-gray-950"
-              htmlFor={checkboxId}
+            <div
+              className="text-sm font-semibold leading-6 text-gray-950"
+              id={labelId}
             >
-              {label}
-            </label>
+              <label className="cursor-pointer" htmlFor={checkboxId}>
+                {label}
+              </label>
+              {labelTrailingContent ? <> {labelTrailingContent}</> : null}
+            </div>
 
             {description ? (
               <p
