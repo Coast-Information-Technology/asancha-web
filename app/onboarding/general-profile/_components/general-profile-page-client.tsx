@@ -494,14 +494,14 @@ export function GeneralProfilePageClient() {
 
     if (isLoading) {
         return (
-            <main className="px-4 py-8 sm:px-6 lg:px-8">
+            <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="h-96 animate-pulse rounded-[var(--asancha-radius-xl)] bg-[var(--muted)]" />
             </main>
         );
     }
 
     return (
-        <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <header className="max-w-3xl">
                 <p className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--primary)]">
                     General profile
