@@ -37,28 +37,11 @@ import {
   isActiveNavigationItem,
   type NavigationItem,
 } from "@/src/lib/navigation/public-navigation";
-import { authApiGet } from "@/src/lib/api/auth-fetch";
-import {
-  getDashboardPathForBusinessProfile,
-  isBusinessProfileType,
-  type BusinessProfileType,
-} from "@/src/lib/auth/role-guards";
 
 import styles from "./public-header.module.css";
 
 interface PublicHeaderProps {
   isAuthenticated?: boolean;
-}
-
-interface PublicActiveBusinessProfileSummary {
-  activeBusinessProfile: {
-    profileType: BusinessProfileType;
-  } | null;
-}
-
-interface PublicGeneralProfileSummary {
-  profileCompletionStatus: "not_started" | "in_progress" | "completed";
-  activeBusinessProfileType: BusinessProfileType | null;
 }
 
 interface PublicAuthSessionAction {
@@ -374,52 +357,8 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           return;
         }
       } catch {
-        // Fall back to direct client checks below.
-      }
-
-      try {
-        const activeProfile =
-          await authApiGet<PublicActiveBusinessProfileSummary>(
-            "/profiles/me/active-business-profile",
-          );
-
-        if (ignoreResult) {
-          return;
-        }
-
-        const profileType = activeProfile.activeBusinessProfile?.profileType;
-
-        setDashboardHref(
-          profileType && isBusinessProfileType(profileType)
-            ? getDashboardPathForBusinessProfile(profileType)
-            : "/dashboard",
-        );
-      } catch {
-        try {
-          const generalProfile = await authApiGet<PublicGeneralProfileSummary>(
-            "/profiles/me/general",
-          );
-
-          if (ignoreResult) {
-            return;
-          }
-
-          if (generalProfile.profileCompletionStatus !== "completed") {
-            setDashboardHref("/onboarding/general-profile");
-            return;
-          }
-
-          const profileType = generalProfile.activeBusinessProfileType;
-
-          setDashboardHref(
-            profileType && isBusinessProfileType(profileType)
-              ? getDashboardPathForBusinessProfile(profileType)
-              : "/dashboard",
-          );
-        } catch {
-          if (!ignoreResult) {
-            setDashboardHref(null);
-          }
+        if (!ignoreResult) {
+          setDashboardHref(null);
         }
       }
     }
@@ -458,8 +397,9 @@ export function PublicHeader({ isAuthenticated = false }: PublicHeaderProps) {
           <Image
             alt=""
             className={styles.logoImage}
+            fetchPriority="low"
             height={80}
-            priority
+            loading="eager"
             src="/logo.png"
             style={{ height: "auto" }}
             width={80}

@@ -1,8 +1,5 @@
-"use client";
-
 // File: app/(public)/_components/home-page-experience.tsx
 
-import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   BadgeCheck,
@@ -20,6 +17,7 @@ import {
   Target,
   Wrench,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -135,29 +133,6 @@ const professionalRoutes = [
 ] as const;
 const featuredListings = DUMMY_MARKETPLACE_LISTINGS.slice(0, 3);
 
-const sectionReveal = {
-  hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
-} as const;
-
-const cardReveal = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
 function formatLabel(value: string): string {
   return value
     .replaceAll("_", " ")
@@ -247,34 +222,30 @@ function AnimatedSection({
   className?: string;
   labelledBy: string;
 }) {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
-    <motion.section
-      aria-labelledby={labelledBy}
-      className={className}
-      initial={shouldReduceMotion ? undefined : "hidden"}
-      variants={shouldReduceMotion ? undefined : sectionReveal}
-      viewport={{ once: true, amount: 0.12 }}
-      whileInView={shouldReduceMotion ? undefined : "show"}
-    >
+    <section aria-labelledby={labelledBy} className={className}>
       {children}
-    </motion.section>
+    </section>
   );
 }
 
 export function HomePageExperience() {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <main className="overflow-x-clip">
       <section
         aria-labelledby="homepage-hero-heading"
         className="relative isolate overflow-hidden bg-foreground text-primary-foreground"
       >
-        <div
+        <Image
           aria-hidden="true"
-          className="absolute inset-0 -z-20 bg-[url('/images/og/asancha-homepage-og.jpg')] bg-cover bg-[68%_center] sm:bg-center"
+          alt=""
+          className="absolute inset-0 -z-20 object-cover object-[68%_center] sm:object-center"
+          fetchPriority="high"
+          fill
+          loading="eager"
+          quality={70}
+          sizes="100vw"
+          src="/images/og/asancha-homepage-og.jpg"
         />
         <div
           aria-hidden="true"
@@ -282,51 +253,37 @@ export function HomePageExperience() {
         />
 
         <div className="asancha-page-container py-16 sm:py-20 lg:py-24">
-          <motion.div
-            animate={shouldReduceMotion ? undefined : "show"}
-            className="max-w-5xl"
-            initial={shouldReduceMotion ? undefined : "hidden"}
-            variants={shouldReduceMotion ? undefined : staggerContainer}
-          >
-            <motion.p
-              className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground/80 sm:text-sm"
-              variants={cardReveal}
-            >
+          <div className="max-w-5xl">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground/80 sm:text-sm">
               UK property sourcing &amp; investment platform
-            </motion.p>
-            <motion.h1
+            </p>
+            <h1
               className="mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-primary-foreground sm:text-5xl lg:text-6xl"
               id="homepage-hero-heading"
-              variants={cardReveal}
             >
               Source Smarter Property Opportunities, All in One Place
-            </motion.h1>
-            <motion.p
-              className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/82 sm:text-xl"
-              variants={cardReveal}
-            >
+            </h1>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/82 sm:text-xl">
               Asancha connects investors with property opportunities from
               owners, agents and sourcers — supported by intelligent insights
               and trusted professionals to help evaluate and progress deals with
               confidence.
-            </motion.p>
-            <motion.nav
+            </p>
+            <nav
               aria-label="Homepage primary actions"
               className="mt-8 flex flex-col gap-3 sm:flex-row"
-              variants={cardReveal}
             >
               <PrimaryLink href="/marketplace">Find Properties</PrimaryLink>
               <SecondaryLink href="/solutions/property-owners" inverted>
                 List a Property
               </SecondaryLink>
-            </motion.nav>
+            </nav>
 
-            <motion.form
+            <form
               action="/marketplace"
               aria-label="Search property opportunities"
               className="mt-9 grid gap-3 rounded-2xl border border-primary-foreground/20 bg-background/95 p-4 text-foreground shadow-2xl backdrop-blur-md md:grid-cols-[1.25fr_0.85fr_1fr_auto]"
               method="get"
-              variants={cardReveal}
             >
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Location / postcode
@@ -385,24 +342,20 @@ export function HomePageExperience() {
                   More Filters
                 </Link>
               </div>
-            </motion.form>
+            </form>
 
-            <motion.ul
-              className="mt-6 flex flex-wrap gap-3"
-              variants={staggerContainer}
-            >
+            <ul className="mt-6 flex flex-wrap gap-3">
               {trustIndicators.map((item) => (
-                <motion.li
+                <li
                   className="inline-flex min-h-9 items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 text-xs font-bold text-primary-foreground/82 backdrop-blur-md"
                   key={item}
-                  variants={cardReveal}
                 >
                   <CheckCircle2 aria-hidden="true" size={14} />
                   {item}
-                </motion.li>
+                </li>
               ))}
-            </motion.ul>
-          </motion.div>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -539,18 +492,11 @@ export function HomePageExperience() {
             id="homepage-journey-heading"
             title="Discover. Evaluate. Progress."
           />
-          <motion.ol
-            className="mt-12 border-y border-border lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-border"
-            initial={shouldReduceMotion ? undefined : "hidden"}
-            variants={shouldReduceMotion ? undefined : staggerContainer}
-            viewport={{ once: true, amount: 0.12 }}
-            whileInView={shouldReduceMotion ? undefined : "show"}
-          >
+          <ol className="mt-12 border-y border-border lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-border">
             {journeyPhases.map((phase, index) => (
-              <motion.li
+              <li
                 className="grid grid-cols-[auto_1fr] gap-4 border-b border-border py-7 last:border-b-0 lg:block lg:border-b-0 lg:px-6 lg:first:pl-0 lg:last:pr-0"
                 key={phase.title}
-                variants={cardReveal}
               >
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-accent text-primary">
                   <phase.icon aria-hidden="true" size={19} strokeWidth={2.5} />
@@ -566,9 +512,9 @@ export function HomePageExperience() {
                     {phase.description}
                   </p>
                 </div>
-              </motion.li>
+              </li>
             ))}
-          </motion.ol>
+          </ol>
           <div className="mt-8">
             <SecondaryLink href="/how-it-works">
               See How Asancha Works
@@ -848,13 +794,7 @@ export function HomePageExperience() {
         aria-labelledby="homepage-final-cta-heading"
         className="bg-primary"
       >
-        <motion.div
-          className="asancha-page-container py-16 text-primary-foreground"
-          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          viewport={{ once: true, amount: 0.25 }}
-          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        >
+        <div className="asancha-page-container py-16 text-primary-foreground">
           <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/70">
             Find your next property opportunity
           </p>
@@ -887,7 +827,7 @@ export function HomePageExperience() {
             <ShieldCheck aria-hidden="true" size={16} />
             You can browse public property opportunities without an account.
           </p>
-        </motion.div>
+        </div>
       </section>
     </main>
   );
