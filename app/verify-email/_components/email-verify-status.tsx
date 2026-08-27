@@ -92,8 +92,9 @@ export function EmailVerifyStatus({
   token,
   userPublicId,
 }: EmailVerifyStatusProps) {
-  const [verificationState, setVerificationState] =
-    useState<VerificationState>(() => createInitialState(token));
+  const [verificationState, setVerificationState] = useState<VerificationState>(
+    () => createInitialState(token),
+  );
 
   async function verifyToken() {
     if (!token) {
@@ -191,7 +192,7 @@ export function EmailVerifyStatus({
       : "border-border bg-muted text-muted-foreground";
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card/95 shadow-2xl shadow-slate-950/15">
+    <section className="w-full overflow-hidden rounded-2xl border border-border bg-card/95 shadow-2xl shadow-slate-950/15">
       <div className="border-b border-border bg-muted/45 px-6 py-5 sm:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-bold uppercase tracking-wide text-primary">
@@ -254,7 +255,7 @@ export function EmailVerifyStatus({
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               {isVerified ? (
                 <Link
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
+                  className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
                   href={verificationState.nextPath}
                 >
                   Continue to sign in
