@@ -22,6 +22,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+import { API_ROUTES, buildApiUrl } from "@/src/lib/api/api-routes";
+
 const ACCESS_TOKEN_COOKIE_NAME = "asancha_access_token";
 const REFRESH_TOKEN_COOKIE_NAME = "asancha_refresh_token";
 
@@ -67,6 +69,80 @@ const PROTECTED_API_PARTNER_ROUTE_PREFIXES = [
 ] as const;
 
 const FORBIDDEN_PUBLIC_APP_ROUTE_PREFIXES = ["/admin", "/staff"] as const;
+
+const EMAIL_VERIFICATION_ROUTE = "/verify-email";
+const EMAIL_VERIFICATION_RESULT_COOKIE_NAME =
+  "asancha_email_verification_result";
+
+function createEmailVerificationResultRedirect(
+  request: NextRequest,
+  status: "verified" | "error",
+): NextResponse {
+  const resultUrl = new URL(EMAIL_VERIFICATION_ROUTE, request.url);
+
+  const response = NextResponse.redirect(resultUrl, 303);
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  response.cookies.set(EMAIL_VERIFICATION_RESULT_COOKIE_NAME, status, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: EMAIL_VERIFICATION_ROUTE,
+    maxAge: 120,
+  });
+
+  return response;
+}
+
+async function consumeEmailVerificationToken(
+  request: NextRequest,
+): Promise<NextResponse | null> {
+  if (request.nextUrl.pathname !== EMAIL_VERIFICATION_ROUTE) {
+    return null;
+  }
+
+  const token = request.nextUrl.searchParams.get("token")?.trim();
+
+  if (!token) {
+    return null;
+  }
+
+  const userPublicId =
+    request.nextUrl.searchParams.get("userPublicId")?.trim() ||
+    request.nextUrl.searchParams.get("user")?.trim();
+
+  try {
+    const backendResponse = await fetch(
+      buildApiUrl(API_ROUTES.auth.verifyEmail),
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-Asancha-Client": "asancha-web",
+        },
+        body: JSON.stringify({
+          token,
+          ...(userPublicId ? { userPublicId } : {}),
+        }),
+        cache: "no-store",
+      },
+    );
+
+    const responseBody = (await backendResponse.json().catch(() => null)) as {
+      success?: boolean;
+    } | null;
+    const verificationSucceeded =
+      backendResponse.ok && responseBody?.success === true;
+
+    return createEmailVerificationResultRedirect(
+      request,
+      verificationSucceeded ? "verified" : "error",
+    );
+  } catch {
+    return createEmailVerificationResultRedirect(request, "error");
+  }
+}
 
 /**
  * Checks whether the request contains the access-token cookie used for
@@ -138,9 +214,16 @@ function createSignInRedirect(request: NextRequest): URL {
 /**
  * Handles frontend route guidance for public-user routes.
  */
-export function proxy(request: NextRequest): NextResponse {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const hasAccessToken = hasAccessTokenCookie(request);
+
+  const emailVerificationResponse =
+    await consumeEmailVerificationToken(request);
+
+  if (emailVerificationResponse) {
+    return emailVerificationResponse;
+  }
 
   const isForbiddenPublicAppRoute = startsWithAny(
     pathname,

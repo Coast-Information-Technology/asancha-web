@@ -4,8 +4,8 @@
  * Asancha Root Email Verification Callback Page
  *
  * Purpose:
- * Supports secure verification links that land at /verify-email?token=...
- * and passes the opaque token to the shared email verification status UI.
+ * Displays the safe result after the server proxy consumes a verification
+ * token and redirects away from the token-bearing URL.
  *
  * Security note:
  * Verification tokens must never be rendered, logged, or persisted by the
@@ -14,41 +14,38 @@
  */
 
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 
-import { EmailVerifyStatus } from "./_components/email-verify-status";
+import {
+  EmailVerifyStatus,
+  type EmailVerificationDisplayStatus,
+} from "./_components/email-verify-status";
 
 export const metadata: Metadata = {
   title: "Verify email | Asancha",
   description: "Verify your Asancha account email address.",
+  referrer: "no-referrer",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
-interface VerifyEmailPageProps {
-  searchParams?: Promise<{
-    token?: string | string[];
-    userPublicId?: string | string[];
-    user?: string | string[];
-  }>;
-}
-
-function getSingleSearchParam(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) {
-    return value[0]?.trim() ?? "";
-  }
-
-  return value?.trim() ?? "";
-}
+const EMAIL_VERIFICATION_RESULT_COOKIE_NAME =
+  "asancha_email_verification_result";
 
 /**
  * Renders the backend-compatible email verification callback page.
  */
-export default async function VerifyEmailPage({
-  searchParams,
-}: VerifyEmailPageProps) {
-  const params = await searchParams;
-  const token = getSingleSearchParam(params?.token);
-  const userPublicId =
-    getSingleSearchParam(params?.userPublicId) ||
-    getSingleSearchParam(params?.user);
+export default async function VerifyEmailPage() {
+  const cookieStore = await cookies();
+  const requestedStatus = cookieStore.get(
+    EMAIL_VERIFICATION_RESULT_COOKIE_NAME,
+  )?.value;
+  const status: EmailVerificationDisplayStatus =
+    requestedStatus === "verified" || requestedStatus === "error"
+      ? requestedStatus
+      : "missing";
 
   return (
     <main
@@ -56,7 +53,7 @@ export default async function VerifyEmailPage({
       id="main-content"
       tabIndex={-1}
     >
-      <EmailVerifyStatus token={token} userPublicId={userPublicId} />
+      <EmailVerifyStatus status={status} />
     </main>
   );
 }
