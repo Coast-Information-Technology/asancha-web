@@ -46,6 +46,7 @@ import {
     isBusinessProfileType,
     type BusinessProfileType,
 } from "@/src/lib/auth/role-guards";
+import { documentsApi } from "@/src/features/documents/api/documents.api";
 
 type GeneralProfileCompletionStatus =
     | "not_started"
@@ -65,7 +66,7 @@ interface GeneralProfile {
     displayName?: string | null;
     phoneNumber?: string | null;
     preferredContactMethod?: PreferredContactMethod | null;
-    profileImageUrl?: string | null;
+    profileImageDocumentPublicId?: string | null;
     profileCompletionStatus: GeneralProfileCompletionStatus;
     activeBusinessProfileType: BusinessProfileType | null;
     createdAt: string;
@@ -84,7 +85,7 @@ interface GeneralProfileFormValues {
     displayName: string;
     phoneNumber: string;
     preferredContactMethod: PreferredContactMethod;
-    profileImageUrl: string;
+    profileImageDocumentPublicId: string;
     confirmCompletion: boolean;
 }
 
@@ -94,22 +95,12 @@ interface UpdateGeneralProfilePayload {
     displayName: string;
     phoneNumber: string;
     preferredContactMethod: PreferredContactMethod;
-    profileImageUrl: string | null;
-}
-
-interface CloudinaryUploadResponse {
-    secure_url: string;
+    profileImageDocumentPublicId: string | null;
 }
 
 const GENERAL_PROFILE_ENDPOINT = "/profiles/me/general";
 const COMPLETE_GENERAL_PROFILE_ENDPOINT =
     "/profiles/me/general/complete";
-const CLOUDINARY_CLOUD_NAME =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ??
-    "dgrrexhst";
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ??
-    "";
 const PROFILE_IMAGE_ACCEPTED_TYPES = new Set([
     "image/jpeg",
     "image/png",
@@ -123,7 +114,7 @@ const EMPTY_FORM_VALUES: GeneralProfileFormValues = {
     displayName: "",
     phoneNumber: "",
     preferredContactMethod: "email",
-    profileImageUrl: "",
+    profileImageDocumentPublicId: "",
     confirmCompletion: false,
 };
 
@@ -147,7 +138,8 @@ function profileToFormValues(
         phoneNumber: profile.phoneNumber ?? "",
         preferredContactMethod:
             profile.preferredContactMethod ?? "email",
-        profileImageUrl: profile.profileImageUrl ?? "",
+        profileImageDocumentPublicId:
+            profile.profileImageDocumentPublicId ?? "",
         confirmCompletion: false,
     };
 }
@@ -161,17 +153,6 @@ function buildDisplayName(
         .replace(/\s+/g, " ");
 }
 
-function isCloudinaryUploadResponse(
-    value: unknown,
-): value is CloudinaryUploadResponse {
-    return (
-        typeof value === "object" &&
-        value !== null &&
-        typeof (value as CloudinaryUploadResponse).secure_url ===
-            "string"
-    );
-}
-
 function getFileSizeLabel(sizeInBytes: number): string {
     if (sizeInBytes < 1024 * 1024) {
         return `${Math.max(1, Math.round(sizeInBytes / 1024))} KB`;
@@ -183,6 +164,7 @@ function getFileSizeLabel(sizeInBytes: number): string {
 export function GeneralProfilePageClient() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const profileImagePreviewUrlRef = useRef<string | null>(null);
 
     const [profile, setProfile] =
         useState<GeneralProfile | null>(null);
@@ -204,6 +186,36 @@ export function GeneralProfilePageClient() {
         useState(false);
     const [isDraggingImage, setIsDraggingImage] =
         useState(false);
+    const [profileImagePreviewUrl, setProfileImagePreviewUrl] =
+        useState<string | null>(null);
+
+    const replaceProfileImagePreview = useCallback(
+        (file: File | null): void => {
+            if (profileImagePreviewUrlRef.current) {
+                URL.revokeObjectURL(
+                    profileImagePreviewUrlRef.current,
+                );
+            }
+
+            const nextPreviewUrl = file
+                ? URL.createObjectURL(file)
+                : null;
+
+            profileImagePreviewUrlRef.current = nextPreviewUrl;
+            setProfileImagePreviewUrl(nextPreviewUrl);
+        },
+        [],
+    );
+
+    useEffect(() => {
+        return (): void => {
+            if (profileImagePreviewUrlRef.current) {
+                URL.revokeObjectURL(
+                    profileImagePreviewUrlRef.current,
+                );
+            }
+        };
+    }, []);
 
     const redirectToDashboard =
         useCallback(
@@ -341,43 +353,32 @@ export function GeneralProfilePageClient() {
             return;
         }
 
-        if (!CLOUDINARY_UPLOAD_PRESET) {
-            setImageUploadError(
-                "Image upload is not available right now. Please try again later.",
-            );
-            return;
-        }
-
         setIsUploadingImage(true);
         setImageUploadError(null);
         setErrorMessage(null);
         setSuccessMessage(null);
 
         try {
-            const formData = new FormData();
-            formData.set("file", file);
-            formData.set("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            formData.set("folder", "asancha/profile-images");
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                    method: "POST",
-                    body: formData,
+            const result = await documentsApi.uploadDocument({
+                data: {
+                    documentType: "profile_image",
+                    customDocumentType: null,
+                    relatedType: "general_profile",
+                    relatedPublicId: profile?.publicId ?? null,
+                    displayName: file.name || "Profile image",
+                    description:
+                        "Profile image uploaded during general profile onboarding.",
+                    file,
+                    informationAccurateConfirmed: true,
+                    uploadAuthorityConfirmed: true,
                 },
+            });
+
+            updateValue(
+                "profileImageDocumentPublicId",
+                result.document.documentPublicId,
             );
-            const body = (await response
-                .json()
-                .catch(() => null)) as unknown;
-
-            if (
-                !response.ok ||
-                !isCloudinaryUploadResponse(body)
-            ) {
-                throw new Error("Upload failed");
-            }
-
-            updateValue("profileImageUrl", body.secure_url);
+            replaceProfileImagePreview(file);
         } catch {
             setImageUploadError(
                 "We could not upload that image. Please choose another image and try again.",
@@ -389,6 +390,11 @@ export function GeneralProfilePageClient() {
                 fileInputRef.current.value = "";
             }
         }
+    };
+
+    const removeProfileImage = (): void => {
+        updateValue("profileImageDocumentPublicId", "");
+        replaceProfileImagePreview(null);
     };
 
     const handleImageDrop = (
@@ -408,8 +414,8 @@ export function GeneralProfilePageClient() {
         const lastName = values.lastName.trim();
         const displayName = values.displayName.trim();
         const phoneNumber = values.phoneNumber.trim();
-        const profileImageUrl =
-            values.profileImageUrl.trim();
+        const profileImageDocumentPublicId =
+            values.profileImageDocumentPublicId.trim();
 
         if (!firstName || !lastName || !displayName) {
             setErrorMessage(
@@ -450,9 +456,9 @@ export function GeneralProfilePageClient() {
             phoneNumber,
             preferredContactMethod:
                 values.preferredContactMethod,
-            profileImageUrl:
-                profileImageUrl.length > 0
-                    ? profileImageUrl
+            profileImageDocumentPublicId:
+                profileImageDocumentPublicId.length > 0
+                    ? profileImageDocumentPublicId
                     : null,
         };
 
@@ -647,16 +653,11 @@ export function GeneralProfilePageClient() {
                             </p>
                         </div>
 
-                        {values.profileImageUrl ? (
+                        {values.profileImageDocumentPublicId ? (
                             <button
                                 className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[var(--asancha-radius-md)] border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--destructive)] hover:text-[var(--destructive)]"
                                 disabled={isSaving || isUploadingImage}
-                                onClick={(): void =>
-                                    updateValue(
-                                        "profileImageUrl",
-                                        "",
-                                    )
-                                }
+                                onClick={removeProfileImage}
                                 type="button"
                             >
                                 <Trash2
@@ -672,13 +673,13 @@ export function GeneralProfilePageClient() {
                     <div className="mt-5 grid gap-5 lg:grid-cols-[13rem_1fr]">
                         <div className="flex items-center justify-center rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--muted)] p-5">
                             <div className="relative grid h-36 w-36 place-items-center overflow-hidden rounded-full border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] shadow-sm">
-                                {values.profileImageUrl ? (
-                                    // Profile image URLs can come from an approved external storage provider.
+                                {profileImagePreviewUrl ? (
+                                    // This temporary object URL previews only the locally selected image.
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         alt="Profile preview"
                                         className="h-full w-full object-cover"
-                                        src={values.profileImageUrl}
+                                        src={profileImagePreviewUrl}
                                     />
                                 ) : (
                                     <UserRound
@@ -725,7 +726,7 @@ export function GeneralProfilePageClient() {
                                 accept="image/jpeg,image/png,image/webp"
                                 className="sr-only"
                                 disabled={isSaving || isUploadingImage}
-                                id="profileImageUrl"
+                                id="profileImageDocumentPublicId"
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
                                 ): void =>
@@ -776,7 +777,7 @@ export function GeneralProfilePageClient() {
                                         size={16}
                                         strokeWidth={2.4}
                                     />
-                                    {values.profileImageUrl
+                                    {values.profileImageDocumentPublicId
                                         ? "Change image"
                                         : "Choose image"}
                                 </button>
@@ -791,7 +792,7 @@ export function GeneralProfilePageClient() {
                                 </p>
                             ) : null}
 
-                            {values.profileImageUrl &&
+                            {values.profileImageDocumentPublicId &&
                             !imageUploadError ? (
                                 <p className="mt-4 rounded-[var(--asancha-radius-md)] border border-[var(--primary)]/30 bg-[var(--primary)]/10 p-3 text-sm leading-6 text-[var(--foreground)]">
                                     Image uploaded and ready to save with

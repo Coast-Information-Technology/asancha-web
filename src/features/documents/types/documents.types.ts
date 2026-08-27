@@ -28,6 +28,7 @@
  */
 
 export type PropertyDocumentType =
+    | "profile_image"
     | "proof_of_ownership"
     | "property_photos"
     | "floor_plan"

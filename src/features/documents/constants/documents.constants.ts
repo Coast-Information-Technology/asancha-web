@@ -56,6 +56,7 @@ export const DOCUMENT_PAGE_ROUTES = {
 } as const;
 
 export const PROPERTY_DOCUMENT_TYPES = [
+    "profile_image",
     "proof_of_ownership",
     "property_photos",
     "floor_plan",
@@ -72,6 +73,7 @@ export const PROPERTY_DOCUMENT_TYPES = [
 ] as const satisfies readonly PropertyDocumentType[];
 
 export const PROPERTY_DOCUMENT_TYPE_OPTIONS = [
+    { value: "profile_image", label: "Profile image" },
     { value: "proof_of_ownership", label: "Proof of ownership" },
     { value: "property_photos", label: "Property photos" },
     { value: "floor_plan", label: "Floor plan" },
@@ -99,7 +101,10 @@ export const PROPERTY_DOCUMENT_TYPE_OPTIONS = [
 export const DOCUMENT_TYPE_OPTIONS = [
     ...PROPERTY_DOCUMENT_TYPE_OPTIONS.map((option) => ({
         ...option,
-        description: `Property document: ${option.label}.`,
+        description:
+            option.value === "profile_image"
+                ? "An image used to identify the account holder across their Asancha workspace."
+                : `Property document: ${option.label}.`,
     })),
     {
         value: "proof_of_funds",
