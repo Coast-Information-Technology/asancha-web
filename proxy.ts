@@ -73,10 +73,14 @@ const FORBIDDEN_PUBLIC_APP_ROUTE_PREFIXES = ["/admin", "/staff"] as const;
 const EMAIL_VERIFICATION_ROUTE = "/verify-email";
 const EMAIL_VERIFICATION_RESULT_COOKIE_NAME =
   "asancha_email_verification_result";
+const EMAIL_VERIFICATION_ALREADY_USED_MESSAGE =
+  "This verification link has already been used.";
+
+type EmailVerificationResultStatus = "verified" | "already_used" | "error";
 
 function createEmailVerificationResultRedirect(
   request: NextRequest,
-  status: "verified" | "error",
+  status: EmailVerificationResultStatus,
 ): NextResponse {
   const resultUrl = new URL(EMAIL_VERIFICATION_ROUTE, request.url);
 
@@ -131,14 +135,22 @@ async function consumeEmailVerificationToken(
 
     const responseBody = (await backendResponse.json().catch(() => null)) as {
       success?: boolean;
+      message?: string | null;
+      error?: {
+        message?: string | null;
+      } | null;
     } | null;
     const verificationSucceeded =
       backendResponse.ok && responseBody?.success === true;
+    const backendMessage =
+      responseBody?.error?.message?.trim() || responseBody?.message?.trim();
+    const resultStatus: EmailVerificationResultStatus = verificationSucceeded
+      ? "verified"
+      : backendMessage === EMAIL_VERIFICATION_ALREADY_USED_MESSAGE
+        ? "already_used"
+        : "error";
 
-    return createEmailVerificationResultRedirect(
-      request,
-      verificationSucceeded ? "verified" : "error",
-    );
+    return createEmailVerificationResultRedirect(request, resultStatus);
   } catch {
     return createEmailVerificationResultRedirect(request, "error");
   }

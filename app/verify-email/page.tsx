@@ -43,7 +43,9 @@ export default async function VerifyEmailPage() {
     EMAIL_VERIFICATION_RESULT_COOKIE_NAME,
   )?.value;
   const status: EmailVerificationDisplayStatus =
-    requestedStatus === "verified" || requestedStatus === "error"
+    requestedStatus === "verified" ||
+    requestedStatus === "already_used" ||
+    requestedStatus === "error"
       ? requestedStatus
       : "missing";
 

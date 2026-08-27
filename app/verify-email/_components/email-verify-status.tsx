@@ -23,7 +23,8 @@ import {
 
 import { AUTH_PAGE_ROUTES } from "@/src/features/auth/constants/auth.constants";
 
-export type EmailVerificationDisplayStatus = "missing" | "verified" | "error";
+export type EmailVerificationDisplayStatus =
+  "missing" | "verified" | "already_used" | "error";
 
 interface EmailVerifyStatusProps {
   status: EmailVerificationDisplayStatus;
@@ -34,14 +35,21 @@ interface EmailVerifyStatusProps {
  */
 export function EmailVerifyStatus({ status }: EmailVerifyStatusProps) {
   const isVerified = status === "verified";
+  const isAlreadyUsed = status === "already_used";
   const isError = status === "error";
   const isMissing = status === "missing";
-  const statusLabel = isVerified ? "Email verified" : "Action needed";
+  const statusLabel = isVerified
+    ? "Email verified"
+    : isAlreadyUsed
+      ? "Link already used"
+      : "Action needed";
   const message = isVerified
     ? "Your email is verified. You can now sign in to Asancha."
-    : isError
-      ? "We could not verify this link. It may be invalid, expired, or already used."
-      : "This verification link is incomplete. Request a new email and use the latest link.";
+    : isAlreadyUsed
+      ? "This verification link has already been used."
+      : isError
+        ? "We could not verify this link. It may be invalid, expired, or already used."
+        : "This verification link is incomplete. Request a new email and use the latest link.";
   const statusTone = isVerified
     ? "border-primary/30 bg-primary/10 text-primary"
     : isError || isMissing
@@ -91,7 +99,9 @@ export function EmailVerifyStatus({ status }: EmailVerifyStatusProps) {
             <h1 className="text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl">
               {isVerified
                 ? "Your email is verified"
-                : "We could not verify this link"}
+                : isAlreadyUsed
+                  ? "This link has already been used"
+                  : "We could not verify this link"}
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
@@ -99,7 +109,7 @@ export function EmailVerifyStatus({ status }: EmailVerifyStatusProps) {
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              {isVerified ? (
+              {isVerified || isAlreadyUsed ? (
                 <Link
                   className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
                   href={AUTH_PAGE_ROUTES.signIn}
@@ -127,7 +137,9 @@ export function EmailVerifyStatus({ status }: EmailVerifyStatusProps) {
               title: "Account access",
               copy: isVerified
                 ? "Use your email and password to sign in."
-                : "Use the latest verification email from Asancha.",
+                : isAlreadyUsed
+                  ? "If your email is verified, continue to sign in."
+                  : "Use the latest verification email from Asancha.",
             },
             {
               title: "Profile setup",
