@@ -17,6 +17,7 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ChangeEvent,
     type FormEvent,
@@ -30,8 +31,10 @@ import {
     getRoleStepSaveEndpoint,
     getRoleStepsEndpoint,
     getRoleSubmitEndpoint,
+    normalizeRoleOnboardingStepsResponse,
     type RoleOnboardingSubmitPayload,
 } from "../../_lib/role-onboarding-flow";
+import { uploadOnboardingDocument } from "../../_lib/onboarding-document-upload";
 import {
     authApiGet,
     authApiPost,
@@ -122,6 +125,7 @@ interface FieldConfig {
     label: string;
     type: FieldType;
     required: boolean;
+    mustBeTrue?: boolean;
     options?: readonly FieldOption[];
     placeholder?: string;
 }
@@ -131,19 +135,6 @@ interface StepConfig {
     description: string;
     fields: readonly FieldConfig[];
 }
-
-interface CloudinaryUploadResponse {
-    secure_url: string;
-    public_id: string;
-    resource_type: string;
-}
-
-const CLOUDINARY_CLOUD_NAME =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ??
-    "dgrrexhst";
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ??
-    "";
 
 const STEP_CONFIGS: Record<PropertyAgentStepKey, StepConfig> = {
     agent_agency_profile: {
@@ -300,8 +291,8 @@ const STEP_CONFIGS: Record<PropertyAgentStepKey, StepConfig> = {
         description:
             "Confirm that you can represent property owners and provide authority evidence where available.",
         fields: [
-            { name: "canRepresentOwners", label: "I can represent owners", type: "checkbox", required: true },
-            { name: "authorityDeclarationAccepted", label: "I accept the authority declaration", type: "checkbox", required: true },
+            { name: "canRepresentOwners", label: "I can represent owners", type: "checkbox", required: true, mustBeTrue: true },
+            { name: "authorityDeclarationAccepted", label: "I accept the authority declaration", type: "checkbox", required: true, mustBeTrue: true },
             { name: "authorityDocumentPublicId", label: "Authority document", type: "upload", required: false },
         ],
     },
@@ -447,7 +438,7 @@ function getInitialValues(): FormValues {
 
 function isComplete(value: FieldValue | undefined): boolean {
     if (Array.isArray(value)) return value.length > 0;
-    if (typeof value === "boolean") return value;
+    if (typeof value === "boolean") return true;
     if (typeof value === "number") return Number.isFinite(value);
     if (typeof value === "string") return value.trim().length > 0;
     return false;
@@ -508,16 +499,6 @@ function isStartResponse(value: unknown): value is StartResponse {
     );
 }
 
-function isCloudinaryUploadResponse(
-    value: unknown,
-): value is CloudinaryUploadResponse {
-    return (
-        Boolean(value) &&
-        typeof value === "object" &&
-        typeof (value as CloudinaryUploadResponse).secure_url === "string"
-    );
-}
-
 function mergeStoredValues(
     currentValues: FormValues,
     storedData: Record<string, unknown>,
@@ -568,6 +549,7 @@ function mergeStoredValues(
 
 export function PropertyAgentOnboardingForm() {
     const router = useRouter();
+    const hasStartedInitialLoad = useRef(false);
     const [stepsResponse, setStepsResponse] = useState(DEFAULT_STEPS);
     const [values, setValues] = useState<FormValues>(getInitialValues);
     const [activeStepKey, setActiveStepKey] =
@@ -614,10 +596,15 @@ export function PropertyAgentOnboardingForm() {
                 throw new Error("Invalid property agent onboarding steps response.");
             }
 
-            setStepsResponse(steps);
+            const normalizedSteps =
+                normalizeRoleOnboardingStepsResponse(
+                    steps,
+                );
+
+            setStepsResponse(normalizedSteps);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                steps.currentStep ?? steps.nextStep ?? "agent_agency_profile",
+                normalizedSteps.currentStep ?? normalizedSteps.nextStep ?? "agent_agency_profile",
             );
         } catch {
             setStepsResponse(DEFAULT_STEPS);
@@ -631,6 +618,12 @@ export function PropertyAgentOnboardingForm() {
     }, []);
 
     useEffect(() => {
+        if (hasStartedInitialLoad.current) {
+            return;
+        }
+
+        hasStartedInitialLoad.current = true;
+
         queueMicrotask(() => {
             void loadSteps();
         });
@@ -678,13 +671,6 @@ export function PropertyAgentOnboardingForm() {
     };
 
     const uploadFile = async (field: FieldConfig, file: File) => {
-        if (!CLOUDINARY_UPLOAD_PRESET) {
-            setErrorMessage(
-                "Cloudinary upload preset is missing. Add NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your environment.",
-            );
-            return;
-        }
-
         setUploadStates((current) => ({
             ...current,
             [field.name]: "uploading",
@@ -692,25 +678,12 @@ export function PropertyAgentOnboardingForm() {
         setErrorMessage(null);
 
         try {
-            const formData = new FormData();
-            formData.set("file", file);
-            formData.set("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            formData.set("folder", PROPERTY_AGENT_ONBOARDING_FLOW.uploadFolder);
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
-                {
-                    method: "POST",
-                    body: formData,
-                },
+            const documentPublicId = await uploadOnboardingDocument(
+                field.name,
+                file,
             );
-            const body = (await response.json()) as unknown;
 
-            if (!response.ok || !isCloudinaryUploadResponse(body)) {
-                throw new Error("Upload failed.");
-            }
-
-            updateValue(field.name, body.secure_url);
+            updateValue(field.name, documentPublicId);
             setUploadStates((current) => ({
                 ...current,
                 [field.name]: "uploaded",
@@ -797,7 +770,9 @@ export function PropertyAgentOnboardingForm() {
         const missing = activeFields.filter(
             (field) =>
                 field.required &&
-                !isComplete(values[field.name]),
+                (field.mustBeTrue
+                    ? values[field.name] !== true
+                    : !isComplete(values[field.name])),
         );
 
         if (missing.length > 0) {
@@ -838,10 +813,15 @@ export function PropertyAgentOnboardingForm() {
                 createStepPayload(stepKey),
             );
 
-            setStepsResponse(result);
+            const normalizedResult =
+                normalizeRoleOnboardingStepsResponse(
+                    result,
+                );
+
+            setStepsResponse(normalizedResult);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                result.currentStep ?? result.nextStep ?? stepKey,
+                normalizedResult.currentStep ?? normalizedResult.nextStep ?? stepKey,
             );
             setSuccessMessage("Your onboarding step has been saved.");
             return true;
@@ -961,9 +941,7 @@ export function PropertyAgentOnboardingForm() {
 
                     {hasValue ? (
                         <a
-                            href={value as string}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={`/documents/${encodeURIComponent(value as string)}`}
                             className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                         >
                             View uploaded file

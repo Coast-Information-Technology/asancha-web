@@ -27,7 +27,23 @@
  *   related-resource, replacement, and deletion checks remain final.
  */
 
+export type PropertyDocumentType =
+    | "proof_of_ownership"
+    | "property_photos"
+    | "floor_plan"
+    | "epc_certificate"
+    | "valuation_report"
+    | "title_register"
+    | "title_plan"
+    | "survey_report"
+    | "building_safety_certificate"
+    | "planning_document"
+    | "lease_document"
+    | "tenancy_document"
+    | "service_charge_statement";
+
 export type DocumentType =
+    | PropertyDocumentType
     | "proof_of_funds"
     | "kyc_id"
     | "identity_document"
@@ -36,7 +52,6 @@ export type DocumentType =
     | "authority_to_represent"
     | "contract"
     | "deal_pack"
-    | "valuation_report"
     | "compliance_document"
     | "company_registration"
     | "sourcer_verification"
@@ -273,6 +288,32 @@ export interface DocumentUploadResult {
     message: string;
 }
 
+export interface PropertyDocumentUploadValues {
+    documentType: PropertyDocumentType;
+    file: File;
+}
+
+export interface PropertyDocumentUploadPayload {
+    data: PropertyDocumentUploadValues;
+}
+
+export interface PropertyDocumentsUploadValues {
+    documentType: PropertyDocumentType;
+    files: File[];
+}
+
+export interface PropertyDocumentsUploadPayload {
+    data: PropertyDocumentsUploadValues;
+}
+
+export interface PropertyDocumentsUploadResult {
+    documents: DocumentDetail[];
+    uploaded: true;
+    uploadedCount: number;
+    nextPath: string;
+    message: string;
+}
+
 export interface DocumentReplacementValues {
     replacementReason: string;
     file: File;
@@ -332,6 +373,14 @@ export interface DocumentsHookActions {
     uploadDocument: (
         payload: DocumentUploadPayload,
     ) => Promise<DocumentUploadResult>;
+
+    uploadPropertyDocument: (
+        payload: PropertyDocumentUploadPayload,
+    ) => Promise<DocumentUploadResult>;
+
+    uploadPropertyDocuments: (
+        payload: PropertyDocumentsUploadPayload,
+    ) => Promise<PropertyDocumentsUploadResult>;
 
     replaceDocument: (
         documentPublicId: string,

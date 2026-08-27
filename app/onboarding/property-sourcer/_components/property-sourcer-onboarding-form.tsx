@@ -17,6 +17,7 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ChangeEvent,
     type FormEvent,
@@ -30,8 +31,10 @@ import {
     getRoleStepSaveEndpoint,
     getRoleStepsEndpoint,
     getRoleSubmitEndpoint,
+    normalizeRoleOnboardingStepsResponse,
     type RoleOnboardingSubmitPayload,
 } from "../../_lib/role-onboarding-flow";
+import { uploadOnboardingDocument } from "../../_lib/onboarding-document-upload";
 import {
     authApiGet,
     authApiPost,
@@ -42,7 +45,7 @@ type PropertySourcerStepKey =
     | "sourcer_profile"
     | "coverage_specialisation"
     | "deal_criteria"
-    | "verification"
+    | "verification_documents"
     | "commercial_setup"
     | "listing_standards";
 
@@ -133,19 +136,6 @@ interface StepConfig {
     description: string;
     fields: readonly FieldConfig[];
 }
-
-interface CloudinaryUploadResponse {
-    secure_url: string;
-    public_id: string;
-    resource_type: string;
-}
-
-const CLOUDINARY_CLOUD_NAME =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ??
-    "dgrrexhst";
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ??
-    "";
 
 const STEP_CONFIGS: Record<PropertySourcerStepKey, StepConfig> = {
     sourcer_profile: {
@@ -294,8 +284,8 @@ const STEP_CONFIGS: Record<PropertySourcerStepKey, StepConfig> = {
             { name: "minimumExpectedGrossYield", label: "Minimum expected gross yield", type: "number", required: true },
         ],
     },
-    verification: {
-        stepKey: "verification",
+    verification_documents: {
+        stepKey: "verification_documents",
         description:
             "Provide identity and business evidence required for review.",
         fields: [
@@ -356,7 +346,7 @@ const DEFAULT_STEPS: StepResponse = {
     lockedSteps: [
         "coverage_specialisation",
         "deal_criteria",
-        "verification",
+        "verification_documents",
         "commercial_setup",
         "listing_standards",
     ],
@@ -405,7 +395,7 @@ const DEFAULT_STEPS: StepResponse = {
             canEdit: false,
         },
         {
-            stepKey: "verification",
+            stepKey: "verification_documents",
             stepTitle: "Verification",
             requiredFields: [],
             optionalFields: [],
@@ -527,16 +517,6 @@ function isStartResponse(value: unknown): value is StartResponse {
     );
 }
 
-function isCloudinaryUploadResponse(
-    value: unknown,
-): value is CloudinaryUploadResponse {
-    return (
-        Boolean(value) &&
-        typeof value === "object" &&
-        typeof (value as CloudinaryUploadResponse).secure_url === "string"
-    );
-}
-
 function mergeStoredValues(
     currentValues: FormValues,
     storedData: Record<string, unknown>,
@@ -644,6 +624,7 @@ function mergeStoredValues(
 
 export function PropertySourcerOnboardingForm() {
     const router = useRouter();
+    const hasStartedInitialLoad = useRef(false);
     const [stepsResponse, setStepsResponse] = useState(DEFAULT_STEPS);
     const [values, setValues] = useState<FormValues>(getInitialValues);
     const [activeStepKey, setActiveStepKey] =
@@ -690,10 +671,15 @@ export function PropertySourcerOnboardingForm() {
                 throw new Error("Invalid property sourcer onboarding steps response.");
             }
 
-            setStepsResponse(steps);
+            const normalizedSteps =
+                normalizeRoleOnboardingStepsResponse(
+                    steps,
+                );
+
+            setStepsResponse(normalizedSteps);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                steps.currentStep ?? steps.nextStep ?? "sourcer_profile",
+                normalizedSteps.currentStep ?? normalizedSteps.nextStep ?? "sourcer_profile",
             );
         } catch {
             setStepsResponse(DEFAULT_STEPS);
@@ -707,6 +693,12 @@ export function PropertySourcerOnboardingForm() {
     }, []);
 
     useEffect(() => {
+        if (hasStartedInitialLoad.current) {
+            return;
+        }
+
+        hasStartedInitialLoad.current = true;
+
         queueMicrotask(() => {
             void loadSteps();
         });
@@ -754,13 +746,6 @@ export function PropertySourcerOnboardingForm() {
     };
 
     const uploadFile = async (field: FieldConfig, file: File) => {
-        if (!CLOUDINARY_UPLOAD_PRESET) {
-            setErrorMessage(
-                "Cloudinary upload preset is missing. Add NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your environment.",
-            );
-            return;
-        }
-
         setUploadStates((current) => ({
             ...current,
             [field.name]: "uploading",
@@ -768,25 +753,12 @@ export function PropertySourcerOnboardingForm() {
         setErrorMessage(null);
 
         try {
-            const formData = new FormData();
-            formData.set("file", file);
-            formData.set("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            formData.set("folder", PROPERTY_SOURCER_ONBOARDING_FLOW.uploadFolder);
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
-                {
-                    method: "POST",
-                    body: formData,
-                },
+            const documentPublicId = await uploadOnboardingDocument(
+                field.name,
+                file,
             );
-            const body = (await response.json()) as unknown;
 
-            if (!response.ok || !isCloudinaryUploadResponse(body)) {
-                throw new Error("Upload failed.");
-            }
-
-            updateValue(field.name, body.secure_url);
+            updateValue(field.name, documentPublicId);
             setUploadStates((current) => ({
                 ...current,
                 [field.name]: "uploaded",
@@ -838,7 +810,7 @@ export function PropertySourcerOnboardingForm() {
             };
         }
 
-        if (stepKey === "verification") {
+        if (stepKey === "verification_documents") {
             return {
                 governmentIdDocumentPublicId:
                     values.governmentIdDocumentPublicId,
@@ -961,10 +933,15 @@ export function PropertySourcerOnboardingForm() {
                 createStepPayload(stepKey),
             );
 
-            setStepsResponse(result);
+            const normalizedResult =
+                normalizeRoleOnboardingStepsResponse(
+                    result,
+                );
+
+            setStepsResponse(normalizedResult);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                result.currentStep ?? result.nextStep ?? stepKey,
+                normalizedResult.currentStep ?? normalizedResult.nextStep ?? stepKey,
             );
             setSuccessMessage("Your onboarding step has been saved.");
             return true;
@@ -1086,9 +1063,7 @@ export function PropertySourcerOnboardingForm() {
 
                     {hasValue ? (
                         <a
-                            href={value as string}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={`/documents/${encodeURIComponent(value as string)}`}
                             className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                         >
                             View uploaded file

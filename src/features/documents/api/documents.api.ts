@@ -39,6 +39,9 @@ import type {
     DocumentQuery,
     DocumentUploadPayload,
     DocumentUploadResult,
+    PropertyDocumentsUploadPayload,
+    PropertyDocumentsUploadResult,
+    PropertyDocumentUploadPayload,
     ReplaceDocumentPayload,
     ReplaceDocumentResult,
 } from "../types/documents.types";
@@ -109,7 +112,7 @@ function createDocumentQueryString(
 
     appendStringArray(
         searchParams,
-        "documentTypes",
+        "documentType",
         query.documentTypes,
     );
 
@@ -173,35 +176,7 @@ function createDocumentUploadFormData(
     const { data } = payload;
 
     formData.set("documentType", data.documentType);
-    formData.set("displayName", data.displayName);
-    formData.set("relatedType", data.relatedType);
-    formData.set(
-        "informationAccurateConfirmed",
-        String(data.informationAccurateConfirmed),
-    );
-    formData.set(
-        "uploadAuthorityConfirmed",
-        String(data.uploadAuthorityConfirmed),
-    );
     formData.set("file", data.file, data.file.name);
-
-    if (data.customDocumentType) {
-        formData.set(
-            "customDocumentType",
-            data.customDocumentType,
-        );
-    }
-
-    if (data.relatedPublicId) {
-        formData.set(
-            "relatedPublicId",
-            data.relatedPublicId,
-        );
-    }
-
-    if (data.description) {
-        formData.set("description", data.description);
-    }
 
     return formData;
 }
@@ -227,6 +202,41 @@ function createDocumentReplacementFormData(
     return formData;
 }
 
+function createPropertyDocumentUploadFormData(
+    payload: PropertyDocumentUploadPayload,
+): FormData {
+    const formData = new FormData();
+
+    formData.set(
+        "documentType",
+        payload.data.documentType,
+    );
+    formData.set(
+        "file",
+        payload.data.file,
+        payload.data.file.name,
+    );
+
+    return formData;
+}
+
+function createPropertyDocumentsUploadFormData(
+    payload: PropertyDocumentsUploadPayload,
+): FormData {
+    const formData = new FormData();
+
+    formData.set(
+        "documentType",
+        payload.data.documentType,
+    );
+
+    for (const file of payload.data.files) {
+        formData.append("files", file, file.name);
+    }
+
+    return formData;
+}
+
 async function getDocuments(
     query: DocumentQuery | Partial<DocumentFilters> = {},
 ): Promise<DocumentCollection> {
@@ -234,7 +244,25 @@ async function getDocuments(
         createDocumentQueryString(query);
 
     return authApiGet<DocumentCollection>(
-        `${DOCUMENTS_API_ENDPOINTS.mine}${queryString}`,
+        `${DOCUMENTS_API_ENDPOINTS.list}${queryString}`,
+    );
+}
+
+async function getDocumentByAccessToken(
+    token: string,
+): Promise<DocumentDetail> {
+    const normalizedToken = token.trim();
+
+    if (!normalizedToken) {
+        throw new Error(
+            "A document access token is required.",
+        );
+    }
+
+    return authApiGet<DocumentDetail>(
+        DOCUMENTS_API_ENDPOINTS.access(
+            normalizedToken,
+        ),
     );
 }
 
@@ -260,6 +288,34 @@ async function uploadDocument(
     >(
         DOCUMENTS_API_ENDPOINTS.upload,
         formData,
+    );
+}
+
+async function uploadPropertyDocument(
+    payload: PropertyDocumentUploadPayload,
+): Promise<DocumentUploadResult> {
+    return authApiPost<
+        DocumentUploadResult,
+        FormData
+    >(
+        DOCUMENTS_API_ENDPOINTS.upload,
+        createPropertyDocumentUploadFormData(
+            payload,
+        ),
+    );
+}
+
+async function uploadPropertyDocuments(
+    payload: PropertyDocumentsUploadPayload,
+): Promise<PropertyDocumentsUploadResult> {
+    return authApiPost<
+        PropertyDocumentsUploadResult,
+        FormData
+    >(
+        DOCUMENTS_API_ENDPOINTS.uploads,
+        createPropertyDocumentsUploadFormData(
+            payload,
+        ),
     );
 }
 
@@ -294,7 +350,10 @@ async function deleteDocument(
 export const documentsApi = {
     getDocuments,
     getDocument,
+    getDocumentByAccessToken,
     uploadDocument,
+    uploadPropertyDocument,
+    uploadPropertyDocuments,
     replaceDocument,
     deleteDocument,
 } as const;

@@ -32,6 +32,7 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ChangeEvent,
     type FormEvent,
@@ -50,14 +51,16 @@ import {
     getRoleStepSaveEndpoint,
     getRoleStepsEndpoint,
     getRoleSubmitEndpoint,
+    normalizeRoleOnboardingStepsResponse,
     type RoleOnboardingSubmitPayload,
 } from "../../_lib/role-onboarding-flow";
+import { uploadOnboardingDocument } from "../../_lib/onboarding-document-upload";
 
 type PropertyOwnerStepKey =
     | "owner_profile"
     | "property_details"
     | "sale_motivation"
-    | "documents_and_proof"
+    | "verification_documents"
     | "policies_and_authority"
     | "review_submit";
 
@@ -77,30 +80,13 @@ type UploadStatus = "idle" | "uploading" | "uploaded" | "error";
 
 type UploadStateByField = Record<string, UploadStatus>;
 
-const COMPANY_OWNER_PROFILE_FIELDS = new Set([
-    "companyPublicId",
-    "companyName",
-    "companyRegistrationNumber",
-    "businessAddress",
-    "companyEmail",
-    "companyPhone",
-    "contactPerson",
-]);
-
-const CLOUDINARY_CLOUD_NAME =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ??
-    "dgrrexhst";
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ??
-    "";
-
-const CLOUDINARY_URL_VALUE_FIELDS = new Set([
+const DOCUMENT_PUBLIC_ID_FIELDS = new Set([
     "proofOfOwnershipDocumentPublicId",
     "identityDocumentPublicId",
     "proofOfAddressDocumentPublicId",
 ]);
 
-const CLOUDINARY_UPLOAD_CONFIRMATION_FIELDS = new Set([
+const DOCUMENT_UPLOAD_CONFIRMATION_FIELDS = new Set([
     "propertyPhotosUploaded",
     "floorplanUploaded",
     "epcUploaded",
@@ -165,13 +151,6 @@ interface PropertyOwnerOnboardingStartResponse {
     data: Record<string, unknown>;
     createdAt: string;
     updatedAt: string;
-}
-
-interface CloudinaryUploadResponse {
-    secure_url: string;
-    public_id: string;
-    resource_type: string;
-    original_filename?: string;
 }
 
 interface FieldOption {
@@ -308,48 +287,6 @@ const STEP_CONFIGS: Record<
                     },
                 ],
             },
-            {
-                name: "companyPublicId",
-                label: "Company public ID",
-                type: "text",
-                required: false,
-            },
-            {
-                name: "companyName",
-                label: "Company name",
-                type: "text",
-                required: false,
-            },
-            {
-                name: "companyRegistrationNumber",
-                label: "Company registration number",
-                type: "text",
-                required: false,
-            },
-            {
-                name: "businessAddress",
-                label: "Business address",
-                type: "textarea",
-                required: false,
-            },
-            {
-                name: "companyEmail",
-                label: "Company email",
-                type: "email",
-                required: false,
-            },
-            {
-                name: "companyPhone",
-                label: "Company phone",
-                type: "tel",
-                required: false,
-            },
-            {
-                name: "contactPerson",
-                label: "Contact person",
-                type: "text",
-                required: false,
-            },
         ],
     },
     property_details: {
@@ -358,15 +295,38 @@ const STEP_CONFIGS: Record<
             "Add the core property details needed before a listing or review can begin.",
         fields: [
             {
-                name: "address",
-                label: "Property address",
-                type: "textarea",
+                name: "addressLine1",
+                label: "Address line 1",
+                type: "text",
                 required: true,
-                placeholder: "Enter the full property address",
+            },
+            {
+                name: "addressLine2",
+                label: "Address line 2",
+                type: "text",
+                required: false,
+            },
+            {
+                name: "addressTown",
+                label: "Town or city",
+                type: "text",
+                required: true,
+            },
+            {
+                name: "addressCounty",
+                label: "County",
+                type: "text",
+                required: true,
             },
             {
                 name: "postcode",
                 label: "Postcode",
+                type: "text",
+                required: true,
+            },
+            {
+                name: "addressCountry",
+                label: "Country",
                 type: "text",
                 required: true,
             },
@@ -385,12 +345,12 @@ const STEP_CONFIGS: Record<
                         label: "Semi-detached",
                     },
                     {
-                        value: "terraced",
-                        label: "Terraced",
+                        value: "terraced_house",
+                        label: "Terraced house",
                     },
                     {
-                        value: "flat",
-                        label: "Flat",
+                        value: "flats",
+                        label: "Flats",
                     },
                     {
                         value: "mixed_use",
@@ -583,8 +543,8 @@ const STEP_CONFIGS: Record<
             },
         ],
     },
-    documents_and_proof: {
-        stepKey: "documents_and_proof",
+    verification_documents: {
+        stepKey: "verification_documents",
         description:
             "Reference uploaded documents and confirm which supporting materials are available.",
         fields: [
@@ -702,7 +662,7 @@ const DEFAULT_STEPS: PropertyOwnerOnboardingStepsResponse = {
     lockedSteps: [
         "property_details",
         "sale_motivation",
-        "documents_and_proof",
+        "verification_documents",
         "policies_and_authority",
         "review_submit",
     ],
@@ -717,15 +677,7 @@ const DEFAULT_STEPS: PropertyOwnerOnboardingStepsResponse = {
                 "fullName",
                 "preferredContactMethod",
             ],
-            optionalFields: [
-                "companyPublicId",
-                "companyName",
-                "companyRegistrationNumber",
-                "businessAddress",
-                "companyEmail",
-                "companyPhone",
-                "contactPerson",
-            ],
+            optionalFields: [],
             stepNumber: 1,
             totalSteps: 6,
             completed: false,
@@ -737,8 +689,11 @@ const DEFAULT_STEPS: PropertyOwnerOnboardingStepsResponse = {
             stepKey: "property_details",
             stepTitle: "Property Details",
             requiredFields: [
-                "address",
+                "addressLine1",
+                "addressTown",
+                "addressCounty",
                 "postcode",
+                "addressCountry",
                 "propertyType",
                 "bedrooms",
                 "bathrooms",
@@ -746,7 +701,7 @@ const DEFAULT_STEPS: PropertyOwnerOnboardingStepsResponse = {
                 "occupancyStatus",
                 "estimatedValue",
             ],
-            optionalFields: [],
+            optionalFields: ["addressLine2"],
             stepNumber: 2,
             totalSteps: 6,
             completed: false,
@@ -774,8 +729,8 @@ const DEFAULT_STEPS: PropertyOwnerOnboardingStepsResponse = {
             canEdit: false,
         },
         {
-            stepKey: "documents_and_proof",
-            stepTitle: "Documents & Proof",
+            stepKey: "verification_documents",
+            stepTitle: "Verification Documents",
             requiredFields: [
                 "proofOfOwnershipDocumentPublicId",
                 "propertyPhotosUploaded",
@@ -869,6 +824,8 @@ function getInitialValues(): PropertyOwnerFormValues {
         }
     }
 
+    values.addressCountry = "United Kingdom";
+
     return values;
 }
 
@@ -931,22 +888,12 @@ function getFieldConfig(
 function getStepFields(
     step: PropertyOwnerOnboardingStep,
 ): FieldConfig[] {
-    return [
-        ...step.requiredFields.map((fieldName) =>
-            getFieldConfig(
-                step.stepKey,
-                fieldName,
-                true,
-            ),
-        ),
-        ...step.optionalFields.map((fieldName) =>
-            getFieldConfig(
-                step.stepKey,
-                fieldName,
-                false,
-            ),
-        ),
-    ];
+    const requiredFields = new Set(step.requiredFields);
+
+    return STEP_CONFIGS[step.stepKey].fields.map((field) => ({
+        ...field,
+        required: requiredFields.has(field.name) || field.required,
+    }));
 }
 
 function getFieldLabel(
@@ -1141,6 +1088,32 @@ function mergeStoredValues(
         ),
     ];
 
+    const addressContainer = storedSources.find(
+        (source) =>
+            source.address &&
+            typeof source.address === "object" &&
+            !Array.isArray(source.address),
+    );
+
+    if (addressContainer) {
+        const address = addressContainer.address as Record<string, unknown>;
+        const addressFields: Readonly<Record<string, string>> = {
+            addressLine1: "line1",
+            addressLine2: "line2",
+            addressTown: "town",
+            addressCounty: "county",
+            addressCountry: "country",
+        };
+
+        Object.entries(addressFields).forEach(([formField, addressField]) => {
+            const value = address[addressField];
+
+            if (typeof value === "string") {
+                nextValues[formField] = value;
+            }
+        });
+    }
+
     for (const field of getAllFieldConfigs()) {
         const storedSource = storedSources.find(
             (source) => field.name in source,
@@ -1163,31 +1136,14 @@ function mergeStoredValues(
     return nextValues;
 }
 
-function isCloudinaryUploadResponse(
-    value: unknown,
-): value is CloudinaryUploadResponse {
-    if (!value || typeof value !== "object") {
-        return false;
-    }
-
-    const response =
-        value as Partial<CloudinaryUploadResponse>;
-
+function isDocumentUploadField(fieldName: string): boolean {
     return (
-        typeof response.secure_url === "string" &&
-        typeof response.public_id === "string" &&
-        typeof response.resource_type === "string"
+        DOCUMENT_PUBLIC_ID_FIELDS.has(fieldName) ||
+        DOCUMENT_UPLOAD_CONFIRMATION_FIELDS.has(fieldName)
     );
 }
 
-function isCloudinaryUploadField(fieldName: string): boolean {
-    return (
-        CLOUDINARY_URL_VALUE_FIELDS.has(fieldName) ||
-        CLOUDINARY_UPLOAD_CONFIRMATION_FIELDS.has(fieldName)
-    );
-}
-
-function getCloudinaryAcceptType(fieldName: string): string {
+function getDocumentAcceptType(fieldName: string): string {
     if (
         fieldName === "propertyPhotosUploaded" ||
         fieldName === "floorplanUploaded"
@@ -1200,6 +1156,7 @@ function getCloudinaryAcceptType(fieldName: string): string {
 
 export function PropertyOwnerOnboardingForm() {
     const router = useRouter();
+    const hasStartedInitialLoad = useRef(false);
 
     const [stepsResponse, setStepsResponse] =
         useState<PropertyOwnerOnboardingStepsResponse>(
@@ -1278,11 +1235,16 @@ export function PropertyOwnerOnboardingForm() {
                     );
                 }
 
-                setStepsResponse(result);
+                const normalizedResult =
+                    normalizeRoleOnboardingStepsResponse(
+                        result,
+                    );
+
+                setStepsResponse(normalizedResult);
                 setHasLoadedBackendSteps(true);
                 setActiveStepKey(
-                    result.currentStep ??
-                        result.nextStep ??
+                    normalizedResult.currentStep ??
+                        normalizedResult.nextStep ??
                         "owner_profile",
                 );
             } catch {
@@ -1297,6 +1259,12 @@ export function PropertyOwnerOnboardingForm() {
         }, []);
 
     useEffect(() => {
+        if (hasStartedInitialLoad.current) {
+            return;
+        }
+
+        hasStartedInitialLoad.current = true;
+
         queueMicrotask(() => {
             void loadSteps();
         });
@@ -1414,21 +1382,10 @@ export function PropertyOwnerOnboardingForm() {
         );
     };
 
-    const uploadFileToCloudinary = async (
+    const uploadDocument = async (
         field: FieldConfig,
         file: File,
     ): Promise<void> => {
-        if (!CLOUDINARY_UPLOAD_PRESET) {
-            setErrorMessage(
-                "Cloudinary upload preset is missing. Add NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your environment.",
-            );
-            setUploadStates((currentStates) => ({
-                ...currentStates,
-                [field.name]: "error",
-            }));
-            return;
-        }
-
         setErrorMessage(null);
         setSuccessMessage(null);
         setUploadStates((currentStates) => ({
@@ -1437,39 +1394,14 @@ export function PropertyOwnerOnboardingForm() {
         }));
 
         try {
-            const formData = new FormData();
-
-            formData.set("file", file);
-            formData.set(
-                "upload_preset",
-                CLOUDINARY_UPLOAD_PRESET,
-            );
-            formData.set(
-                "folder",
-                PROPERTY_OWNER_ONBOARDING_FLOW.uploadFolder,
-            );
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
-                {
-                    method: "POST",
-                    body: formData,
-                },
-            );
-            const responseBody =
-                (await response.json()) as unknown;
-
-            if (
-                !response.ok ||
-                !isCloudinaryUploadResponse(responseBody)
-            ) {
-                throw new Error(
-                    "Cloudinary upload failed.",
+            const documentPublicId =
+                await uploadOnboardingDocument(
+                    field.name,
+                    file,
                 );
-            }
 
             if (
-                CLOUDINARY_UPLOAD_CONFIRMATION_FIELDS.has(
+                DOCUMENT_UPLOAD_CONFIRMATION_FIELDS.has(
                     field.name,
                 )
             ) {
@@ -1477,7 +1409,7 @@ export function PropertyOwnerOnboardingForm() {
             } else {
                 updateValue(
                     field.name,
-                    responseBody.secure_url,
+                    documentPublicId,
                 );
             }
 
@@ -1518,22 +1450,32 @@ export function PropertyOwnerOnboardingForm() {
     };
 
     const createStepPayload = (
+        stepKey: PropertyOwnerStepKey,
         fields: readonly FieldConfig[],
-    ): PropertyOwnerFormValues => {
-        const payload: PropertyOwnerFormValues = {};
-        const isCompanyAccount =
-            values.accountHolderType === "company";
+    ): Record<string, unknown> => {
+        if (stepKey === "property_details") {
+            return {
+                address: {
+                    line1: values.addressLine1,
+                    line2: values.addressLine2,
+                    town: values.addressTown,
+                    county: values.addressCounty,
+                    postcode: values.postcode,
+                    country: values.addressCountry,
+                },
+                postcode: values.postcode,
+                propertyType: values.propertyType,
+                bedrooms: values.bedrooms,
+                bathrooms: values.bathrooms,
+                tenure: values.tenure,
+                occupancyStatus: values.occupancyStatus,
+                estimatedValue: values.estimatedValue,
+            };
+        }
+
+        const payload: Record<string, unknown> = {};
 
         for (const field of fields) {
-            if (
-                !isCompanyAccount &&
-                COMPANY_OWNER_PROFILE_FIELDS.has(
-                    field.name,
-                )
-            ) {
-                continue;
-            }
-
             const value = values[field.name];
 
             if (typeof value === "string") {
@@ -1594,26 +1536,31 @@ export function PropertyOwnerOnboardingForm() {
                 const savedSteps =
                     await authApiPut<
                         PropertyOwnerOnboardingStepsResponse,
-                        PropertyOwnerFormValues
+                        Record<string, unknown>
                     >(
                         getRoleStepSaveEndpoint(
                             PROPERTY_OWNER_ONBOARDING_FLOW,
                             activeStep.stepKey,
                         ),
                         createStepPayload(
+                            activeStep.stepKey,
                             activeStepFields,
                         ),
+                    );
+                const normalizedSavedSteps =
+                    normalizeRoleOnboardingStepsResponse(
+                        savedSteps,
                     );
 
                 setSuccessMessage(
                     SAFE_MESSAGES.saved,
                 );
 
-                setStepsResponse(savedSteps);
+                setStepsResponse(normalizedSavedSteps);
                 setHasLoadedBackendSteps(true);
                 setActiveStepKey(
-                    savedSteps.currentStep ??
-                        savedSteps.nextStep ??
+                    normalizedSavedSteps.currentStep ??
+                        normalizedSavedSteps.nextStep ??
                         activeStep.stepKey,
                 );
 
@@ -1689,7 +1636,12 @@ export function PropertyOwnerOnboardingForm() {
                         PROPERTY_OWNER_ONBOARDING_FLOW.submitPayload,
                     );
 
-                setStepsResponse(savedSteps);
+                const normalizedSavedSteps =
+                    normalizeRoleOnboardingStepsResponse(
+                        savedSteps,
+                    );
+
+                setStepsResponse(normalizedSavedSteps);
                 setHasLoadedBackendSteps(true);
                 setActiveStepKey("review_submit");
 
@@ -1839,8 +1791,8 @@ export function PropertyOwnerOnboardingForm() {
 
         if (
             activeStep?.stepKey ===
-                "documents_and_proof" &&
-            isCloudinaryUploadField(field.name)
+                "verification_documents" &&
+            isDocumentUploadField(field.name)
         ) {
             const uploadStatus =
                 uploadStates[field.name] ?? "idle";
@@ -1879,7 +1831,7 @@ export function PropertyOwnerOnboardingForm() {
                         <input
                             id={fieldId}
                             type="file"
-                            accept={getCloudinaryAcceptType(
+                            accept={getDocumentAcceptType(
                                 field.name,
                             )}
                             disabled={
@@ -1892,7 +1844,7 @@ export function PropertyOwnerOnboardingForm() {
                                     event.target.files?.[0];
 
                                 if (file) {
-                                    void uploadFileToCloudinary(
+                                    void uploadDocument(
                                         field,
                                         file,
                                     );
@@ -1919,9 +1871,7 @@ export function PropertyOwnerOnboardingForm() {
                     {typeof value === "string" &&
                     value.trim() ? (
                         <a
-                            href={value}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={`/documents/${encodeURIComponent(value)}`}
                             className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] hover:underline"
                         >
                             View uploaded file

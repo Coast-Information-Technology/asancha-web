@@ -14,6 +14,7 @@
 
 import type { Metadata } from "next";
 
+import { RoleOnboardingPolicyGate } from "../_components/role-onboarding-policy-gate";
 import { InvestorOnboardingForm } from "./_components/investor-onboarding-form";
 
 export const metadata: Metadata = {
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
 };
 
 export default function InvestorOnboardingPage() {
-    return <InvestorOnboardingForm />;
+    return (
+        <RoleOnboardingPolicyGate profileType="investor">
+            <InvestorOnboardingForm />
+        </RoleOnboardingPolicyGate>
+    );
 }

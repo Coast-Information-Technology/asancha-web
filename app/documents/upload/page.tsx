@@ -16,7 +16,7 @@ import type {
     Metadata,
 } from "next";
 
-import { DocumentUploadPageClient } from "../_components/document-upload-page-client";
+import { PropertyDocumentUploadPageClient } from "../_components/property-document-upload-page-client";
 
 export const metadata: Metadata = {
     title: "Upload Document | Asancha",
@@ -26,5 +26,7 @@ export const metadata: Metadata = {
 };
 
 export default function DocumentUploadPage() {
-    return <DocumentUploadPageClient />;
+    return (
+        <PropertyDocumentUploadPageClient mode="single" />
+    );
 }

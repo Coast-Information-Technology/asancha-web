@@ -17,6 +17,7 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ChangeEvent,
     type FormEvent,
@@ -27,11 +28,19 @@ import {
     INVESTOR_ONBOARDING_FLOW,
 } from "../../_config/role-onboarding-flows";
 import {
+    createOnboardingOptions,
+    INVESTOR_FUNDING_METHODS,
+    PURCHASE_READINESS,
+    SOURCE_OF_FUNDS,
+} from "../../_config/role-onboarding-options";
+import {
     getRoleStepSaveEndpoint,
     getRoleStepsEndpoint,
     getRoleSubmitEndpoint,
+    normalizeRoleOnboardingStepsResponse,
     type RoleOnboardingSubmitPayload,
 } from "../../_lib/role-onboarding-flow";
+import { uploadOnboardingDocument } from "../../_lib/onboarding-document-upload";
 import {
     authApiGet,
     authApiPost,
@@ -43,6 +52,7 @@ type InvestorStepKey =
     | "buying_criteria"
     | "deal_preferences"
     | "funding_readiness"
+    | "verification_documents"
     | "review_submit";
 
 type FieldValue =
@@ -133,19 +143,6 @@ interface StepConfig {
     fields: readonly FieldConfig[];
 }
 
-interface CloudinaryUploadResponse {
-    secure_url: string;
-    public_id: string;
-    resource_type: string;
-}
-
-const CLOUDINARY_CLOUD_NAME =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ??
-    "dgrrexhst";
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ??
-    "";
-
 const STEP_CONFIGS: Record<InvestorStepKey, StepConfig> = {
     investment_profile: {
         stepKey: "investment_profile",
@@ -197,12 +194,6 @@ const STEP_CONFIGS: Record<InvestorStepKey, StepConfig> = {
                     { value: "fund", label: "Fund" },
                     { value: "developer", label: "Developer" },
                 ],
-            },
-            {
-                name: "companyPublicId",
-                label: "Company public ID",
-                type: "text",
-                required: false,
             },
         ],
     },
@@ -322,27 +313,24 @@ const STEP_CONFIGS: Record<InvestorStepKey, StepConfig> = {
         description:
             "Confirm how you will fund purchases and how quickly you can proceed.",
         fields: [
-            { name: "fundingMethod", label: "Funding method", type: "select", required: true, options: [
-                { value: "cash", label: "Cash" },
-                { value: "mortgage", label: "Mortgage" },
-                { value: "cash_and_mortgage", label: "Cash and mortgage" },
-                { value: "bridging_finance", label: "Bridging finance" },
-            ] },
-            { name: "proofOfFundsStatus", label: "Proof of funds status", type: "select", required: true, options: [
-                { value: "available", label: "Available" },
-                { value: "available_on_request", label: "Available on request" },
-                { value: "not_available", label: "Not available" },
-            ] },
-            { name: "sourceOfFundsDeclaration", label: "I confirm my source of funds declaration", type: "checkbox", required: true, mustBeTrue: true },
-            { name: "purchaseTimeline", label: "Purchase timeline", type: "select", required: true, options: [
-                { value: "immediately", label: "Immediately" },
-                { value: "within_3_months", label: "Within 3 months" },
-                { value: "within_6_months", label: "Within 6 months" },
-                { value: "exploring", label: "Exploring" },
-            ] },
+            { name: "fundingMethod", label: "Funding method", type: "select", required: true, options: createOnboardingOptions(INVESTOR_FUNDING_METHODS) },
+            { name: "cashAvailable", label: "Cash available", type: "number", required: true },
+            { name: "purchaseTimeline", label: "Purchase timeline", type: "select", required: true, options: createOnboardingOptions(PURCHASE_READINESS) },
             { name: "canProceedImmediately", label: "Can proceed immediately", type: "checkbox", required: true },
-            { name: "cashAvailable", label: "Cash available", type: "number", required: false },
-            { name: "mortgageAgreementInPrinciple", label: "Mortgage agreement in principle", type: "checkbox", required: false },
+            { name: "sourceOfFunds", label: "Source of funds", type: "select", required: true, options: createOnboardingOptions(SOURCE_OF_FUNDS) },
+        ],
+    },
+    verification_documents: {
+        stepKey: "verification_documents",
+        description:
+            "Upload the identity, address, and funding documents needed for investor verification.",
+        fields: [
+            { name: "identityDocumentPublicId", label: "Identity document", type: "upload", required: true },
+            { name: "proofOfAddressDocumentPublicId", label: "Proof of address document", type: "upload", required: true },
+            { name: "proofOfFundsDocumentPublicId", label: "Proof of funds document", type: "upload", required: true },
+            { name: "sourceOfFundsDocumentPublicId", label: "Source of funds document", type: "upload", required: true },
+            { name: "companyRegistrationDocumentPublicId", label: "Company registration document", type: "upload", required: false },
+            { name: "businessProofDocumentPublicId", label: "Business proof document", type: "upload", required: false },
         ],
     },
     review_submit: {
@@ -355,7 +343,7 @@ const STEP_CONFIGS: Record<InvestorStepKey, StepConfig> = {
 
 const DEFAULT_STEPS: StepResponse = {
     profileType: "investor",
-    totalSteps: 5,
+    totalSteps: 6,
     currentStep: "investment_profile",
     nextStep: "investment_profile",
     completedSteps: [],
@@ -363,6 +351,7 @@ const DEFAULT_STEPS: StepResponse = {
         "buying_criteria",
         "deal_preferences",
         "funding_readiness",
+        "verification_documents",
         "review_submit",
     ],
     steps: [
@@ -375,9 +364,9 @@ const DEFAULT_STEPS: StepResponse = {
                 "investmentGoals",
                 "investorCategory",
             ],
-            optionalFields: ["companyPublicId"],
+            optionalFields: [],
             stepNumber: 1,
-            totalSteps: 5,
+            totalSteps: 6,
             completed: false,
             current: true,
             locked: false,
@@ -389,7 +378,7 @@ const DEFAULT_STEPS: StepResponse = {
             requiredFields: [],
             optionalFields: [],
             stepNumber: 2,
-            totalSteps: 5,
+            totalSteps: 6,
             completed: false,
             current: false,
             locked: true,
@@ -401,7 +390,7 @@ const DEFAULT_STEPS: StepResponse = {
             requiredFields: [],
             optionalFields: [],
             stepNumber: 3,
-            totalSteps: 5,
+            totalSteps: 6,
             completed: false,
             current: false,
             locked: true,
@@ -413,7 +402,27 @@ const DEFAULT_STEPS: StepResponse = {
             requiredFields: [],
             optionalFields: [],
             stepNumber: 4,
-            totalSteps: 5,
+            totalSteps: 6,
+            completed: false,
+            current: false,
+            locked: true,
+            canEdit: false,
+        },
+        {
+            stepKey: "verification_documents",
+            stepTitle: "Verification Documents",
+            requiredFields: [
+                "identityDocumentPublicId",
+                "proofOfAddressDocumentPublicId",
+                "proofOfFundsDocumentPublicId",
+                "sourceOfFundsDocumentPublicId",
+            ],
+            optionalFields: [
+                "companyRegistrationDocumentPublicId",
+                "businessProofDocumentPublicId",
+            ],
+            stepNumber: 5,
+            totalSteps: 6,
             completed: false,
             current: false,
             locked: true,
@@ -424,8 +433,8 @@ const DEFAULT_STEPS: StepResponse = {
             stepTitle: "Review & Verify",
             requiredFields: [],
             optionalFields: [],
-            stepNumber: 5,
-            totalSteps: 5,
+            stepNumber: 6,
+            totalSteps: 6,
             completed: false,
             current: false,
             locked: true,
@@ -523,16 +532,6 @@ function isStartResponse(value: unknown): value is StartResponse {
     );
 }
 
-function isCloudinaryUploadResponse(
-    value: unknown,
-): value is CloudinaryUploadResponse {
-    return (
-        Boolean(value) &&
-        typeof value === "object" &&
-        typeof (value as CloudinaryUploadResponse).secure_url === "string"
-    );
-}
-
 function mergeStoredValues(
     currentValues: FormValues,
     storedData: Record<string, unknown>,
@@ -602,6 +601,7 @@ function mergeStoredValues(
 
 export function InvestorOnboardingForm() {
     const router = useRouter();
+    const hasStartedInitialLoad = useRef(false);
     const [stepsResponse, setStepsResponse] = useState(DEFAULT_STEPS);
     const [values, setValues] = useState<FormValues>(getInitialValues);
     const [activeStepKey, setActiveStepKey] =
@@ -648,10 +648,15 @@ export function InvestorOnboardingForm() {
                 throw new Error("Invalid investor onboarding steps response.");
             }
 
-            setStepsResponse(steps);
+            const normalizedSteps =
+                normalizeRoleOnboardingStepsResponse(
+                    steps,
+                );
+
+            setStepsResponse(normalizedSteps);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                steps.currentStep ?? steps.nextStep ?? "investment_profile",
+                normalizedSteps.currentStep ?? normalizedSteps.nextStep ?? "investment_profile",
             );
         } catch {
             setStepsResponse(DEFAULT_STEPS);
@@ -665,6 +670,12 @@ export function InvestorOnboardingForm() {
     }, []);
 
     useEffect(() => {
+        if (hasStartedInitialLoad.current) {
+            return;
+        }
+
+        hasStartedInitialLoad.current = true;
+
         queueMicrotask(() => {
             void loadSteps();
         });
@@ -712,13 +723,6 @@ export function InvestorOnboardingForm() {
     };
 
     const uploadFile = async (field: FieldConfig, file: File) => {
-        if (!CLOUDINARY_UPLOAD_PRESET) {
-            setErrorMessage(
-                "Cloudinary upload preset is missing. Add NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your environment.",
-            );
-            return;
-        }
-
         setUploadStates((current) => ({
             ...current,
             [field.name]: "uploading",
@@ -726,25 +730,12 @@ export function InvestorOnboardingForm() {
         setErrorMessage(null);
 
         try {
-            const formData = new FormData();
-            formData.set("file", file);
-            formData.set("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            formData.set("folder", INVESTOR_ONBOARDING_FLOW.uploadFolder);
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
-                {
-                    method: "POST",
-                    body: formData,
-                },
+            const documentPublicId = await uploadOnboardingDocument(
+                field.name,
+                file,
             );
-            const body = (await response.json()) as unknown;
 
-            if (!response.ok || !isCloudinaryUploadResponse(body)) {
-                throw new Error("Upload failed.");
-            }
-
-            updateValue(field.name, body.secure_url);
+            updateValue(field.name, documentPublicId);
             setUploadStates((current) => ({
                 ...current,
                 [field.name]: "uploaded",
@@ -771,9 +762,6 @@ export function InvestorOnboardingForm() {
                 experienceLevel: values.experienceLevel,
                 investmentGoals: values.investmentGoals,
                 investorCategory: values.investorCategory,
-                ...(isComplete(values.companyPublicId)
-                    ? { companyPublicId: values.companyPublicId }
-                    : {}),
             };
         }
 
@@ -846,16 +834,10 @@ export function InvestorOnboardingForm() {
         if (stepKey === "funding_readiness") {
             return {
                 fundingMethod: values.fundingMethod,
-                proofOfFundsStatus: values.proofOfFundsStatus,
-                ...(isComplete(values.cashAvailable)
-                    ? { cashAvailable: Number(values.cashAvailable) }
-                    : {}),
-                mortgageAgreementInPrinciple:
-                    values.mortgageAgreementInPrinciple,
-                sourceOfFundsDeclaration:
-                    values.sourceOfFundsDeclaration,
+                cashAvailable: Number(values.cashAvailable),
                 purchaseTimeline: values.purchaseTimeline,
                 canProceedImmediately: values.canProceedImmediately,
+                sourceOfFunds: values.sourceOfFunds,
             };
         }
 
@@ -919,10 +901,15 @@ export function InvestorOnboardingForm() {
                 createStepPayload(stepKey),
             );
 
-            setStepsResponse(result);
+            const normalizedResult =
+                normalizeRoleOnboardingStepsResponse(
+                    result,
+                );
+
+            setStepsResponse(normalizedResult);
             setHasLoadedSteps(true);
             setActiveStepKey(
-                result.currentStep ?? result.nextStep ?? stepKey,
+                normalizedResult.currentStep ?? normalizedResult.nextStep ?? stepKey,
             );
             setSuccessMessage("Your onboarding step has been saved.");
             return true;
@@ -1042,9 +1029,7 @@ export function InvestorOnboardingForm() {
 
                     {hasValue ? (
                         <a
-                            href={value as string}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={`/documents/${encodeURIComponent(value as string)}`}
                             className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
                         >
                             View uploaded file

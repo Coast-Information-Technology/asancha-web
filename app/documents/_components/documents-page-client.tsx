@@ -26,16 +26,26 @@
 
 import Link from "next/link";
 import {
+    useRouter,
+    useSearchParams,
+} from "next/navigation";
+import {
     useEffect,
+    useRef,
     type ChangeEvent,
     type ReactNode,
 } from "react";
 
 import { useDocuments } from "../../../src/features/documents/hooks/use-documents";
+import {
+    DOCUMENT_PAGE_ROUTES,
+    DOCUMENT_TYPE_OPTIONS,
+} from "../../../src/features/documents/constants/documents.constants";
 import type {
     DocumentRequirement,
     DocumentReviewStatus,
     DocumentSummary,
+    DocumentType,
 } from "../../../src/features/documents/types/documents.types";
 
 const STATUS_OPTIONS: ReadonlyArray<{
@@ -122,6 +132,9 @@ function getStatusClassName(
 }
 
 export function DocumentsPageClient() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const hasLoadedDocuments = useRef(false);
     const {
         documents,
         requirements,
@@ -142,12 +155,76 @@ export function DocumentsPageClient() {
         clearMessages,
     } = useDocuments();
 
+    const requestedDocumentType =
+        searchParams.get("documentType");
+    const initialDocumentType =
+        DOCUMENT_TYPE_OPTIONS.some(
+            (option) =>
+                option.value === requestedDocumentType,
+        )
+            ? (requestedDocumentType as DocumentType)
+            : "";
+
     useEffect((): void => {
-        void loadDocuments();
-    }, [loadDocuments]);
+        if (hasLoadedDocuments.current) {
+            return;
+        }
+
+        hasLoadedDocuments.current = true;
+
+        void loadDocuments({
+            documentTypes: initialDocumentType
+                ? [initialDocumentType]
+                : [],
+        });
+    }, [initialDocumentType, loadDocuments]);
 
     const activeReviewStatus =
         filters.reviewStatuses[0] ?? "";
+    const activeDocumentType =
+        filters.documentTypes[0] ??
+        initialDocumentType;
+
+    const handleDocumentTypeChange = (
+        event: ChangeEvent<HTMLSelectElement>,
+    ): void => {
+        const documentType = event.target.value as
+            | DocumentType
+            | "";
+        const nextDocumentTypes = documentType
+            ? [documentType]
+            : [];
+        const nextSearchParams = new URLSearchParams(
+            searchParams.toString(),
+        );
+
+        if (documentType) {
+            nextSearchParams.set(
+                "documentType",
+                documentType,
+            );
+        } else {
+            nextSearchParams.delete("documentType");
+        }
+
+        setFilters({
+            documentTypes: nextDocumentTypes,
+            page: 1,
+        });
+        void loadDocuments({
+            documentTypes: nextDocumentTypes,
+            page: 1,
+        });
+
+        const queryString = nextSearchParams.toString();
+
+        router.replace(
+            queryString
+                ? `${DOCUMENT_PAGE_ROUTES.root}?${queryString}`
+                : DOCUMENT_PAGE_ROUTES.root,
+            { scroll: false },
+        );
+    };
 
     const handleStatusChange = (
         event: ChangeEvent<HTMLSelectElement>,
@@ -203,12 +280,21 @@ export function DocumentsPageClient() {
                     </p>
                 </div>
 
-                <Link
-                    href="/documents/upload"
-                    className="inline-flex min-h-11 items-center justify-center rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)]"
-                >
-                    Upload document
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <Link
+                        href={DOCUMENT_PAGE_ROUTES.uploadMultiple}
+                        className="inline-flex min-h-11 items-center justify-center rounded-[var(--asancha-radius-md)] border border-[var(--border)] px-5 py-2 text-sm font-semibold"
+                    >
+                        Upload multiple
+                    </Link>
+
+                    <Link
+                        href={DOCUMENT_PAGE_ROUTES.upload}
+                        className="inline-flex min-h-11 items-center justify-center rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)]"
+                    >
+                        Upload document
+                    </Link>
+                </div>
             </header>
 
             <div className="mt-5 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
@@ -441,41 +527,73 @@ export function DocumentsPageClient() {
                         </p>
                     </div>
 
-                    <div>
-                        <label
-                            htmlFor="document-status-filter"
-                            className="text-sm font-semibold"
-                        >
-                            Filter by status
-                        </label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label
+                                htmlFor="document-type-filter"
+                                className="text-sm font-semibold"
+                            >
+                                Filter by type
+                            </label>
 
-                        <select
-                            id="document-status-filter"
-                            value={
-                                activeReviewStatus
-                            }
-                            onChange={
-                                handleStatusChange
-                            }
-                            className="mt-2 min-h-11 rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
-                        >
-                            {STATUS_OPTIONS.map(
-                                (option) => (
-                                    <option
-                                        key={
-                                            option.value
-                                        }
-                                        value={
-                                            option.value
-                                        }
-                                    >
-                                        {
-                                            option.label
-                                        }
-                                    </option>
-                                ),
-                            )}
-                        </select>
+                            <select
+                                id="document-type-filter"
+                                value={activeDocumentType}
+                                onChange={handleDocumentTypeChange}
+                                className="mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                            >
+                                <option value="">
+                                    All document types
+                                </option>
+                                {DOCUMENT_TYPE_OPTIONS.map(
+                                    (option) => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ),
+                                )}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="document-status-filter"
+                                className="text-sm font-semibold"
+                            >
+                                Filter by status
+                            </label>
+
+                            <select
+                                id="document-status-filter"
+                                value={
+                                    activeReviewStatus
+                                }
+                                onChange={
+                                    handleStatusChange
+                                }
+                                className="mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                            >
+                                {STATUS_OPTIONS.map(
+                                    (option) => (
+                                        <option
+                                            key={
+                                                option.value
+                                            }
+                                            value={
+                                                option.value
+                                            }
+                                        >
+                                            {
+                                                option.label
+                                            }
+                                        </option>
+                                    ),
+                                )}
+                            </select>
+                        </div>
                     </div>
                 </div>
 

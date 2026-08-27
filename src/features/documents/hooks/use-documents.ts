@@ -47,6 +47,9 @@ import type {
     DocumentsHookState,
     DocumentUploadPayload,
     DocumentUploadResult,
+    PropertyDocumentsUploadPayload,
+    PropertyDocumentsUploadResult,
+    PropertyDocumentUploadPayload,
     ReplaceDocumentPayload,
     ReplaceDocumentResult,
     UseDocumentsResult,
@@ -395,6 +398,103 @@ export function useDocuments(): UseDocumentsResult {
         [setError],
     );
 
+    const uploadPropertyDocument = useCallback(
+        async (
+            payload: PropertyDocumentUploadPayload,
+        ): Promise<DocumentUploadResult> => {
+            setHookState((currentState) => ({
+                ...currentState,
+                requestState: "uploading",
+                isUploading: true,
+                errorMessage: null,
+                successMessage: null,
+            }));
+
+            try {
+                const result =
+                    await documentsApi.uploadPropertyDocument(
+                        payload,
+                    );
+
+                setHookState((currentState) => ({
+                    ...currentState,
+                    requestState: "success",
+                    documents: replaceDocumentSummary(
+                        currentState.documents,
+                        result.document,
+                    ),
+                    selectedDocument: result.document,
+                    isUploading: false,
+                    isEmpty: false,
+                    errorMessage: null,
+                    successMessage:
+                        result.message ||
+                        DOCUMENT_SAFE_MESSAGES.uploaded,
+                }));
+
+                return result;
+            } catch {
+                setError(
+                    DOCUMENT_SAFE_MESSAGES.uploadError,
+                );
+
+                throw new Error(
+                    DOCUMENT_SAFE_MESSAGES.uploadError,
+                );
+            }
+        },
+        [setError],
+    );
+
+    const uploadPropertyDocuments = useCallback(
+        async (
+            payload: PropertyDocumentsUploadPayload,
+        ): Promise<PropertyDocumentsUploadResult> => {
+            setHookState((currentState) => ({
+                ...currentState,
+                requestState: "uploading",
+                isUploading: true,
+                errorMessage: null,
+                successMessage: null,
+            }));
+
+            try {
+                const result =
+                    await documentsApi.uploadPropertyDocuments(
+                        payload,
+                    );
+
+                setHookState((currentState) => ({
+                    ...currentState,
+                    requestState: "success",
+                    documents: result.documents.reduce(
+                        replaceDocumentSummary,
+                        currentState.documents,
+                    ),
+                    selectedDocument:
+                        result.documents[0] ?? null,
+                    isUploading: false,
+                    isEmpty: false,
+                    errorMessage: null,
+                    successMessage:
+                        result.message ||
+                        `${result.uploadedCount} documents have been submitted for review.`,
+                }));
+
+                return result;
+            } catch {
+                setError(
+                    DOCUMENT_SAFE_MESSAGES.uploadError,
+                );
+
+                throw new Error(
+                    DOCUMENT_SAFE_MESSAGES.uploadError,
+                );
+            }
+        },
+        [setError],
+    );
+
     const replaceDocument = useCallback(
         async (
             documentPublicId: string,
@@ -624,6 +724,8 @@ export function useDocuments(): UseDocumentsResult {
         loadDocument,
 
         uploadDocument,
+        uploadPropertyDocument,
+        uploadPropertyDocuments,
         replaceDocument,
         deleteDocument,
 

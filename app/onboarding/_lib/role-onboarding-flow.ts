@@ -35,6 +35,71 @@ export interface RoleOnboardingFlowConfig {
     submitPayload: RoleOnboardingSubmitPayload;
 }
 
+interface RoleOnboardingStepRecord {
+    stepKey: string;
+}
+
+interface RoleOnboardingStepsShape {
+    currentStep: string;
+    nextStep?: string;
+    completedSteps: string[];
+    lockedSteps: string[];
+    steps: RoleOnboardingStepRecord[];
+    reviewSummary?: RoleOnboardingStepRecord[];
+}
+
+const LEGACY_ROLE_ONBOARDING_STEP_KEYS: Readonly<
+    Record<string, string>
+> = {
+    documents_and_proof: "verification_documents",
+    verification: "verification_documents",
+};
+
+function normalizeRoleOnboardingStepKey(
+    stepKey: string,
+): string {
+    return (
+        LEGACY_ROLE_ONBOARDING_STEP_KEYS[stepKey] ??
+        stepKey
+    );
+}
+
+export function normalizeRoleOnboardingStepsResponse<
+    TResponse extends RoleOnboardingStepsShape,
+>(response: TResponse): TResponse {
+    return {
+        ...response,
+        currentStep: normalizeRoleOnboardingStepKey(
+            response.currentStep,
+        ),
+        nextStep: response.nextStep
+            ? normalizeRoleOnboardingStepKey(
+                  response.nextStep,
+              )
+            : undefined,
+        completedSteps: response.completedSteps.map(
+            normalizeRoleOnboardingStepKey,
+        ),
+        lockedSteps: response.lockedSteps.map(
+            normalizeRoleOnboardingStepKey,
+        ),
+        steps: response.steps.map((step) => ({
+            ...step,
+            stepKey: normalizeRoleOnboardingStepKey(
+                step.stepKey,
+            ),
+        })),
+        reviewSummary: response.reviewSummary?.map(
+            (item) => ({
+                ...item,
+                stepKey: normalizeRoleOnboardingStepKey(
+                    item.stepKey,
+                ),
+            }),
+        ),
+    } as TResponse;
+}
+
 export function getRoleStepsEndpoint(
     config: RoleOnboardingFlowConfig,
 ): string {

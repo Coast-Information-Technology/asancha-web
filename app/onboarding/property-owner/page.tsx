@@ -14,6 +14,9 @@
 import type { Metadata } from "next";
 
 import {
+    RoleOnboardingPolicyGate,
+} from "../_components/role-onboarding-policy-gate";
+import {
     PropertyOwnerOnboardingForm,
 } from "./_components/property-owner-onboarding-form";
 
@@ -24,5 +27,9 @@ export const metadata: Metadata = {
 };
 
 export default function PropertyOwnerOnboardingPage() {
-    return <PropertyOwnerOnboardingForm />;
+    return (
+        <RoleOnboardingPolicyGate profileType="property_owner">
+            <PropertyOwnerOnboardingForm />
+        </RoleOnboardingPolicyGate>
+    );
 }

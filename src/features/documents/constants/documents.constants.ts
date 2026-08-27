@@ -27,22 +27,23 @@ import type {
     DocumentRelatedType,
     DocumentReviewStatus,
     DocumentType,
+    PropertyDocumentType,
 } from "../types/documents.types";
+import { API_ROUTES } from "../../../lib/api/api-routes";
 
 export const DOCUMENTS_API_ENDPOINTS = {
-    upload: "/documents",
-    mine: "/documents/me",
-
-    document: (documentPublicId: string): string =>
-        `/documents/${encodeURIComponent(documentPublicId)}`,
-
-    replace: (documentPublicId: string): string =>
-        `/documents/${encodeURIComponent(documentPublicId)}/replace`,
+    list: API_ROUTES.documents.list,
+    upload: API_ROUTES.documents.upload,
+    uploads: API_ROUTES.documents.uploads,
+    document: API_ROUTES.documents.document,
+    replace: API_ROUTES.documents.replace,
+    access: API_ROUTES.documents.access,
 } as const;
 
 export const DOCUMENT_PAGE_ROUTES = {
     root: "/documents",
     upload: "/documents/upload",
+    uploadMultiple: "/documents/upload/multiple",
 
     detail: (documentPublicId: string): string =>
         `/documents/${encodeURIComponent(documentPublicId)}`,
@@ -54,7 +55,52 @@ export const DOCUMENT_PAGE_ROUTES = {
     payments: "/payments",
 } as const;
 
+export const PROPERTY_DOCUMENT_TYPES = [
+    "proof_of_ownership",
+    "property_photos",
+    "floor_plan",
+    "epc_certificate",
+    "valuation_report",
+    "title_register",
+    "title_plan",
+    "survey_report",
+    "building_safety_certificate",
+    "planning_document",
+    "lease_document",
+    "tenancy_document",
+    "service_charge_statement",
+] as const satisfies readonly PropertyDocumentType[];
+
+export const PROPERTY_DOCUMENT_TYPE_OPTIONS = [
+    { value: "proof_of_ownership", label: "Proof of ownership" },
+    { value: "property_photos", label: "Property photos" },
+    { value: "floor_plan", label: "Floor plan" },
+    { value: "epc_certificate", label: "EPC certificate" },
+    { value: "valuation_report", label: "Valuation report" },
+    { value: "title_register", label: "Title register" },
+    { value: "title_plan", label: "Title plan" },
+    { value: "survey_report", label: "Survey report" },
+    {
+        value: "building_safety_certificate",
+        label: "Building safety certificate",
+    },
+    { value: "planning_document", label: "Planning document" },
+    { value: "lease_document", label: "Lease document" },
+    { value: "tenancy_document", label: "Tenancy document" },
+    {
+        value: "service_charge_statement",
+        label: "Service charge statement",
+    },
+] as const satisfies ReadonlyArray<{
+    value: PropertyDocumentType;
+    label: string;
+}>;
+
 export const DOCUMENT_TYPE_OPTIONS = [
+    ...PROPERTY_DOCUMENT_TYPE_OPTIONS.map((option) => ({
+        ...option,
+        description: `Property document: ${option.label}.`,
+    })),
     {
         value: "proof_of_funds",
         label: "Proof of funds",
@@ -102,12 +148,6 @@ export const DOCUMENT_TYPE_OPTIONS = [
         label: "Deal pack",
         description:
             "A controlled property opportunity document pack.",
-    },
-    {
-        value: "valuation_report",
-        label: "Valuation report",
-        description:
-            "A property valuation or appraisal report.",
     },
     {
         value: "compliance_document",

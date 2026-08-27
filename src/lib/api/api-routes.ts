@@ -90,6 +90,13 @@ export const API_ROUTES = {
   documents: {
     list: "/documents",
     upload: "/documents/upload",
+    uploads: "/documents/uploads",
+    document: (documentPublicId: string): string =>
+      `/documents/${encodeURIComponent(documentPublicId)}`,
+    replace: (documentPublicId: string): string =>
+      `/documents/${encodeURIComponent(documentPublicId)}/replace`,
+    access: (token: string): string =>
+      `/documents/access/${encodeURIComponent(token)}`,
   },
 
   verification: {
