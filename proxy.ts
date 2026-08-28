@@ -22,6 +22,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  PASSWORD_RESET_ROUTE,
+  PASSWORD_RESET_TOKEN_COOKIE_NAME,
+  PASSWORD_RESET_TOKEN_MAX_AGE_SECONDS,
+} from "@/src/features/auth/server/password-reset-token";
 import { API_ROUTES, buildApiUrl } from "@/src/lib/api/api-routes";
 
 const ACCESS_TOKEN_COOKIE_NAME = "asancha_access_token";
@@ -75,6 +80,33 @@ const EMAIL_VERIFICATION_RESULT_COOKIE_NAME =
   "asancha_email_verification_result";
 const EMAIL_VERIFICATION_ALREADY_USED_MESSAGE =
   "This verification link has already been used.";
+
+function capturePasswordResetToken(request: NextRequest): NextResponse | null {
+  if (request.nextUrl.pathname !== PASSWORD_RESET_ROUTE) {
+    return null;
+  }
+
+  const token = request.nextUrl.searchParams.get("token")?.trim();
+
+  if (!token) {
+    return null;
+  }
+
+  const cleanResetUrl = new URL(PASSWORD_RESET_ROUTE, request.url);
+  const response = NextResponse.redirect(cleanResetUrl, 303);
+
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  response.cookies.set(PASSWORD_RESET_TOKEN_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: PASSWORD_RESET_ROUTE,
+    maxAge: PASSWORD_RESET_TOKEN_MAX_AGE_SECONDS,
+  });
+
+  return response;
+}
 
 type EmailVerificationResultStatus = "verified" | "already_used" | "error";
 
@@ -229,6 +261,12 @@ function createSignInRedirect(request: NextRequest): URL {
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const hasAccessToken = hasAccessTokenCookie(request);
+
+  const passwordResetResponse = capturePasswordResetToken(request);
+
+  if (passwordResetResponse) {
+    return passwordResetResponse;
+  }
 
   const emailVerificationResponse =
     await consumeEmailVerificationToken(request);
