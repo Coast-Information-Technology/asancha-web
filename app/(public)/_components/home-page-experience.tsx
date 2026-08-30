@@ -13,8 +13,13 @@ import {
   LockKeyhole,
   Search,
   ShieldCheck,
+  Sparkles,
   Wrench,
 } from "lucide-react";
+import {
+  div as MotionDiv,
+  section as MotionSection,
+} from "framer-motion/client";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -124,6 +129,15 @@ const professionalRoutes = [
 ] as const;
 const featuredListings = DUMMY_MARKETPLACE_LISTINGS.slice(0, 3);
 
+const sectionReveal = {
+  hidden: { opacity: 0, y: 28 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+  },
+} as const;
+
 function formatLabel(value: string): string {
   return value
     .replaceAll("_", " ")
@@ -214,9 +228,16 @@ function AnimatedSection({
   labelledBy: string;
 }) {
   return (
-    <section aria-labelledby={labelledBy} className={className}>
+    <MotionSection
+      aria-labelledby={labelledBy}
+      className={className}
+      initial="hidden"
+      viewport={{ once: true, amount: 0.16 }}
+      variants={sectionReveal}
+      whileInView="show"
+    >
       {children}
-    </section>
+    </MotionSection>
   );
 }
 
@@ -244,8 +265,14 @@ export function HomePageExperience() {
         />
 
         <div className="asancha-page-container py-16 sm:py-20 lg:py-24">
-          <div className="max-w-5xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground/80 sm:text-sm">
+          <MotionDiv
+            animate="show"
+            className="max-w-5xl"
+            initial="hidden"
+            variants={sectionReveal}
+          >
+            <p className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground/85 backdrop-blur-md">
+              <Sparkles aria-hidden="true" size={14} strokeWidth={2.5} />
               UK property sourcing &amp; investment platform
             </p>
             <h1
@@ -346,7 +373,7 @@ export function HomePageExperience() {
                 </li>
               ))}
             </ul>
-          </div>
+          </MotionDiv>
         </div>
       </section>
 
@@ -736,9 +763,9 @@ export function HomePageExperience() {
         </div>
       </AnimatedSection>
 
-      <section
-        aria-labelledby="homepage-final-cta-heading"
+      <AnimatedSection
         className="bg-primary"
+        labelledBy="homepage-final-cta-heading"
       >
         <div className="asancha-page-container py-16 text-primary-foreground">
           <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/70">
@@ -774,7 +801,7 @@ export function HomePageExperience() {
             You can browse public property opportunities without an account.
           </p>
         </div>
-      </section>
+      </AnimatedSection>
     </main>
   );
 }
