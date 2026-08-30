@@ -6,7 +6,6 @@ import {
   Building2,
   Calculator,
   CheckCircle2,
-  FileCheck2,
   KeyRound,
   Lightbulb,
   LineChart,
@@ -14,7 +13,6 @@ import {
   LockKeyhole,
   Search,
   ShieldCheck,
-  Target,
   Wrench,
 } from "lucide-react";
 import Image from "next/image";
@@ -86,14 +84,8 @@ const journeyPhases = [
   {
     title: "Evaluate",
     description:
-      "Review property information, calculations, estimates and permitted investment intelligence. Sign in only when a protected capability is required.",
+      "Review property information, calculations, estimates and how well an opportunity matches your requirements. Sign in only when a protected capability is required.",
     icon: Calculator,
-  },
-  {
-    title: "Match",
-    description:
-      "Understand how an opportunity aligns — or does not align — with your stated investment requirements.",
-    icon: Target,
   },
   {
     title: "Progress",
@@ -118,11 +110,10 @@ const matchReasons = [
 ] as const;
 
 const trustPillars = [
-  ["Structured verification where required", BadgeCheck],
-  ["Controlled access to sensitive information", LockKeyhole],
-  ["Secure document handling and version-aware review", FileCheck2],
-  ["Traceable actions and workflow history", ListChecks],
-  ["Clear labels for every information type", Lightbulb],
+  ["Verified information where applicable", BadgeCheck],
+  ["Controlled access to protected information", LockKeyhole],
+  ["Explainable insights and information labels", Lightbulb],
+  ["Traceable progression through each stage", ListChecks],
 ] as const;
 
 const professionalRoutes = [
@@ -265,7 +256,7 @@ export function HomePageExperience() {
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/82 sm:text-xl">
               Asancha connects investors with property opportunities from
-              owners, agents and sourcers — supported by intelligent insights
+              owners, agents and sourcers - supported by intelligent insights
               and trusted professionals to help evaluate and progress deals with
               confidence.
             </p>
@@ -492,7 +483,7 @@ export function HomePageExperience() {
             id="homepage-journey-heading"
             title="Discover. Evaluate. Progress."
           />
-          <ol className="mt-12 border-y border-border lg:grid lg:grid-cols-4 lg:divide-x lg:divide-y-0 lg:divide-border">
+          <ol className="mt-12 border-y border-border lg:grid lg:grid-cols-3 lg:divide-x lg:divide-y-0 lg:divide-border">
             {journeyPhases.map((phase, index) => (
               <li
                 className="grid grid-cols-[auto_1fr] gap-4 border-b border-border py-7 last:border-b-0 lg:block lg:border-b-0 lg:px-6 lg:first:pl-0 lg:last:pr-0"
@@ -707,41 +698,6 @@ export function HomePageExperience() {
               </div>
             </section>
           </div>
-
-          <section
-            aria-labelledby="homepage-supply-heading"
-            className="mt-8 grid gap-7 rounded-2xl border border-primary/20 bg-accent p-7 lg:grid-cols-[1fr_auto] lg:items-end lg:p-9"
-          >
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                List a property
-              </p>
-              <h2
-                className="mt-2 text-2xl font-extrabold text-accent-foreground sm:text-3xl"
-                id="homepage-supply-heading"
-              >
-                Bring a Property Opportunity to Asancha
-              </h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Property owners, agents and sourcers can submit opportunities
-                into the appropriate review and publication journey and connect
-                suitable opportunities with an investor-focused audience.
-              </p>
-              <p className="mt-3 max-w-3xl text-xs font-semibold leading-5 text-muted-foreground">
-                List a Property is an entry point, not an automatic publication
-                promise. Authentication and the appropriate profile context may
-                be required before submission.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <PrimaryLink href="/solutions/property-owners">
-                List a Property
-              </PrimaryLink>
-              <SecondaryLink href="/how-it-works">
-                How Property Listing Works
-              </SecondaryLink>
-            </div>
-          </section>
         </div>
       </AnimatedSection>
 
@@ -749,27 +705,20 @@ export function HomePageExperience() {
         className="bg-background"
         labelledBy="homepage-trust-heading"
       >
-        <div className="asancha-page-container grid gap-10 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+        <div className="asancha-page-container py-16">
           <div>
             <SectionIntro
-              description="Asancha uses structured verification, controlled access, secure document handling, traceable workflows and clear information labels to help users understand what is known, what is estimated, what is pending and what is required next."
-              eyebrow="Built for more transparent property decisions"
+              description="Understand the key trust principles at a glance, with further detail available when you need it."
+              eyebrow="Trust & transparency"
               id="homepage-trust-heading"
-              title="Clear Information. Controlled Access. Traceable Progress."
+              title="A Clearer Way to Evaluate and Progress."
             />
-            <p className="mt-7 border-l-4 border-primary bg-accent px-5 py-4 text-sm font-semibold leading-6 text-accent-foreground">
-              Publication is not verification or reservation eligibility. A
-              match score is not verification, and reservation is not a legal
-              purchase or completion. Information and insights do not guarantee
-              value, returns, rental income, finance, planning or completion
-              outcomes.
-            </p>
           </div>
 
-          <ul className="divide-y divide-border border-y border-border">
-            {trustPillars.map(([title, Icon], index) => (
+          <ul className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {trustPillars.map(([title, Icon]) => (
               <li
-                className="grid grid-cols-[auto_1fr_auto] items-center gap-4 py-5"
+                className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm"
                 key={title}
               >
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-accent text-primary">
@@ -778,15 +727,12 @@ export function HomePageExperience() {
                 <p className="text-sm font-bold leading-6 text-foreground">
                   {title}
                 </p>
-                <span
-                  aria-hidden="true"
-                  className="text-xs font-extrabold tabular-nums text-muted-foreground"
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
               </li>
             ))}
           </ul>
+          <div className="mt-7">
+            <SecondaryLink href="/how-it-works">Learn More</SecondaryLink>
+          </div>
         </div>
       </AnimatedSection>
 
@@ -814,7 +760,7 @@ export function HomePageExperience() {
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
               href="/marketplace"
             >
-              Explore Properties <ArrowRight aria-hidden="true" size={17} />
+              Find Properties <ArrowRight aria-hidden="true" size={17} />
             </Link>
             <SecondaryLink href="/auth/sign-up" inverted>
               Create Free Account

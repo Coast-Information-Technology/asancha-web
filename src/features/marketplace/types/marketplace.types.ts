@@ -54,6 +54,9 @@ export type MarketplacePropertyType =
 export type MarketplaceOccupancyStatus =
   "vacant" | "tenanted" | "part_occupied" | "unknown";
 
+export type MarketplaceTenureType =
+  "freehold" | "leasehold" | "share_of_freehold" | "commonhold" | "other";
+
 export type MarketplaceDealStatus =
   | "published"
   | "reserved"
@@ -89,6 +92,9 @@ export type MarketplaceSort =
 
 export type MarketplaceViewMode = "grid" | "list";
 
+export type MarketplaceVerificationStatus =
+  "verified" | "partially_verified" | "not_verified";
+
 export type MarketplaceRequestState =
   | "idle"
   | "loading"
@@ -121,6 +127,7 @@ export interface MarketplaceFilters {
   search: string;
   locations: string[];
   propertyTypes: MarketplacePropertyType[];
+  tenureTypes: MarketplaceTenureType[];
   listingTypes: MarketplaceListingType[];
   listingCategories: MarketplaceListingCategory[];
   strategies: MarketplaceInvestmentStrategy[];
@@ -138,6 +145,7 @@ export interface MarketplaceFilters {
   minimumBmvDiscountPercent: number | null;
   minimumGrossYieldPercent: number | null;
   minimumRoiPercent: number | null;
+  minimumEstimatedMonthlyRent: number | null;
 
   listedFrom: string | null;
   listedTo: string | null;
@@ -181,6 +189,12 @@ export interface MarketplaceInvestmentMetrics {
   disclaimer: string | null;
 }
 
+export interface MarketplaceInvestorMatchSummary {
+  scorePercent: number;
+  matchReasons: string[];
+  mismatchReasons: string[];
+}
+
 export interface MarketplaceListingCard {
   listingPublicId: string;
   slug: string;
@@ -195,6 +209,7 @@ export interface MarketplaceListingCard {
   bedrooms: number | null;
   bathrooms: number | null;
   occupancyStatus: MarketplaceOccupancyStatus | null;
+  tenureType?: MarketplaceTenureType | null;
 
   dealStatus: MarketplaceDealStatus;
   calculatedStatus: MarketplaceCalculatedStatus;
@@ -210,6 +225,8 @@ export interface MarketplaceListingCard {
   isFeatured: boolean;
   isSaved: boolean;
   canSave: boolean;
+  investorMatch?: MarketplaceInvestorMatchSummary | null;
+  verificationStatus?: MarketplaceVerificationStatus | null;
 
   publishedAt: string;
   updatedAt: string;
@@ -240,13 +257,7 @@ export interface MarketplaceListingDetail {
   bathrooms: number | null;
   receptionRooms: number | null;
   occupancyStatus: MarketplaceOccupancyStatus | null;
-  tenureType:
-    | "freehold"
-    | "leasehold"
-    | "share_of_freehold"
-    | "commonhold"
-    | "other"
-    | null;
+  tenureType: MarketplaceTenureType | null;
 
   dealStatus: MarketplaceDealStatus;
   calculatedStatus: MarketplaceCalculatedStatus;
@@ -297,6 +308,7 @@ export interface MarketplaceFilterOption<TValue extends string = string> {
 export interface MarketplaceFilterConfiguration {
   locations: MarketplaceFilterOption[];
   propertyTypes: MarketplaceFilterOption<MarketplacePropertyType>[];
+  tenureTypes: MarketplaceFilterOption<MarketplaceTenureType>[];
   listingTypes: MarketplaceFilterOption<MarketplaceListingType>[];
   listingCategories: MarketplaceFilterOption<MarketplaceListingCategory>[];
   strategies: MarketplaceFilterOption<MarketplaceInvestmentStrategy>[];
@@ -323,6 +335,7 @@ export interface MarketplaceQuery {
   search?: string;
   locations?: string[];
   propertyTypes?: MarketplacePropertyType[];
+  tenureTypes?: MarketplaceTenureType[];
   listingTypes?: MarketplaceListingType[];
   listingCategories?: MarketplaceListingCategory[];
   strategies?: MarketplaceInvestmentStrategy[];
@@ -340,6 +353,7 @@ export interface MarketplaceQuery {
   minimumBmvDiscountPercent?: number;
   minimumGrossYieldPercent?: number;
   minimumRoiPercent?: number;
+  minimumEstimatedMonthlyRent?: number;
 
   listedFrom?: string;
   listedTo?: string;

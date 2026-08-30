@@ -193,9 +193,9 @@ export const PUBLIC_FOOTER_NAVIGATION = [
         access: "public",
       },
       {
-        label: "Marketplace",
+        label: "Find Properties",
         href: "/marketplace",
-        description: "Browse safe public listing previews.",
+        description: "Browse public property opportunities.",
         iconName: "Building2",
         access: "public",
       },

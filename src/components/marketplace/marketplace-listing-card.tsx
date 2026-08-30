@@ -121,12 +121,22 @@ export function MarketplaceListingCard({
             </h2>
           </div>
 
-          <p className={styles.listingPrice}>
-            {formatCurrency(listing.price, listing.currency)}
-          </p>
+          <div className={styles.listingPriceGroup}>
+            <span className={styles.informationType}>Fact</span>
+            <p className={styles.listingPrice}>
+              {formatCurrency(listing.price, listing.currency)}
+            </p>
+          </div>
         </div>
 
         <p className={styles.listingLocation}>{location || "United Kingdom"}</p>
+
+        {listing.verificationStatus ? (
+          <p className={styles.verificationStatus}>
+            <span>Verification</span>
+            {formatStatus(listing.verificationStatus)}
+          </p>
+        ) : null}
 
         <div className={styles.propertyFacts}>
           <span>{formatPropertyType(listing.propertyType)}</span>
@@ -146,6 +156,10 @@ export function MarketplaceListingCard({
           {listing.occupancyStatus ? (
             <span>{formatStatus(listing.occupancyStatus)}</span>
           ) : null}
+
+          {listing.tenureType ? (
+            <span>{formatStatus(listing.tenureType)}</span>
+          ) : null}
         </div>
 
         {listing.shortDescription ? (
@@ -156,27 +170,63 @@ export function MarketplaceListingCard({
 
         {listing.investmentMetrics ? (
           <dl className={styles.metricGrid}>
-            {listing.investmentMetrics.bmvDiscountPercent !== null ? (
-              <div>
-                <dt>BMV discount</dt>
-                <dd>{listing.investmentMetrics.bmvDiscountPercent}%</dd>
-              </div>
-            ) : null}
-
             {listing.investmentMetrics.grossYieldPercent !== null ? (
               <div>
-                <dt>Gross yield</dt>
+                <dt>
+                  Gross yield
+                  <span>Calculation</span>
+                </dt>
                 <dd>{listing.investmentMetrics.grossYieldPercent}%</dd>
               </div>
             ) : null}
 
-            {listing.investmentMetrics.estimatedRoiPercent !== null ? (
+            {listing.investmentMetrics.estimatedMonthlyRent !== null ? (
               <div>
-                <dt>Estimated ROI</dt>
-                <dd>{listing.investmentMetrics.estimatedRoiPercent}%</dd>
+                <dt>
+                  Estimated rent
+                  <span>Estimate</span>
+                </dt>
+                <dd>
+                  {formatCurrency(
+                    listing.investmentMetrics.estimatedMonthlyRent,
+                    listing.investmentMetrics.currency,
+                  )}{" "}
+                  pcm
+                </dd>
+              </div>
+            ) : null}
+
+            {listing.investmentMetrics.bmvDiscountPercent !== null ? (
+              <div>
+                <dt>
+                  Below-market estimate
+                  <span>Estimate</span>
+                </dt>
+                <dd>{listing.investmentMetrics.bmvDiscountPercent}%</dd>
               </div>
             ) : null}
           </dl>
+        ) : null}
+
+        {listing.investorMatch ? (
+          <section
+            aria-label="Personalised investor match"
+            className={styles.matchSummary}
+          >
+            <div className={styles.matchSummaryHeading}>
+              <span>Investor match</span>
+              <strong>{listing.investorMatch.scorePercent}%</strong>
+            </div>
+            <p>
+              {listing.investorMatch.matchReasons[0] ??
+                "Review how this opportunity aligns with your criteria."}
+            </p>
+            {listing.investorMatch.mismatchReasons[0] ? (
+              <p className={styles.mismatchReason}>
+                Consider: {listing.investorMatch.mismatchReasons[0]}
+              </p>
+            ) : null}
+          </section>
         ) : null}
 
         {listing.badges.length > 0 ? (

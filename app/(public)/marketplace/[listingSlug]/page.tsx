@@ -271,7 +271,7 @@ export async function generateMetadata({
 
   if (!listing) {
     return {
-      title: "Listing Not Found | Asancha Marketplace",
+      title: "Property Not Found | Asancha",
       description:
         "The requested public property opportunity could not be found on Asancha.",
       robots: {
@@ -289,13 +289,13 @@ export async function generateMetadata({
   const coverImage = publicImages[0] ?? null;
 
   return {
-    title: `${listing.title} | Asancha Marketplace`,
+    title: `${listing.title} | Asancha Property Opportunity`,
     description,
     alternates: {
       canonical: MARKETPLACE_PAGE_ROUTES.listing(listing.slug),
     },
     openGraph: {
-      title: `${listing.title} | Asancha Marketplace`,
+      title: `${listing.title} | Asancha Property Opportunity`,
       description,
       url: MARKETPLACE_PAGE_ROUTES.listing(listing.slug),
       type: "website",
@@ -353,7 +353,7 @@ export default async function ListingPreviewPage({
         path: "/",
       },
       {
-        name: "Marketplace",
+        name: "Find Properties",
         path: MARKETPLACE_PAGE_ROUTES.root,
       },
       {
@@ -378,7 +378,7 @@ export default async function ListingPreviewPage({
               className="inline-flex rounded-md text-sm font-bold text-primary hover:underline focus:outline-none focus:ring-4 focus:ring-ring/20"
               href={MARKETPLACE_PAGE_ROUTES.root}
             >
-              ← Back to marketplace
+              ← Back to Find Properties
             </Link>
           </nav>
 
@@ -752,7 +752,7 @@ export default async function ListingPreviewPage({
                   </h2>
 
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    These sections are not included in the public marketplace
+                    These sections are not included in the public property
                     preview.
                   </p>
 

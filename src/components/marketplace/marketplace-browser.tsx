@@ -58,7 +58,6 @@ export function MarketplaceBrowser({
     isRefreshing,
     isEmpty,
     loadMarketplace,
-    refreshMarketplace,
     loadFilterConfiguration,
     setViewMode,
     clearError,
@@ -69,6 +68,13 @@ export function MarketplaceBrowser({
   );
 
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const handleFiltersClose = useCallback((): void => {
+    setFiltersOpen(false);
+    queueMicrotask(() => {
+      document.getElementById("marketplace-more-filters")?.focus();
+    });
+  }, []);
 
   useEffect(() => {
     void Promise.all([
@@ -94,13 +100,13 @@ export function MarketplaceBrowser({
   );
 
   const handleApplyFilters = useCallback((): void => {
-    setFiltersOpen(false);
+    handleFiltersClose();
 
     void loadMarketplace({
       ...draftFilters,
       page: 1,
     });
-  }, [draftFilters, loadMarketplace]);
+  }, [draftFilters, handleFiltersClose, loadMarketplace]);
 
   const handleResetFilters = useCallback((): void => {
     const resetFilters = {
@@ -108,10 +114,10 @@ export function MarketplaceBrowser({
     };
 
     setDraftFilters(resetFilters);
-    setFiltersOpen(false);
+    handleFiltersClose();
 
     void loadMarketplace(resetFilters);
-  }, [loadMarketplace]);
+  }, [handleFiltersClose, loadMarketplace]);
 
   const handleSearchSubmit = useCallback((): void => {
     void loadMarketplace({
@@ -157,24 +163,15 @@ export function MarketplaceBrowser({
         isOpen={filtersOpen}
         onApply={handleApplyFilters}
         onChange={handleDraftFiltersChange}
-        onClose={() => setFiltersOpen(false)}
+        onClose={handleFiltersClose}
         onReset={handleResetFilters}
-        onSearchSubmit={handleSearchSubmit}
       />
 
       <div className={styles.resultsColumn}>
         <MarketplaceResultsToolbar
           filters={draftFilters}
-          isRefreshing={isRefreshing}
           onFilterOpen={() => setFiltersOpen(true)}
-          onRefresh={() => {
-            void refreshMarketplace();
-          }}
-          onSearchChange={(search) =>
-            handleDraftFiltersChange({
-              search,
-            })
-          }
+          onFiltersChange={handleDraftFiltersChange}
           onSearchSubmit={handleSearchSubmit}
           onSortChange={handleSortChange}
           onViewModeChange={setViewMode}
@@ -190,7 +187,9 @@ export function MarketplaceBrowser({
           {errorMessage ? (
             <div className={styles.errorState} role="alert">
               <div>
-                <h2 className={styles.errorTitle}>Marketplace unavailable</h2>
+                <h2 className={styles.errorTitle}>
+                  Property search unavailable
+                </h2>
 
                 <p className={styles.errorMessage}>{errorMessage}</p>
               </div>
@@ -213,7 +212,12 @@ export function MarketplaceBrowser({
           ) : null}
 
           {!isLoading && !errorMessage && isEmpty ? (
-            <MarketplaceEmptyState onReset={handleResetFilters} />
+            <MarketplaceEmptyState
+              onChangeSearch={() => {
+                document.getElementById("marketplace-location-search")?.focus();
+              }}
+              onReset={handleResetFilters}
+            />
           ) : null}
 
           {listings.length > 0 ? (

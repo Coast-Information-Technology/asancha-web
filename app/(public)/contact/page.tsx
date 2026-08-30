@@ -226,10 +226,22 @@ const enquiryCategories = [
 ] as const;
 
 const nextSteps = [
-  ["We Receive Your Message", "Your enquiry is recorded with the category and contact details you provide."],
-  ["We Review the Information", "The Asancha team reviews your message and determines which workflow should handle it."],
-  ["We May Request More Information", "Where required, we may ask for clarification or direct you to a secure account, onboarding, document, verification, payment, or API application process."],
-  ["We Respond", "We respond through the contact method you selected, where appropriate."],
+  [
+    "We Receive Your Message",
+    "Your enquiry is recorded with the category and contact details you provide.",
+  ],
+  [
+    "We Review the Information",
+    "The Asancha team reviews your message and determines which workflow should handle it.",
+  ],
+  [
+    "We May Request More Information",
+    "Where required, we may ask for clarification or direct you to a secure account, onboarding, document, verification, payment, or API application process.",
+  ],
+  [
+    "We Respond",
+    "We respond through the contact method you selected, where appropriate.",
+  ],
 ] as const;
 
 const safetyItems = [
@@ -253,9 +265,9 @@ const faqs = [
   {
     question: "Can I browse properties without contacting Asancha?",
     answer:
-      "Yes. Public visitors can browse safe property previews through the marketplace. Some information and actions may require an account, completed profile, verification, payment, or approval.",
+      "Yes. Public visitors can find and browse safe property opportunity previews. Some information and actions may require an account, completed profile, verification, payment, or approval.",
     href: "/marketplace",
-    action: "Browse marketplace",
+    action: "Find Properties",
   },
   {
     question: "Do I need an account before making an enquiry?",
@@ -309,7 +321,10 @@ export default function ContactPage() {
           description="Whether you are looking for a property opportunity, submitting a property, representing a client, sourcing investment-focused deals, offering a professional service, or exploring an API partnership, the Asancha team is here to help."
           eyebrow="Contact Asancha"
           primaryAction={{ label: "Send Your Enquiry", href: "#contact-form" }}
-          secondaryAction={{ label: "Create an Account", href: "/auth/sign-up" }}
+          secondaryAction={{
+            label: "Create an Account",
+            href: "/auth/sign-up",
+          }}
           secondaryDescription="For questions about an existing account, document review, verification, payment, reservation, or application, include the relevant public reference where available. Do not submit passwords, API keys, bank login details, full card details, or other account secrets through the contact form."
           title="Let's Talk About Your Property Goals"
         />
@@ -433,9 +448,9 @@ export default function ContactPage() {
                 Tell Us What You Need
               </h2>
               <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Complete the form and provide enough information for the
-                Asancha team to understand your enquiry. Fields marked as
-                required must be completed before the message can be submitted.
+                Complete the form and provide enough information for the Asancha
+                team to understand your enquiry. Fields marked as required must
+                be completed before the message can be submitted.
               </p>
             </div>
             <Reveal className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
@@ -610,10 +625,7 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="contact-final-heading"
-          className="bg-primary"
-        >
+        <section aria-labelledby="contact-final-heading" className="bg-primary">
           <Reveal className="asancha-page-container py-16 text-primary-foreground">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
               <div>

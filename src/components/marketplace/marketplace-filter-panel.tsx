@@ -23,6 +23,7 @@ import type {
   MarketplaceFilterConfiguration,
   MarketplaceFilters,
 } from "@/src/features/marketplace/types/marketplace.types";
+import { useEffect, useRef } from "react";
 
 import styles from "./marketplace-browser.module.css";
 
@@ -34,7 +35,6 @@ interface MarketplaceFilterPanelProps {
   onChange: (filters: Partial<MarketplaceFilters>) => void;
   onClose: () => void;
   onReset: () => void;
-  onSearchSubmit: () => void;
 }
 
 interface MultiSelectOption {
@@ -116,11 +116,11 @@ export function MarketplaceFilterPanel({
   onChange,
   onClose,
   onReset,
-  onSearchSubmit,
 }: MarketplaceFilterPanelProps) {
-  const locationOptions = filterConfiguration?.locations ?? [];
-
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const propertyTypeOptions = filterConfiguration?.propertyTypes ?? [];
+
+  const tenureTypeOptions = filterConfiguration?.tenureTypes ?? [];
 
   const listingTypeOptions = filterConfiguration?.listingTypes ?? [];
 
@@ -130,11 +130,17 @@ export function MarketplaceFilterPanel({
 
   const occupancyOptions = filterConfiguration?.occupancyStatuses ?? [];
 
+  useEffect(() => {
+    if (isOpen) {
+      closeButtonRef.current?.focus();
+    }
+  }, [isOpen]);
+
   return (
     <>
       {isOpen ? (
         <button
-          aria-label="Close marketplace filters"
+          aria-label="Close property filters"
           className={styles.filterBackdrop}
           onClick={onClose}
           type="button"
@@ -142,21 +148,33 @@ export function MarketplaceFilterPanel({
       ) : null}
 
       <aside
-        aria-label="Marketplace filters"
+        aria-hidden={!isOpen}
+        aria-labelledby="marketplace-filter-title"
+        aria-modal="true"
         className={`${styles.filterPanel} ${
           isOpen ? styles.filterPanelOpen : ""
         }`}
+        inert={!isOpen}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            onClose();
+          }
+        }}
+        role="dialog"
       >
         <div className={styles.filterHeader}>
           <div>
-            <p className={styles.filterEyebrow}>Refine results</p>
+            <p className={styles.filterEyebrow}>Refine property results</p>
 
-            <h2 className={styles.filterTitle}>Filters</h2>
+            <h2 className={styles.filterTitle} id="marketplace-filter-title">
+              More Filters
+            </h2>
           </div>
 
           <button
             className={styles.mobileCloseButton}
             onClick={onClose}
+            ref={closeButtonRef}
             type="button"
           >
             Close
@@ -164,46 +182,6 @@ export function MarketplaceFilterPanel({
         </div>
 
         <div className={styles.filterBody}>
-          <div className={styles.filterControl}>
-            <label
-              className={styles.filterLabel}
-              htmlFor="marketplace-filter-search"
-            >
-              Search
-            </label>
-
-            <div className={styles.searchField}>
-              <input
-                className={styles.input}
-                id="marketplace-filter-search"
-                onChange={(event) =>
-                  onChange({
-                    search: event.target.value,
-                  })
-                }
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    onSearchSubmit();
-                  }
-                }}
-                placeholder="Town, city or keyword"
-                type="search"
-                value={filters.search}
-              />
-            </div>
-          </div>
-
-          <CheckboxGroup
-            legend="Location"
-            onChange={(locations) =>
-              onChange({
-                locations,
-              })
-            }
-            options={locationOptions}
-            values={filters.locations}
-          />
-
           <CheckboxGroup
             legend="Property type"
             onChange={(propertyTypes) =>
@@ -213,6 +191,17 @@ export function MarketplaceFilterPanel({
             }
             options={propertyTypeOptions}
             values={filters.propertyTypes}
+          />
+
+          <CheckboxGroup
+            legend="Tenure"
+            onChange={(tenureTypes) =>
+              onChange({
+                tenureTypes,
+              })
+            }
+            options={tenureTypeOptions}
+            values={filters.tenureTypes}
           />
 
           <CheckboxGroup
@@ -341,6 +330,56 @@ export function MarketplaceFilterPanel({
             </div>
           </div>
 
+          <div className={styles.filterFieldset}>
+            <h3 className={styles.filterLegend}>Bathrooms</h3>
+
+            <div className={styles.rangeGrid}>
+              <div>
+                <label
+                  className={styles.filterLabel}
+                  htmlFor="marketplace-minimum-bathrooms"
+                >
+                  Minimum
+                </label>
+
+                <input
+                  className={styles.input}
+                  id="marketplace-minimum-bathrooms"
+                  min={0}
+                  onChange={(event) =>
+                    onChange({
+                      minimumBathrooms: toOptionalNumber(event.target.value),
+                    })
+                  }
+                  type="number"
+                  value={filters.minimumBathrooms ?? ""}
+                />
+              </div>
+
+              <div>
+                <label
+                  className={styles.filterLabel}
+                  htmlFor="marketplace-maximum-bathrooms"
+                >
+                  Maximum
+                </label>
+
+                <input
+                  className={styles.input}
+                  id="marketplace-maximum-bathrooms"
+                  min={0}
+                  onChange={(event) =>
+                    onChange({
+                      maximumBathrooms: toOptionalNumber(event.target.value),
+                    })
+                  }
+                  type="number"
+                  value={filters.maximumBathrooms ?? ""}
+                />
+              </div>
+            </div>
+          </div>
+
           <CheckboxGroup
             legend="Investment strategy"
             onChange={(strategies) =>
@@ -424,6 +463,33 @@ export function MarketplaceFilterPanel({
                   <span aria-hidden="true">%</span>
                 </div>
               </div>
+
+              <div>
+                <label
+                  className={styles.filterLabel}
+                  htmlFor="marketplace-minimum-rent"
+                >
+                  Minimum estimated monthly rent
+                </label>
+
+                <div className={styles.prefixField}>
+                  <span aria-hidden="true">£</span>
+                  <input
+                    className={styles.input}
+                    id="marketplace-minimum-rent"
+                    min={0}
+                    onChange={(event) =>
+                      onChange({
+                        minimumEstimatedMonthlyRent: toOptionalNumber(
+                          event.target.value,
+                        ),
+                      })
+                    }
+                    type="number"
+                    value={filters.minimumEstimatedMonthlyRent ?? ""}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -434,7 +500,7 @@ export function MarketplaceFilterPanel({
             onClick={onReset}
             type="button"
           >
-            Reset filters
+            Clear filters
           </button>
 
           <button
@@ -442,7 +508,7 @@ export function MarketplaceFilterPanel({
             onClick={onApply}
             type="button"
           >
-            Show results
+            Apply filters
           </button>
         </div>
       </aside>

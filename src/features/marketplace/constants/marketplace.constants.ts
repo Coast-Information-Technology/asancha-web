@@ -29,6 +29,7 @@ import type {
   MarketplaceOccupancyStatus,
   MarketplacePropertyType,
   MarketplaceSort,
+  MarketplaceTenureType,
   MarketplaceViewMode,
 } from "../types/marketplace.types";
 
@@ -143,6 +144,32 @@ export const MARKETPLACE_PROPERTY_TYPE_OPTIONS = [
   },
 ] as const satisfies ReadonlyArray<{
   value: MarketplacePropertyType;
+  label: string;
+}>;
+
+export const MARKETPLACE_TENURE_OPTIONS = [
+  {
+    value: "freehold",
+    label: "Freehold",
+  },
+  {
+    value: "leasehold",
+    label: "Leasehold",
+  },
+  {
+    value: "share_of_freehold",
+    label: "Share of freehold",
+  },
+  {
+    value: "commonhold",
+    label: "Commonhold",
+  },
+  {
+    value: "other",
+    label: "Other",
+  },
+] as const satisfies ReadonlyArray<{
+  value: MarketplaceTenureType;
   label: string;
 }>;
 
@@ -270,6 +297,7 @@ export const DEFAULT_MARKETPLACE_FILTERS: MarketplaceFilters = {
   search: "",
   locations: [],
   propertyTypes: [],
+  tenureTypes: [],
   listingTypes: [],
   listingCategories: [],
   strategies: [],
@@ -287,6 +315,7 @@ export const DEFAULT_MARKETPLACE_FILTERS: MarketplaceFilters = {
   minimumBmvDiscountPercent: null,
   minimumGrossYieldPercent: null,
   minimumRoiPercent: null,
+  minimumEstimatedMonthlyRent: null,
 
   listedFrom: null,
   listedTo: null,
@@ -305,7 +334,7 @@ export const MARKETPLACE_SAFE_MESSAGES = {
   filtersLoadError: "We could not load the available marketplace filters.",
 
   empty:
-    "No matching properties found. Try adjusting your filters or widening your search area.",
+    "Try widening your location, budget or investment criteria to see more property opportunities.",
 
   signInToSave: "Create an account or sign in to save this property.",
 

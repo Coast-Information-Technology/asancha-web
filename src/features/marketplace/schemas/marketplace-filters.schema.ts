@@ -30,6 +30,7 @@ import {
   MARKETPLACE_PROPERTY_TYPE_OPTIONS,
   MARKETPLACE_SORT_OPTIONS,
   MARKETPLACE_STRATEGY_OPTIONS,
+  MARKETPLACE_TENURE_OPTIONS,
 } from "../constants/marketplace.constants";
 
 const propertyTypeValues = MARKETPLACE_PROPERTY_TYPE_OPTIONS.map(
@@ -37,6 +38,10 @@ const propertyTypeValues = MARKETPLACE_PROPERTY_TYPE_OPTIONS.map(
 );
 
 const listingTypeValues = MARKETPLACE_LISTING_TYPE_OPTIONS.map(
+  (option) => option.value,
+);
+
+const tenureTypeValues = MARKETPLACE_TENURE_OPTIONS.map(
   (option) => option.value,
 );
 
@@ -71,6 +76,13 @@ const listingTypeSchema = createEnumSchema(
   listingTypeValues as [
     (typeof listingTypeValues)[number],
     ...(typeof listingTypeValues)[number][],
+  ],
+);
+
+const tenureTypeSchema = createEnumSchema(
+  tenureTypeValues as [
+    (typeof tenureTypeValues)[number],
+    ...(typeof tenureTypeValues)[number][],
   ],
 );
 
@@ -167,6 +179,8 @@ export const marketplaceFiltersSchema = z
 
     propertyTypes: z.array(propertyTypeSchema).default([]),
 
+    tenureTypes: z.array(tenureTypeSchema).default([]),
+
     listingTypes: z.array(listingTypeSchema).default([]),
 
     listingCategories: z.array(listingCategorySchema).default([]),
@@ -205,6 +219,7 @@ export const marketplaceFiltersSchema = z
     minimumBmvDiscountPercent: optionalPercentageSchema,
     minimumGrossYieldPercent: optionalPercentageSchema,
     minimumRoiPercent: optionalPercentageSchema,
+    minimumEstimatedMonthlyRent: optionalNonNegativeNumberSchema,
 
     listedFrom: optionalDateSchema,
     listedTo: optionalDateSchema,

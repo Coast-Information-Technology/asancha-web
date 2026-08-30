@@ -128,9 +128,9 @@ export function PublicFooter() {
             </h2>
 
             <p className="mt-3 max-w-md text-sm leading-6 text-gray-300">
-              A UK-focused public property platform for investors, property
-              owners, property agents, property sourcers, service providers, and
-              approved API partners.
+              A UK property sourcing and investment platform connecting
+              investors with property opportunities from owners, agents and
+              sourcers.
             </p>
 
             <nav aria-label="Asancha social media" className="mt-6">

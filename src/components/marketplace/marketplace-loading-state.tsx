@@ -23,11 +23,11 @@ export function MarketplaceLoadingState({
 }: MarketplaceLoadingStateProps) {
   return (
     <div
-      aria-label="Loading marketplace opportunities"
+      aria-label="Loading property opportunities"
       className={viewMode === "grid" ? styles.listingGrid : styles.listingList}
       role="status"
     >
-      <span className="sr-only">Loading marketplace opportunities</span>
+      <span className="sr-only">Loading property opportunities</span>
 
       {Array.from({ length: 6 }, (_, index) => (
         <div

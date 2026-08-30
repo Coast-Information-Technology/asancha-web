@@ -9,8 +9,8 @@
  * Main responsibilities:
  * - Define marketplace metadata and canonical URL
  * - Render CollectionPage and BreadcrumbList JSON-LD
- * - Explain public marketplace visibility and restricted actions
- * - Set clear expectations around public previews and protected deal actions
+ * - Prioritise property search, filters, and opportunity results
+ * - Progressively disclose protected-access guidance
  * - Mount the interactive marketplace browser
  *
  * Accessibility note:
@@ -73,14 +73,14 @@ function parseStrategy(
 }
 
 export const metadata: Metadata = {
-  title: "Property Marketplace | Asancha",
+  title: "Find Properties | Asancha",
   description:
     "Browse public property and investment opportunity previews across the UK on Asancha.",
   alternates: {
     canonical: "/marketplace",
   },
   openGraph: {
-    title: "Property Marketplace | Asancha",
+    title: "Find Properties | Asancha",
     description:
       "Discover public property and investment opportunity previews across the UK with Asancha.",
     url: "/marketplace",
@@ -110,7 +110,7 @@ export default async function MarketplacePage({
         path: "/",
       },
       {
-        name: "Marketplace",
+        name: "Find Properties",
         path: "/marketplace",
       },
     ]),

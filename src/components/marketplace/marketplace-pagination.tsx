@@ -42,7 +42,7 @@ export function MarketplacePagination({
   const pageNumbers = createPageNumbers(pagination.page, pagination.totalPages);
 
   return (
-    <nav aria-label="Marketplace pages" className={styles.pagination}>
+    <nav aria-label="Property result pages" className={styles.pagination}>
       <button
         className={styles.paginationButton}
         disabled={!pagination.hasPreviousPage}

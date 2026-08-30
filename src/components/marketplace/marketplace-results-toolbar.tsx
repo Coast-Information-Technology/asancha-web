@@ -10,7 +10,10 @@
  * and grid/list view controls.
  */
 
-import { MARKETPLACE_SORT_OPTIONS } from "@/src/features/marketplace/constants/marketplace.constants";
+import {
+  MARKETPLACE_SORT_OPTIONS,
+  MARKETPLACE_STRATEGY_OPTIONS,
+} from "@/src/features/marketplace/constants/marketplace.constants";
 import type {
   MarketplaceFilters,
   MarketplacePagination as MarketplacePaginationType,
@@ -23,10 +26,8 @@ interface MarketplaceResultsToolbarProps {
   filters: MarketplaceFilters;
   pagination: MarketplacePaginationType | null;
   viewMode: MarketplaceViewMode;
-  isRefreshing: boolean;
   onFilterOpen: () => void;
-  onRefresh: () => void;
-  onSearchChange: (search: string) => void;
+  onFiltersChange: (filters: Partial<MarketplaceFilters>) => void;
   onSearchSubmit: () => void;
   onSortChange: (sort: MarketplaceFilters["sort"]) => void;
   onViewModeChange: (viewMode: MarketplaceViewMode) => void;
@@ -39,10 +40,8 @@ export function MarketplaceResultsToolbar({
   filters,
   pagination,
   viewMode,
-  isRefreshing,
   onFilterOpen,
-  onRefresh,
-  onSearchChange,
+  onFiltersChange,
   onSearchSubmit,
   onSortChange,
   onViewModeChange,
@@ -52,6 +51,7 @@ export function MarketplaceResultsToolbar({
   return (
     <div className={styles.toolbar}>
       <form
+        aria-label="Search property opportunities"
         className={styles.toolbarSearch}
         onSubmit={(event) => {
           event.preventDefault();
@@ -59,42 +59,88 @@ export function MarketplaceResultsToolbar({
         }}
         role="search"
       >
-        <label className="sr-only" htmlFor="marketplace-toolbar-search">
-          Search marketplace
+        <label className={styles.quickSearchField}>
+          <span>Location / Postcode</span>
+          <input
+            className={styles.toolbarSearchInput}
+            id="marketplace-location-search"
+            onChange={(event) =>
+              onFiltersChange({ search: event.target.value })
+            }
+            placeholder="Town, city or postcode"
+            type="search"
+            value={filters.search}
+          />
         </label>
 
-        <input
-          className={styles.toolbarSearchInput}
-          id="marketplace-toolbar-search"
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search location or keyword"
-          type="search"
-          value={filters.search}
-        />
+        <label className={styles.quickSearchField}>
+          <span>Budget</span>
+          <input
+            className={styles.input}
+            inputMode="numeric"
+            min={0}
+            onChange={(event) =>
+              onFiltersChange({
+                maximumPrice: event.target.value
+                  ? Number(event.target.value)
+                  : null,
+              })
+            }
+            placeholder="Maximum price"
+            type="number"
+            value={filters.maximumPrice ?? ""}
+          />
+        </label>
+
+        <label className={styles.quickSearchField}>
+          <span>Investment Strategy</span>
+          <select
+            className={styles.select}
+            onChange={(event) =>
+              onFiltersChange({
+                strategies: event.target.value
+                  ? [
+                      event.target
+                        .value as MarketplaceFilters["strategies"][number],
+                    ]
+                  : [],
+              })
+            }
+            value={filters.strategies[0] ?? ""}
+          >
+            <option value="">Any strategy</option>
+            {MARKETPLACE_STRATEGY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <button className={styles.toolbarSearchButton} type="submit">
-          Search
+          Search Properties
         </button>
       </form>
 
       <div className={styles.toolbarSummary}>
         <p aria-live="polite" className={styles.resultCount}>
           {totalItems === 1
-            ? "1 opportunity"
-            : `${totalItems.toLocaleString("en-GB")} opportunities`}
+            ? "1 available opportunity"
+            : `${totalItems.toLocaleString("en-GB")} available opportunities`}
         </p>
 
         <div className={styles.toolbarControls}>
           <button
             className={styles.mobileFilterButton}
+            id="marketplace-more-filters"
             onClick={onFilterOpen}
             type="button"
           >
-            Filters
+            More Filters
           </button>
 
           <label className={styles.sortControl}>
-            <span className="sr-only">Sort marketplace results</span>
+            <span className="sr-only">Sort property results</span>
 
             <select
               className={styles.select}
@@ -138,15 +184,6 @@ export function MarketplaceResultsToolbar({
               List
             </button>
           </div>
-
-          <button
-            className={styles.refreshButton}
-            disabled={isRefreshing}
-            onClick={onRefresh}
-            type="button"
-          >
-            {isRefreshing ? "Refreshing…" : "Refresh"}
-          </button>
         </div>
       </div>
     </div>

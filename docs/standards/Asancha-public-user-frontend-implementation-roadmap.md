@@ -1,6 +1,6 @@
 # Asancha Public/User Frontend Implementation Roadmap
 
-**Version:** v1.0 — Developer Implementation Draft  
+**Version:** v1.0 - Developer Implementation Draft  
 **Frontend App:** `asancha-web`  
 **Domain:** `https://asancha.co.uk`  
 **Framework:** Next.js App Router  
@@ -125,7 +125,7 @@ Implement the public/user frontend in this order:
 
 ---
 
-## 5. Implementation Block 0 — Repository Preparation and Developer Documentation
+## 5. Implementation Block 0 - Repository Preparation and Developer Documentation
 
 ### Goal
 
@@ -175,7 +175,7 @@ asancha-web/
 
 ---
 
-## 6. Implementation Block 1 — Frontend Foundation and Configuration
+## 6. Implementation Block 1 - Frontend Foundation and Configuration
 
 ### Goal
 
@@ -256,7 +256,7 @@ The frontend must not expose JWT secrets, database URLs, Stripe secret keys, web
 
 ---
 
-## 7. Implementation Block 2 — Shared UI Primitives and Styling Foundation
+## 7. Implementation Block 2 - Shared UI Primitives and Styling Foundation
 
 ### Goal
 
@@ -338,7 +338,7 @@ animation-heavy components
 
 ---
 
-## 8. Implementation Block 3 — API Client, Auth Session, and Route Guards
+## 8. Implementation Block 3 - API Client, Auth Session, and Route Guards
 
 ### Goal
 
@@ -416,7 +416,7 @@ available business profiles
 
 ---
 
-## 9. Implementation Block 4 — Public Layout, Header, Footer, and Public Pages
+## 9. Implementation Block 4 - Public Layout, Header, Footer, and Public Pages
 
 ### Goal
 
@@ -517,7 +517,7 @@ These may appear in the footer or relevant page sections, but not as primary hea
 
 ---
 
-## 10. Implementation Block 5 — Authentication Screens and Signup Flow
+## 10. Implementation Block 5 - Authentication Screens and Signup Flow
 
 ### Goal
 
@@ -632,7 +632,7 @@ src/features/auth/
 
 ---
 
-## 11. Implementation Block 6 — Email Verification, Password Reset, Suspended, and Unauthorized Screens
+## 11. Implementation Block 6 - Email Verification, Password Reset, Suspended, and Unauthorized Screens
 
 ### Goal
 
@@ -673,7 +673,7 @@ suspended -> /auth/suspended or /account/status
 
 ---
 
-## 12. Implementation Block 7 — Onboarding Shell and General Profile Setup
+## 12. Implementation Block 7 - Onboarding Shell and General Profile Setup
 
 ### Goal
 
@@ -728,7 +728,7 @@ dateOfBirth where required
 
 ---
 
-## 13. Implementation Block 8 — Role-Specific Onboarding Flows
+## 13. Implementation Block 8 - Role-Specific Onboarding Flows
 
 ### Goal
 
@@ -785,7 +785,7 @@ Your setup has been submitted. You can access your dashboard while verification 
 
 ---
 
-## 14. Implementation Block 9 — Dashboard Shell and Dashboard State
+## 14. Implementation Block 9 - Dashboard Shell and Dashboard State
 
 ### Goal
 
@@ -869,7 +869,7 @@ Menu Button
 
 ---
 
-## 15. Implementation Block 10 — Business Profile Switcher Modal and Add Business Profile Drawer
+## 15. Implementation Block 10 - Business Profile Switcher Modal and Add Business Profile Drawer
 
 ### Goal
 
@@ -934,7 +934,7 @@ API Partner where permitted
 
 ---
 
-## 16. Implementation Block 11 — Account Screens
+## 16. Implementation Block 11 - Account Screens
 
 ### Goal
 
@@ -995,7 +995,7 @@ Security notifications
 
 ---
 
-## 17. Implementation Block 12 — Marketplace and Public Listing Detail
+## 17. Implementation Block 12 - Marketplace and Public Listing Detail
 
 ### Goal
 
@@ -1058,7 +1058,7 @@ private payment data
 
 ---
 
-## 18. Implementation Block 13 — Role Dashboard Overview Screens
+## 18. Implementation Block 13 - Role Dashboard Overview Screens
 
 ### Goal
 
@@ -1101,7 +1101,7 @@ quick actions
 
 ---
 
-## 19. Implementation Block 14 — Role-Specific Workspace Modules
+## 19. Implementation Block 14 - Role-Specific Workspace Modules
 
 ### Goal
 
@@ -1189,7 +1189,7 @@ Payments
 
 ---
 
-## 20. Implementation Block 15 — Documents and Verification
+## 20. Implementation Block 15 - Documents and Verification
 
 ### Goal
 
@@ -1239,7 +1239,7 @@ MongoDB ObjectIds
 
 ---
 
-## 21. Implementation Block 16 — Payments and Payment References
+## 21. Implementation Block 16 - Payments and Payment References
 
 ### Goal
 
@@ -1275,7 +1275,7 @@ Your payment proof has been submitted for review. This does not mean the payment
 
 ---
 
-## 22. Implementation Block 17 — Reservations
+## 22. Implementation Block 17 - Reservations
 
 ### Goal
 
@@ -1321,7 +1321,7 @@ account suspended
 
 ---
 
-## 23. Implementation Block 18 — Bookings
+## 23. Implementation Block 18 - Bookings
 
 ### Goal
 
@@ -1359,7 +1359,7 @@ respond/reschedule/cancel actions where allowed
 
 ---
 
-## 24. Implementation Block 19 — Conversations
+## 24. Implementation Block 19 - Conversations
 
 ### Goal
 
@@ -1405,7 +1405,7 @@ restricted documents
 
 ---
 
-## 25. Implementation Block 20 — Notifications and Preferences
+## 25. Implementation Block 20 - Notifications and Preferences
 
 ### Goal
 
@@ -1447,7 +1447,7 @@ preferences
 
 ---
 
-## 26. Implementation Block 21 — AI Recommendations and Feedback
+## 26. Implementation Block 21 - AI Recommendations and Feedback
 
 ### Goal
 
@@ -1493,7 +1493,7 @@ AI recommendations are for guidance only. They do not guarantee rental income, c
 
 ---
 
-## 27. Implementation Block 22 — API Partner Application and Dashboard
+## 27. Implementation Block 22 - API Partner Application and Dashboard
 
 ### Goal
 
@@ -1549,7 +1549,7 @@ super admin operations
 
 ---
 
-## 28. Implementation Block 23 — Error, Empty, Locked, Loading, and Accessibility Hardening
+## 28. Implementation Block 23 - Error, Empty, Locked, Loading, and Accessibility Hardening
 
 ### Goal
 
@@ -1595,7 +1595,7 @@ unsaved changes warning where relevant
 
 ---
 
-## 29. Implementation Block 24 — Testing and QA
+## 29. Implementation Block 24 - Testing and QA
 
 ### Goal
 
@@ -1658,7 +1658,7 @@ npm run test:e2e
 
 ---
 
-## 30. Implementation Block 25 — Vercel Deployment Preparation
+## 30. Implementation Block 25 - Vercel Deployment Preparation
 
 ### Goal
 

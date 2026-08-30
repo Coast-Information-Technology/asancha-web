@@ -7,6 +7,7 @@ import type {
   MarketplaceListingCard,
   MarketplaceListingCollection,
   MarketplaceListingDetail,
+  MarketplaceTenureType,
 } from "../types/marketplace.types";
 
 const now = "2026-07-24T09:00:00.000Z";
@@ -29,6 +30,19 @@ const listingStrategies = new Map<string, MarketplaceInvestmentStrategy[]>([
   ["pub-listing-015", ["buy_to_let"]],
   ["pub-listing-016", ["buy_to_let"]],
 ]);
+
+function getListingTenureType(
+  listing: MarketplaceListingCard,
+): MarketplaceTenureType {
+  if (
+    listing.propertyType === "apartment" ||
+    listing.propertyType === "block_of_flats"
+  ) {
+    return "leasehold";
+  }
+
+  return "freehold";
+}
 
 export const DUMMY_MARKETPLACE_LISTINGS: MarketplaceListingCard[] = [
   {
@@ -956,7 +970,10 @@ function getSortedListings(
       case "oldest":
         return Date.parse(a.publishedAt) - Date.parse(b.publishedAt);
       case "price_low_to_high":
-        return (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER);
+        return (
+          (a.price ?? Number.MAX_SAFE_INTEGER) -
+          (b.price ?? Number.MAX_SAFE_INTEGER)
+        );
       case "price_high_to_low":
         return (b.price ?? 0) - (a.price ?? 0);
       case "highest_yield":
@@ -998,6 +1015,10 @@ export function getDummyMarketplaceListings(
           )
         : true) &&
       includesEveryOrEmpty(filters.propertyTypes ?? [], listing.propertyType) &&
+      includesEveryOrEmpty(
+        filters.tenureTypes ?? [],
+        getListingTenureType(listing),
+      ) &&
       includesEveryOrEmpty(filters.listingTypes ?? [], listing.listingType) &&
       includesEveryOrEmpty(
         filters.listingCategories ?? [],
@@ -1039,7 +1060,10 @@ export function getDummyMarketplaceListings(
           filters.minimumGrossYieldPercent) &&
       (filters.minimumRoiPercent == null ||
         (listing.investmentMetrics?.estimatedRoiPercent ?? 0) >=
-          filters.minimumRoiPercent)
+          filters.minimumRoiPercent) &&
+      (filters.minimumEstimatedMonthlyRent == null ||
+        (listing.investmentMetrics?.estimatedMonthlyRent ?? 0) >=
+          filters.minimumEstimatedMonthlyRent)
     );
   });
 
@@ -1048,7 +1072,12 @@ export function getDummyMarketplaceListings(
     filters.sort ?? "newest",
   );
   const startIndex = (page - 1) * pageSize;
-  const items = sortedListings.slice(startIndex, startIndex + pageSize);
+  const items = sortedListings
+    .slice(startIndex, startIndex + pageSize)
+    .map((listing) => ({
+      ...listing,
+      tenureType: getListingTenureType(listing),
+    }));
   const totalPages = Math.max(1, Math.ceil(sortedListings.length / pageSize));
 
   return {
@@ -1079,14 +1108,15 @@ function countBy<TValue extends string>(
 }
 
 export function getDummyMarketplaceFilterConfiguration(): MarketplaceFilterConfiguration {
-  const prices = DUMMY_MARKETPLACE_LISTINGS.map((listing) => listing.price).filter(
-    (value): value is number => value !== null,
-  );
+  const prices = DUMMY_MARKETPLACE_LISTINGS.map(
+    (listing) => listing.price,
+  ).filter((value): value is number => value !== null);
 
   return {
     locations: countBy(
       DUMMY_MARKETPLACE_LISTINGS.map(
-        (listing) => listing.location.townOrCity ?? listing.location.displayName,
+        (listing) =>
+          listing.location.townOrCity ?? listing.location.displayName,
       ),
     ).map((item) => ({
       value: item.value,
@@ -1096,18 +1126,21 @@ export function getDummyMarketplaceFilterConfiguration(): MarketplaceFilterConfi
     propertyTypes: countBy(
       DUMMY_MARKETPLACE_LISTINGS.map((listing) => listing.propertyType),
     ).map((item) => ({ ...item, label: item.value.replaceAll("_", " ") })),
+    tenureTypes: countBy(
+      DUMMY_MARKETPLACE_LISTINGS.map(getListingTenureType),
+    ).map((item) => ({ ...item, label: item.value.replaceAll("_", " ") })),
     listingTypes: countBy(
       DUMMY_MARKETPLACE_LISTINGS.map((listing) => listing.listingType),
     ).map((item) => ({ ...item, label: item.value.replaceAll("_", " ") })),
     listingCategories: countBy(
       DUMMY_MARKETPLACE_LISTINGS.map((listing) => listing.listingCategory),
     ).map((item) => ({ ...item, label: item.value.replaceAll("_", " ") })),
-    strategies: countBy(
-      Array.from(listingStrategies.values()).flat(),
-    ).map((item) => ({
-      ...item,
-      label: item.value.replaceAll("_", " "),
-    })),
+    strategies: countBy(Array.from(listingStrategies.values()).flat()).map(
+      (item) => ({
+        ...item,
+        label: item.value.replaceAll("_", " "),
+      }),
+    ),
     occupancyStatuses: countBy(
       DUMMY_MARKETPLACE_LISTINGS.map(
         (listing) => listing.occupancyStatus ?? "unknown",
@@ -1158,7 +1191,7 @@ export function getDummyMarketplaceListingDetail(
       listing.shortDescription ??
       "Public-safe property opportunity preview for marketplace discovery.",
     receptionRooms: listing.bedrooms ? Math.max(1, listing.bedrooms - 1) : null,
-    tenureType: "freehold",
+    tenureType: getListingTenureType(listing),
     publicMedia: listing.coverImage ? [listing.coverImage] : [],
     features: listing.badges,
     strategies: listingStrategies.get(listing.listingPublicId) ?? [],

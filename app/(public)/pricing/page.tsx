@@ -52,9 +52,9 @@ export const metadata: Metadata = {
 
 const pricingAreas = [
   {
-    title: "Marketplace discovery",
+    title: "Property discovery",
     description:
-      "Public marketplace previews can be browsed safely. Access to restricted deal details or protected actions may depend on account state, verification, payment, or approval.",
+      "Public property previews can be browsed safely. Access to restricted deal details or protected actions may depend on account state, verification, payment, or approval.",
   },
   {
     title: "Role-specific workflows",
@@ -206,10 +206,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="payment-rules-heading"
-          className="bg-card"
-        >
+        <section aria-labelledby="payment-rules-heading" className="bg-card">
           <div className="asancha-page-container py-16">
             <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
               <div>
@@ -232,9 +229,9 @@ export default function PricingPage() {
                 </p>
 
                 <p className="mt-4 text-base leading-7 text-muted-foreground">
-                  Users should rely on confirmed platform status, not screenshots
-                  alone, frontend assumptions, or manually interpreted payment
-                  messages.
+                  Users should rely on confirmed platform status, not
+                  screenshots alone, frontend assumptions, or manually
+                  interpreted payment messages.
                 </p>
               </div>
 
@@ -280,8 +277,7 @@ export default function PricingPage() {
                 <p className="mt-4 text-base leading-7 text-accent-foreground">
                   Payment provider payloads, private customer records, billing
                   configuration, API secrets, webhook secrets, and internal
-                  payment notes must remain protected by approved
-                  workflows.
+                  payment notes must remain protected by approved workflows.
                 </p>
               </div>
             </div>
@@ -318,7 +314,7 @@ export default function PricingPage() {
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
                 href="/marketplace"
               >
-                Browse Marketplace
+                Find Properties
               </Link>
             </div>
           </div>
