@@ -24,6 +24,7 @@ import type {
 import styles from "./marketplace-browser.module.css";
 
 interface MarketplaceListingCardProps {
+  headingLevel?: 2 | 3;
   listing: MarketplaceListingCardType;
   viewMode: MarketplaceViewMode;
 }
@@ -58,10 +59,12 @@ function formatStatus(value: string): string {
  * Renders one public listing preview.
  */
 export function MarketplaceListingCard({
+  headingLevel = 2,
   listing,
   viewMode,
 }: MarketplaceListingCardProps) {
   const detailPath = MARKETPLACE_PAGE_ROUTES.listing(listing.slug);
+  const ListingHeading = headingLevel === 3 ? "h3" : "h2";
 
   const location =
     listing.location.displayName ||
@@ -116,9 +119,9 @@ export function MarketplaceListingCard({
               {formatStatus(listing.listingCategory)}
             </p>
 
-            <h2 className={styles.listingTitle}>
+            <ListingHeading className={styles.listingTitle}>
               <Link href={detailPath}>{listing.title}</Link>
-            </h2>
+            </ListingHeading>
           </div>
 
           <div className={styles.listingPriceGroup}>

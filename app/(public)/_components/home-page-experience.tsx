@@ -24,6 +24,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketplaceListingGrid } from "@/src/components/marketplace/marketplace-listing-grid";
 import { MARKETPLACE_STRATEGY_OPTIONS } from "@/src/features/marketplace/constants/marketplace.constants";
 import { DUMMY_MARKETPLACE_LISTINGS } from "@/src/features/marketplace/constants/marketplace-dummy-data";
 
@@ -137,12 +138,6 @@ const sectionReveal = {
     transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
   },
 } as const;
-
-function formatLabel(value: string): string {
-  return value
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
-}
 
 function PrimaryLink({
   children,
@@ -393,108 +388,12 @@ export function HomePageExperience() {
               View All Properties
             </SecondaryLink>
           </div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {featuredListings.map((listing) => (
-              <article
-                className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                key={listing.listingPublicId}
-              >
-                <div
-                  aria-label={listing.coverImage?.altText ?? listing.title}
-                  className="h-52 bg-cover bg-center"
-                  role="img"
-                  style={{
-                    backgroundImage: `url(${listing.coverImage?.url ?? "/auth-bg.avif"})`,
-                  }}
-                />
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        {listing.location.displayName}
-                      </p>
-                      <h3 className="mt-1 text-lg font-bold text-card-foreground">
-                        {listing.title}
-                      </h3>
-                    </div>
-                    <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-primary">
-                      {formatLabel(listing.calculatedStatus)}
-                    </span>
-                  </div>
-                  <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Asking price · Fact
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {listing.price === null
-                          ? "On application"
-                          : `£${listing.price.toLocaleString("en-GB")}`}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Property type
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {formatLabel(listing.propertyType)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Bedrooms
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {listing.bedrooms ?? "Not stated"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Gross yield · Calculation
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {listing.investmentMetrics?.grossYieldPercent ===
-                          null ||
-                        listing.investmentMetrics?.grossYieldPercent ===
-                          undefined
-                          ? "Not available"
-                          : `${listing.investmentMetrics.grossYieldPercent}%`}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Estimated rent · Estimate
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {listing.investmentMetrics?.estimatedMonthlyRent ===
-                          null ||
-                        listing.investmentMetrics?.estimatedMonthlyRent ===
-                          undefined
-                          ? "Not available"
-                          : `£${listing.investmentMetrics.estimatedMonthlyRent.toLocaleString("en-GB")} pcm`}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Refurbishment
-                      </dt>
-                      <dd className="mt-1 font-bold text-foreground">
-                        {listing.investmentMetrics?.refurbishmentEstimate
-                          ? "Indicated"
-                          : "Not indicated"}
-                      </dd>
-                    </div>
-                  </dl>
-                  <Link
-                    className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold !text-white hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    href={`/marketplace/${listing.slug}`}
-                  >
-                    View Property
-                    <ArrowRight aria-hidden="true" size={16} />
-                  </Link>
-                </div>
-              </article>
-            ))}
+          <div className="mt-10">
+            <MarketplaceListingGrid
+              headingLevel={3}
+              listings={featuredListings}
+              viewMode="grid"
+            />
           </div>
         </div>
       </AnimatedSection>

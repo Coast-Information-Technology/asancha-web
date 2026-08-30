@@ -16,6 +16,7 @@ import { MarketplaceListingCard } from "./marketplace-listing-card";
 import styles from "./marketplace-browser.module.css";
 
 interface MarketplaceListingGridProps {
+  headingLevel?: 2 | 3;
   listings: MarketplaceListingCardType[];
   viewMode: MarketplaceViewMode;
 }
@@ -24,6 +25,7 @@ interface MarketplaceListingGridProps {
  * Renders marketplace listing results.
  */
 export function MarketplaceListingGrid({
+  headingLevel,
   listings,
   viewMode,
 }: MarketplaceListingGridProps) {
@@ -33,6 +35,7 @@ export function MarketplaceListingGrid({
     >
       {listings.map((listing) => (
         <MarketplaceListingCard
+          headingLevel={headingLevel}
           key={listing.listingPublicId}
           listing={listing}
           viewMode={viewMode}
