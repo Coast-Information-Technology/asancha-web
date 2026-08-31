@@ -763,6 +763,7 @@ function createSolutionPageJsonLd(input: {
   serviceName: string;
   serviceDescription: string;
   serviceType: readonly string[];
+  primaryActionType?: "CreateAction" | "RegisterAction";
   primaryActionName: string;
   primaryActionPath: string;
   secondaryActionName: string;
@@ -806,7 +807,7 @@ function createSolutionPageJsonLd(input: {
         inLanguage: "en-GB",
         potentialAction: [
           {
-            "@type": "RegisterAction",
+            "@type": input.primaryActionType ?? "RegisterAction",
             name: input.primaryActionName,
             target: {
               "@type": "EntryPoint",
@@ -908,16 +909,16 @@ export function createInvestorSolutionsPageJsonLd(): JsonLdData {
 export function createPropertyOwnerSolutionsPageJsonLd(): JsonLdData {
   return createSolutionPageJsonLd({
     path: "/solutions/property-owners",
-    name: "Property Owner Solutions | Submit and Manage Property | Asancha",
-    headline: "Present Your Property Through a More Structured Process",
+    name: "List Your Property | Reach UK Buyers & Investors | Asancha",
+    headline: "List Your Property and Reach Relevant Buyers & Investors",
     description:
-      "Create an Asancha property-owner account to submit property, provide ownership documents, track review, manage listings, and present approved opportunities to relevant UK buyers.",
-    imagePath: "/images/og/asancha-property-owners-og.jpg",
+      "List your UK property with Asancha and present an approved opportunity to relevant investors and property professionals through a secure, controlled process.",
+    imagePath: "/images/og/asancha-homepage-og.jpg",
     audienceType:
       "UK property owners seeking to submit, present, and manage property opportunities",
     serviceName: "Property Submission and Listing Management",
     serviceDescription:
-      "A structured service for UK property owners to submit property information, provide ownership evidence, track review, manage publication, and present approved opportunities to relevant buyers.",
+      "A structured, secure service for UK property owners to list property, provide ownership or authority information, track review, manage publication, and reach relevant investors.",
     serviceType: [
       "Property submission",
       "Property listing management",
@@ -926,11 +927,12 @@ export function createPropertyOwnerSolutionsPageJsonLd(): JsonLdData {
       "Investor opportunity matching",
       "Property enquiry and reservation support",
     ],
-    primaryActionName: "Create a property owner account",
-    primaryActionPath: "/auth/sign-up",
-    secondaryActionName: "Submit a property",
-    secondaryActionPath: "/dashboard/properties/new",
-    breadcrumbName: "For Property Owners",
+    primaryActionType: "CreateAction",
+    primaryActionName: "List My Property",
+    primaryActionPath: "/dashboard/property-owner/properties/new",
+    secondaryActionName: "How It Works",
+    secondaryActionPath: "/solutions/property-owners#how-it-works",
+    breadcrumbName: "List Your Property",
   });
 }
 

@@ -274,13 +274,10 @@ export function HomePageExperience() {
               className="mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal text-primary-foreground sm:text-5xl lg:text-6xl"
               id="homepage-hero-heading"
             >
-              Source Smarter Property Opportunities, All in One Place
+              Source Smarter Property Opportunities - Including Off-Market & Below Market Value Deals
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/82 sm:text-xl">
-              Asancha connects investors with property opportunities from
-              owners, agents and sourcers - supported by intelligent insights
-              and trusted professionals to help evaluate and progress deals with
-              confidence.
+              Asancha connects investors with property opportunities from owners, agents and sourcers — including off-market and below market value opportunities - supported by investment insights to help evaluate and progress deals with confidence.
             </p>
             <nav
               aria-label="Homepage primary actions"
