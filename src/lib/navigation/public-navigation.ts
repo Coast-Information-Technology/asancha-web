@@ -9,7 +9,7 @@
  *
  * Main responsibilities:
  * - Keep public header navigation lean and safe
- * - Group role pages under Solutions
+ * - Group every public role page under Professionals
  * - Keep API Partner public entry separate from ordinary signup
  * - Provide reusable navigation item types for other navigation files
  *
@@ -79,6 +79,21 @@ export const PUBLIC_HEADER_NAVIGATION = [
     iconName: "Layers3",
     access: "public",
     children: [
+      {
+        label: "Property Investors",
+        href: "/solutions/investors",
+        description:
+          "Discover and evaluate opportunities against your investment goals.",
+        iconName: "ChartNoAxesCombined",
+        access: "public",
+      },
+      {
+        label: "Property Owners",
+        href: "/solutions/property-owners",
+        description: "List property and reach relevant buyers and investors.",
+        iconName: "House",
+        access: "public",
+      },
       {
         label: "Property Agents",
         href: "/solutions/property-agents",
