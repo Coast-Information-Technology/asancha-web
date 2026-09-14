@@ -4,8 +4,7 @@
  * Asancha How It Works Page
  *
  * Purpose:
- * Explains the public user journey across discovery, signup, onboarding, and
- * role-specific workflows.
+ * Explains how users discover, evaluate, and progress property opportunities.
  */
 
 import type { Metadata } from "next";
@@ -18,31 +17,19 @@ import { HowItWorksPageExperience } from "./_components/how-it-works-page-experi
 export const metadata: Metadata = {
   metadataBase: new URL("https://asancha.co.uk"),
   title: {
-    absolute: "How Asancha Works | Property Sourcing and AI Intelligence",
+    absolute: "How Asancha Works | Find and Progress Property Opportunities",
   },
   description:
-    "Learn how Asancha helps users create profiles, define property goals, discover opportunities, complete verification, access AI-powered insights, and progress through structured property workflows.",
+    "See how Asancha connects investors with property opportunities from owners, agents and sourcers, helping them discover, evaluate and progress suitable opportunities.",
   keywords: [
     "how Asancha works",
     "property sourcing process UK",
-    "AI property intelligence process",
-    "property investment platform process",
-    "property onboarding UK",
-    "property opportunity matching",
-    "property investor onboarding",
-    "property sourcing workflow",
-    "property verification platform",
-    "property document review",
-    "property reservation process",
-    "property deal platform",
-    "property marketplace process",
-    "AI property matching UK",
-    "property sourcing company UK",
-    "UK property intelligence platform",
-    "property submission process",
-    "property sourcer platform",
-    "property agent platform UK",
-    "API property platform",
+    "find property opportunities UK",
+    "evaluate property opportunities",
+    "property investment opportunities",
+    "property owners agents sourcers",
+    "UK property sourcing platform",
+    "list a property UK",
   ],
   applicationName: "Asancha",
   authors: [{ name: "Asancha", url: "https://asancha.co.uk" }],
@@ -57,29 +44,29 @@ export const metadata: Metadata = {
     locale: "en_GB",
     url: "https://asancha.co.uk/how-it-works",
     siteName: "Asancha",
-    title: "How Asancha Works | Property Sourcing and AI Intelligence",
+    title: "A Simpler Way to Source and Progress Property Opportunities",
     description:
-      "See how Asancha combines profile setup, property sourcing, personalised matching, verification, AI-powered insights, payments, bookings, and reservations in one structured platform.",
+      "Discover, evaluate and progress property opportunities from owners, agents and sourcers through Asancha.",
     images: [
       {
-        url: "/images/og/asancha-how-it-works-og.jpg",
-        secureUrl: "https://asancha.co.uk/images/og/asancha-how-it-works-og.jpg",
+        url: "/images/og/asancha-homepage-og.jpg",
+        secureUrl: "https://asancha.co.uk/images/og/asancha-homepage-og.jpg",
         width: 1200,
         height: 630,
-        alt: "How Asancha combines property sourcing, AI intelligence, verification and structured property workflows",
+        alt: "UK residential property opportunities available through Asancha",
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "How Asancha Works | Property Sourcing and AI Intelligence",
+    title: "A Simpler Way to Source and Progress Property Opportunities",
     description:
-      "Learn how Asancha helps users discover property opportunities, receive AI-powered insights, complete verification, and progress through structured property workflows.",
+      "Discover, evaluate and progress property opportunities from owners, agents and sourcers through Asancha.",
     images: [
       {
-        url: "/images/og/asancha-how-it-works-og.jpg",
-        alt: "How Asancha supports property discovery, AI intelligence, verification and property actions",
+        url: "/images/og/asancha-homepage-og.jpg",
+        alt: "UK residential property opportunities available through Asancha",
       },
     ],
   },

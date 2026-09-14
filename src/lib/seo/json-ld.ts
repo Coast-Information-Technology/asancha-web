@@ -602,11 +602,10 @@ export function createHowItWorksPageJsonLd(): JsonLdData {
         "@type": "WebPage",
         "@id": `${siteUrl}/how-it-works#webpage`,
         url: `${siteUrl}/how-it-works`,
-        name: "How Asancha Works | Property Sourcing and AI Intelligence",
-        headline:
-          "A Clearer Way to Discover and Progress Property Opportunities",
+        name: "How Asancha Works | Find and Progress Property Opportunities",
+        headline: "A Simpler Way to Source and Progress Property Opportunities",
         description:
-          "Learn how Asancha helps users create profiles, define property goals, discover opportunities, complete verification, access AI-powered insights, and progress through structured property workflows.",
+          "See how Asancha connects investors with property opportunities from owners, agents and sourcers, helping them discover, evaluate and progress suitable opportunities.",
         isPartOf: {
           "@id": `${siteUrl}/#website`,
         },
@@ -618,7 +617,7 @@ export function createHowItWorksPageJsonLd(): JsonLdData {
         },
         primaryImageOfPage: {
           "@type": "ImageObject",
-          url: `${siteUrl}/images/og/asancha-how-it-works-og.jpg`,
+          url: `${siteUrl}/images/og/asancha-homepage-og.jpg`,
           width: 1200,
           height: 630,
         },
@@ -628,19 +627,19 @@ export function createHowItWorksPageJsonLd(): JsonLdData {
         inLanguage: "en-GB",
         potentialAction: [
           {
-            "@type": "RegisterAction",
-            name: "Create an Asancha account",
-            target: {
-              "@type": "EntryPoint",
-              urlTemplate: `${siteUrl}/auth/sign-up`,
-            },
-          },
-          {
             "@type": "ViewAction",
-            name: "Explore property opportunities",
+            name: "Find properties",
             target: {
               "@type": "EntryPoint",
               urlTemplate: `${siteUrl}/marketplace`,
+            },
+          },
+          {
+            "@type": "CreateAction",
+            name: "List a property",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${siteUrl}/list-property`,
             },
           },
         ],
@@ -648,74 +647,39 @@ export function createHowItWorksPageJsonLd(): JsonLdData {
       {
         "@type": "HowTo",
         "@id": `${siteUrl}/how-it-works#process`,
-        name: "How to Get Started With Asancha",
+        name: "How Asancha Works",
         description:
-          "Create an account, complete your profile, define your property requirements, discover opportunities, complete required verification, and access eligible property actions.",
-        supply: [
-          {
-            "@type": "HowToSupply",
-            name: "A valid email address",
-          },
-          {
-            "@type": "HowToSupply",
-            name: "Role-specific profile information",
-          },
-          {
-            "@type": "HowToSupply",
-            name: "Required supporting documents where applicable",
-          },
-        ],
+          "Discover property opportunities, evaluate their information and investment estimates, then sign in when required to progress an eligible opportunity.",
         step: [
           {
             "@type": "HowToStep",
             position: 1,
-            name: "Choose your property role",
-            text: "Choose whether you are joining as an investor, property owner, property agent, property sourcer, or service provider.",
-            url: `${siteUrl}/auth/sign-up`,
-          },
-          {
-            "@type": "HowToStep",
-            position: 2,
-            name: "Create your account",
-            text: "Enter your account details and accept the required account-level policies.",
-            url: `${siteUrl}/auth/sign-up`,
-          },
-          {
-            "@type": "HowToStep",
-            position: 3,
-            name: "Verify your email",
-            text: "Confirm control of the email address used to create your account.",
-            url: `${siteUrl}/verify-email`,
-          },
-          {
-            "@type": "HowToStep",
-            position: 4,
-            name: "Complete your profile",
-            text: "Complete your general profile and the onboarding requirements for your selected property role.",
-            url: `${siteUrl}/onboarding`,
-          },
-          {
-            "@type": "HowToStep",
-            position: 5,
-            name: "Discover relevant opportunities",
-            text: "Browse available properties and receive opportunities relevant to your profile and preferences.",
+            name: "Discover",
+            text: "Browse property opportunities sourced from owners, agents and property sourcers.",
             url: `${siteUrl}/marketplace`,
           },
           {
             "@type": "HowToStep",
-            position: 6,
-            name: "Take the next approved action",
-            text: "Save properties, access eligible deal information, book meetings, communicate, make required payments, or begin an approved reservation.",
-            url: `${siteUrl}/dashboard`,
+            position: 2,
+            name: "Evaluate",
+            text: "Review property information, investment calculations and estimates, and understand how an opportunity fits your requirements.",
+            url: `${siteUrl}/marketplace`,
+          },
+          {
+            "@type": "HowToStep",
+            position: 3,
+            name: "Progress",
+            text: "Sign in when required to save opportunities, access eligible protected information and take the next available action.",
+            url: `${siteUrl}/auth/login`,
           },
         ],
       },
       {
         "@type": "Service",
         "@id": `${siteUrl}/#property-sourcing-service`,
-        name: "AI-Powered Property Intelligence and Property Sourcing",
+        name: "Property Sourcing and Investment Opportunity Platform",
         description:
-          "Structured UK property sourcing supported by property intelligence, personalised opportunity matching, verification workflows, and AI-assisted insights.",
+          "A UK property sourcing and investment platform connecting investors with property opportunities from owners, agents and sourcers.",
         provider: {
           "@id": `${siteUrl}/#organization`,
         },
@@ -725,10 +689,9 @@ export function createHowItWorksPageJsonLd(): JsonLdData {
         },
         serviceType: [
           "Property sourcing",
-          "Property intelligence",
-          "Property opportunity matching",
           "Property opportunity analysis",
           "Property submission and review",
+          "Property opportunity progression",
         ],
       },
       {

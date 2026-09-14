@@ -271,6 +271,9 @@ export interface MarketplaceListingDetail {
   strategies: MarketplaceInvestmentStrategy[];
   badges: string[];
 
+  investorMatch?: MarketplaceInvestorMatchSummary | null;
+  verificationStatus?: MarketplaceVerificationStatus | null;
+
   isFeatured: boolean;
   isSaved: boolean;
   canSave: boolean;

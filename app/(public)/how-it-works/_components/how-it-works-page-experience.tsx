@@ -2,157 +2,180 @@
 
 // File: app/(public)/how-it-works/_components/how-it-works-page-experience.tsx
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  BadgeCheck,
-  Bot,
+  BarChart3,
+  BriefcaseBusiness,
   Building2,
   CheckCircle2,
-  CreditCard,
-  FileCheck2,
+  ClipboardCheck,
+  FileSearch,
+  Handshake,
+  House,
   KeyRound,
-  Route,
+  Landmark,
+  ListChecks,
+  Search,
   ShieldCheck,
-  UserRoundPlus,
+  UserRound,
+  UsersRound,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
-const journeySteps = [
+const mainJourney = [
   {
-    title: "Choose your role",
+    number: "01",
+    title: "Discover",
     description:
-      "Start as an investor, property owner, property agent, property sourcer, or service provider.",
-    icon: Route,
+      "Browse property opportunities sourced from owners, agents and property sourcers.",
+    icon: Search,
   },
   {
-    title: "Create your account",
+    number: "02",
+    title: "Evaluate",
     description:
-      "Set up login details and deliberately accept the required account-level policies.",
-    icon: UserRoundPlus,
+      "Review property information, investment calculations and estimates, and understand how an opportunity fits your requirements.",
+    icon: BarChart3,
   },
   {
-    title: "Verify your email",
+    number: "03",
+    title: "Progress",
     description:
-      "Confirm control of your email address before continuing into setup and protected actions.",
-    icon: FileCheck2,
+      "Sign in when required to save opportunities, access eligible protected information and take the next available action.",
+    icon: ArrowRight,
+  },
+] as const;
+
+const roleJourneys = [
+  {
+    title: "Investors",
+    subtitle: "Find & Evaluate Opportunities",
+    description:
+      "Discover properties, define investment requirements, evaluate opportunities and progress suitable deals.",
+    linkLabel: "Explore Investor Journey",
+    href: "/solutions/investors",
+    icon: Landmark,
   },
   {
-    title: "Complete your profiles",
+    title: "Property Owners",
+    subtitle: "List a Property",
     description:
-      "Add general profile details, then complete the onboarding path for your selected role.",
+      "Submit a property, complete required checks and reach relevant investors.",
+    linkLabel: "Explore Owner Journey",
+    href: "/solutions/property-owners",
+    icon: House,
+  },
+  {
+    title: "Property Sourcers",
+    subtitle: "Submit Sourced Opportunities",
+    description:
+      "Bring sourced investment opportunities to Asancha, manage deal information and progress opportunities.",
+    linkLabel: "Explore Sourcer Journey",
+    href: "/solutions/property-sourcers",
+    icon: FileSearch,
+  },
+  {
+    title: "Property Agents",
+    subtitle: "List & Manage Opportunities",
+    description:
+      "Submit properties you are authorised to represent and manage their progression.",
+    linkLabel: "Explore Agent Journey",
+    href: "/solutions/property-agents",
     icon: Building2,
   },
   {
-    title: "Access your dashboard",
+    title: "Service Providers",
+    subtitle: "Support Property Progression",
     description:
-      "Use your role workspace while review continues, with clear status and next actions.",
+      "Provide relevant professional services to users progressing property opportunities.",
+    linkLabel: "Explore Professional Services",
+    href: "/solutions/service-providers",
+    icon: BriefcaseBusiness,
+  },
+] as const;
+
+const opportunitySources = [
+  {
+    title: "Property Owners",
+    description: "List properties they own or control.",
+    icon: UserRound,
+  },
+  {
+    title: "Property Agents",
+    description: "Submit properties they are authorised to represent.",
+    icon: Building2,
+  },
+  {
+    title: "Property Sourcers",
+    description: "Bring sourced investment opportunities.",
+    icon: UsersRound,
+  },
+  {
+    title: "Approved Partners",
+    description:
+      "Provide property opportunities or information through approved partnerships or integrations where applicable.",
+    icon: Handshake,
+  },
+] as const;
+
+const submissionStages = [
+  { title: "Submit", icon: ListChecks },
+  { title: "Review", icon: ClipboardCheck },
+  { title: "Publish", icon: CheckCircle2 },
+  { title: "Progress", icon: ArrowRight },
+] as const;
+
+const protectedJourney = [
+  {
+    title: "Browse Publicly",
+    description:
+      "Explore available public property opportunities without creating an account.",
+    icon: Search,
+  },
+  {
+    title: "Access When Eligible",
+    description:
+      "Sign in and complete the required checks to access eligible protected information.",
+    icon: KeyRound,
+  },
+  {
+    title: "Progress Securely",
+    description:
+      "Take appropriate property or deal actions through your Asancha account.",
     icon: ShieldCheck,
   },
-  {
-    title: "Take approved actions",
-    description:
-      "Save, compare, book, communicate, pay, reserve, or access restricted information where permitted.",
-    icon: CheckCircle2,
-  },
-] as const;
-
-const roleFlows = [
-  ["Investors", "Save opportunities, set preferences, and compare deals.", "/solutions/investors"],
-  ["Property Owners", "Add property, manage listings, and track documents.", "/solutions/property-owners"],
-  ["Property Agents", "Manage represented stock and authority documents.", "/solutions/property-agents"],
-  ["Property Sourcers", "Submit deals, manage packs, and track compliance.", "/solutions/property-sourcers"],
-  ["Service Providers", "Publish services, availability, bookings, and areas.", "/solutions/service-providers"],
-] as const;
-
-const protectedActions = [
-  ["Restricted deal details", BadgeCheck],
-  ["Document submissions", FileCheck2],
-  ["Reservations and bookings", Building2],
-  ["Payment review", CreditCard],
-  ["AI recommendations", Bot],
-  ["API partner tools", KeyRound],
-] as const;
-
-const safetyRules = [
-  {
-    title: "Dashboard access is not full approval",
-    description:
-      "Users may access a role dashboard while verification or review continues, but sensitive actions can remain locked.",
-  },
-  {
-    title: "Payment proof needs review",
-    description:
-      "Submitting proof is a step in the process, not the same as confirmed payment approval.",
-  },
-  {
-    title: "AI explains, users decide",
-    description:
-      "AI-supported guidance can explain matches and warnings, but it does not guarantee outcomes.",
-  },
-] as const;
-
-const supplySources = [
-  {
-    title: "Property owners",
-    description: "Owners may submit property they own or control.",
-  },
-  {
-    title: "Property agents",
-    description:
-      "Agents may submit property on behalf of an owner, landlord, vendor, or developer.",
-  },
-  {
-    title: "Property sourcers",
-    description:
-      "Sourcers may submit investment-focused opportunities for review.",
-  },
-  {
-    title: "Approved partners",
-    description:
-      "Approved API or data partners may provide property information within their permitted scope.",
-  },
-] as const;
-
-const reviewStages = [
-  "Draft",
-  "Submitted",
-  "Under review",
-  "Correction required",
-  "Approved",
-  "Published",
-  "Reserved",
-  "Completed or sold",
 ] as const;
 
 const sectionReveal = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
   },
 } as const;
 
 const staggerContainer = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: 0.07 } },
 } as const;
 
 const cardReveal = {
-  hidden: { opacity: 0, y: 18 },
+  hidden: { opacity: 0, y: 16 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
   },
 } as const;
 
 interface AnimatedSectionProps {
   children: ReactNode;
   className?: string;
-  labelledBy?: string;
+  labelledBy: string;
 }
 
 function AnimatedSection({
@@ -165,8 +188,8 @@ function AnimatedSection({
       aria-labelledby={labelledBy}
       className={className}
       initial="hidden"
-      viewport={{ once: true, amount: 0.18 }}
       variants={sectionReveal}
+      viewport={{ once: true, amount: 0.16 }}
       whileInView="show"
     >
       {children}
@@ -178,118 +201,96 @@ export function HowItWorksPageExperience() {
   return (
     <main className="overflow-x-clip">
       <section className="relative isolate overflow-hidden bg-foreground text-primary-foreground">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-20 bg-[url('/auth-bg.avif')] bg-cover bg-center"
+        <Image
+          alt="UK residential properties representing opportunities available through Asancha"
+          className="-z-20 object-cover object-center"
+          fetchPriority="high"
+          fill
+          loading="eager"
+          priority
+          sizes="100vw"
+          src="/images/og/asancha-homepage-og.jpg"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.76)_55%,rgba(2,6,23,0.38)_100%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,23,0.97)_0%,rgba(2,6,23,0.85)_52%,rgba(2,6,23,0.54)_100%)]"
         />
 
         <div className="asancha-page-container py-20 sm:py-28">
-          <motion.div
-            animate="show"
-            className="max-w-5xl"
-            initial="hidden"
-            variants={staggerContainer}
-          >
-            <motion.p
-              className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground/85 backdrop-blur-md"
-                variants={cardReveal}
-              >
-                <Route aria-hidden="true" size={14} strokeWidth={2.5} />
-                How Asancha works
-              </motion.p>
-
-            <motion.h1
-              className="mt-6 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal sm:text-6xl"
-              variants={cardReveal}
-            >
-              A clearer way to discover and progress property opportunities.
-            </motion.h1>
-
-            <motion.p
-              className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/80"
-              variants={cardReveal}
-            >
-              Asancha brings property sourcing, property intelligence, investor
-              requirements, verification, documents, communication, and
-              property-related actions into one structured platform.
-            </motion.p>
-
-            <motion.div className="mt-9 flex flex-col gap-3 sm:flex-row" variants={cardReveal}>
+          <div className="max-w-4xl">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary">
+              How Asancha works
+            </p>
+            <h1 className="mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-normal sm:text-6xl">
+              A Simpler Way to Source and Progress Property Opportunities
+            </h1>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-primary-foreground/82">
+              Asancha connects investors with property opportunities from
+              owners, agents and sourcers, with investment insights and a
+              structured process to help evaluate and progress suitable
+              opportunities.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-                href="/auth/sign-up"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
+                href="/marketplace"
               >
-                Create an account
+                Find Properties
                 <ArrowRight aria-hidden="true" size={17} strokeWidth={2.5} />
               </Link>
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
-                href="/marketplace"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-primary-foreground/40 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm transition-colors hover:bg-primary-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
+                href="/list-property"
               >
-                Explore properties
+                List a Property
               </Link>
-            </motion.div>
-
-            <motion.p
-              className="mt-6 max-w-3xl text-sm leading-6 text-primary-foreground/70"
-              variants={cardReveal}
-            >
-              You can browse safe public property previews without an account.
-              Creating an account gives you access to role-specific setup,
-              preferences, dashboard features, and eligible property actions.
-            </motion.p>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <AnimatedSection className="border-b border-border bg-background" labelledBy="public-journey-heading">
-        <div className="asancha-page-container py-16">
+      <AnimatedSection
+        className="border-b border-border bg-background"
+        labelledBy="main-journey-heading"
+      >
+        <div className="asancha-page-container py-16 sm:py-20">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-primary">
-              Public user journey
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              The Asancha journey
             </p>
             <h2
               className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-              id="public-journey-heading"
+              id="main-journey-heading"
             >
-              Choose the role that best describes you.
+              Discover. Evaluate. Progress.
             </h2>
-            <p className="mt-4 text-base leading-7 text-muted-foreground">
-              Your first Asancha profile determines the onboarding path and
-              workspace you begin with. Existing users may later add another
-              supported business profile without registering again.
-            </p>
           </div>
 
           <motion.ol
-            className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+            className="mt-10 grid gap-5 lg:grid-cols-3"
             initial="hidden"
-            viewport={{ once: true, amount: 0.15 }}
             variants={staggerContainer}
+            viewport={{ once: true, amount: 0.15 }}
             whileInView="show"
           >
-            {journeySteps.map((step, index) => {
+            {mainJourney.map((step) => {
               const Icon = step.icon;
 
               return (
                 <motion.li
-                  className="rounded-xl border border-border bg-card p-6 shadow-sm"
+                  className="relative rounded-2xl border border-border bg-card p-6 shadow-sm"
                   key={step.title}
                   variants={cardReveal}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className="grid h-11 w-11 place-items-center rounded-lg bg-accent text-primary">
-                      <Icon aria-hidden="true" size={20} strokeWidth={2.5} />
-                    </span>
                     <span className="text-sm font-extrabold text-primary">
-                      0{index + 1}
+                      {step.number}
+                    </span>
+                    <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <Icon aria-hidden="true" size={21} strokeWidth={2.2} />
                     </span>
                   </div>
-                  <h3 className="mt-5 text-lg font-bold text-card-foreground">
+                  <h3 className="mt-6 text-xl font-extrabold text-foreground">
                     {step.title}
                   </h3>
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -302,285 +303,290 @@ export function HowItWorksPageExperience() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="bg-card" labelledBy="property-supply-heading">
-        <div className="asancha-page-container py-16">
-          <div className="grid gap-10 lg:grid-cols-[0.84fr_1.16fr] lg:items-start">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                Property supply
-              </p>
-              <h2
-                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-                id="property-supply-heading"
-              >
-                Opportunities can come from different approved sources.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-muted-foreground">
-                The source affects how property information is reviewed,
-                structured, verified, and displayed. A property being submitted
-                does not automatically mean that it is publicly listed or
-                approved.
-              </p>
-            </div>
-
-            <motion.div
-              className="grid gap-4 sm:grid-cols-2"
-              initial="hidden"
-              viewport={{ once: true, amount: 0.15 }}
-              variants={staggerContainer}
-              whileInView="show"
-            >
-              {supplySources.map((source) => (
-                <motion.article
-                  className="rounded-xl border border-border bg-background p-5 shadow-sm"
-                  key={source.title}
-                  variants={cardReveal}
-                >
-                  <h3 className="font-bold text-foreground">{source.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {source.description}
-                  </p>
-                </motion.article>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection className="bg-muted" labelledBy="role-flows-heading">
-        <div className="asancha-page-container py-16">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                Role-specific flows
-              </p>
-              <h2
-                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-                id="role-flows-heading"
-              >
-                Set up the profile that matches your property role.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Each property role requires different information. Completing
-                onboarding does not automatically mean that verification is
-                approved.
-              </p>
-            </div>
-
-            <div className="grid gap-4">
-              {roleFlows.map(([title, description, href]) => (
-                <Link
-                  className="group rounded-xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                  href={href}
-                  key={href}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="font-bold text-card-foreground">
-                        {title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {description}
-                      </p>
-                    </div>
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="mt-1 shrink-0 text-primary transition group-hover:translate-x-1"
-                      size={18}
-                      strokeWidth={2.5}
-                    />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection className="bg-background" labelledBy="review-process-heading">
-        <div className="asancha-page-container py-16">
-          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-start">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                Quality and access
-              </p>
-              <h2
-                className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-                id="review-process-heading"
-              >
-                Submitted properties move through a structured review process.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Review may consider property completeness, source and authority,
-                supporting documents, listing standards, public and private
-                information separation, investment metrics, condition, and
-                compliance requirements.
-              </p>
-            </div>
-
-            <motion.ol
-              className="relative grid gap-3 before:absolute before:bottom-3 before:left-4 before:top-3 before:w-px before:bg-border"
-              initial="hidden"
-              viewport={{ once: true, amount: 0.15 }}
-              variants={staggerContainer}
-              whileInView="show"
-            >
-              {reviewStages.map((stage, index) => (
-                <motion.li
-                  className="relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 text-sm font-bold text-card-foreground shadow-sm"
-                  key={stage}
-                  variants={cardReveal}
-                >
-                  <span className="z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-xs text-primary-foreground">
-                    {index + 1}
-                  </span>
-                  <span>{stage}</span>
-                </motion.li>
-              ))}
-            </motion.ol>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection className="bg-card" labelledBy="protected-actions-heading">
-        <div className="asancha-page-container py-16">
-          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-start">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                Protected actions
-              </p>
-              <h2
+      <AnimatedSection
+        className="bg-muted/35"
+        labelledBy="choose-your-journey-heading"
+      >
+        <div
+          className="asancha-page-container py-16 sm:py-20"
+          id="choose-your-journey"
+        >
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              Choose your journey
+            </p>
+            <h2
               className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-              id="protected-actions-heading"
+              id="choose-your-journey-heading"
             >
-                Progress from discovery to the next approved action.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Public discovery stays open. Actions involving private records,
-                documents, payment state, recommendations, or partner tools can
-                require additional setup.
-              </p>
-            </div>
+              Start with what you want to achieve.
+            </h2>
+          </div>
 
-            <motion.ul
-              className="grid gap-3 sm:grid-cols-2"
-              initial="hidden"
-              viewport={{ once: true, amount: 0.15 }}
-              variants={staggerContainer}
-              whileInView="show"
+          <motion.div
+            className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            variants={staggerContainer}
+            viewport={{ once: true, amount: 0.1 }}
+            whileInView="show"
+          >
+            {roleJourneys.map((role) => {
+              const Icon = role.icon;
+
+              return (
+                <motion.article
+                  className="flex min-h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-sm"
+                  key={role.title}
+                  variants={cardReveal}
+                >
+                  <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Icon aria-hidden="true" size={21} strokeWidth={2.2} />
+                  </span>
+                  <h3 className="mt-5 text-xl font-extrabold text-foreground">
+                    {role.title}
+                  </h3>
+                  <p className="mt-1 text-sm font-bold text-primary">
+                    {role.subtitle}
+                  </p>
+                  <p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">
+                    {role.description}
+                  </p>
+                  <Link
+                    className="mt-6 inline-flex cursor-pointer items-center gap-2 text-sm font-bold text-foreground transition-colors hover:text-primary focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-primary"
+                    href={role.href}
+                  >
+                    {role.linkLabel}
+                    <ArrowRight aria-hidden="true" size={16} />
+                  </Link>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection
+        className="border-y border-border bg-background"
+        labelledBy="opportunity-sources-heading"
+      >
+        <div className="asancha-page-container py-16 sm:py-20">
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              Multiple sourcing channels
+            </p>
+            <h2
+              className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
+              id="opportunity-sources-heading"
             >
-              {protectedActions.map(([label, Icon]) => (
-                <motion.li
-                  className="flex gap-3 rounded-xl border border-border bg-muted p-4 text-sm font-bold text-foreground"
-                  key={label}
+              Where Property Opportunities Come From
+            </h2>
+          </div>
+
+          <motion.div
+            className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+            initial="hidden"
+            variants={staggerContainer}
+            viewport={{ once: true, amount: 0.12 }}
+            whileInView="show"
+          >
+            {opportunitySources.map((source) => {
+              const Icon = source.icon;
+
+              return (
+                <motion.article
+                  className="rounded-2xl border border-border bg-card p-6"
+                  key={source.title}
                   variants={cardReveal}
                 >
                   <Icon
                     aria-hidden="true"
-                    className="mt-0.5 shrink-0 text-primary"
-                    size={17}
-                    strokeWidth={2.5}
+                    className="text-primary"
+                    size={25}
+                    strokeWidth={2}
                   />
-                  <span>{label}</span>
-                </motion.li>
-              ))}
-            </motion.ul>
-          </div>
+                  <h3 className="mt-5 text-lg font-extrabold text-foreground">
+                    {source.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {source.description}
+                  </p>
+                </motion.article>
+              );
+            })}
+          </motion.div>
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="border-y border-border bg-background" labelledBy="workflow-safety-heading">
-        <div className="asancha-page-container py-16">
+      <AnimatedSection
+        className="bg-foreground text-primary-foreground"
+        labelledBy="submission-heading"
+      >
+        <div className="asancha-page-container py-16 sm:py-20">
           <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-wide text-primary">
-              For technology partners
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              From submission to opportunity
+            </p>
+            <h2
+              className="mt-3 text-3xl font-extrabold tracking-normal sm:text-4xl"
+              id="submission-heading"
+            >
+              Submit. Review. Publish. Progress.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-primary-foreground/72">
+              Property submissions are reviewed before publication. Depending on
+              the opportunity, Asancha may check property information,
+              authority, supporting documents and other relevant information
+              before it becomes available to investors.
+            </p>
+          </div>
+
+          <motion.ol
+            className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+            initial="hidden"
+            variants={staggerContainer}
+            viewport={{ once: true, amount: 0.15 }}
+            whileInView="show"
+          >
+            {submissionStages.map((stage, index) => {
+              const Icon = stage.icon;
+
+              return (
+                <motion.li
+                  className="rounded-2xl border border-primary-foreground/15 bg-primary-foreground/7 p-5"
+                  key={stage.title}
+                  variants={cardReveal}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+                      <Icon aria-hidden="true" size={19} strokeWidth={2.2} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-primary-foreground/55">
+                        0{index + 1}
+                      </p>
+                      <h3 className="font-extrabold">{stage.title}</h3>
+                    </div>
+                  </div>
+                </motion.li>
+              );
+            })}
+          </motion.ol>
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection
+        className="bg-background"
+        labelledBy="protected-progression-heading"
+      >
+        <div className="asancha-page-container py-16 sm:py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              Public discovery. Protected progression.
             </p>
             <h2
               className="mt-3 text-3xl font-extrabold tracking-normal text-foreground sm:text-4xl"
-              id="workflow-safety-heading"
+              id="protected-progression-heading"
             >
-              API access follows a separate approval process.
+              Explore openly. Progress with appropriate access.
             </h2>
-            <p className="mt-4 text-base leading-7 text-muted-foreground">
-              API partners do not register through the normal public-user signup
-              flow. Approved technology partners apply, go through review,
-              receive scoped access, and manage keys, usage, billing, and
-              support through the API partner workspace.
+            <p className="mt-5 text-base leading-7 text-muted-foreground">
+              Some property information and actions require an account,
+              verification or appropriate access to help protect property
+              owners, investors and deal information.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {safetyRules.map((rule) => (
-              <article
-                className="rounded-xl border border-border bg-card p-6 shadow-sm"
-                key={rule.title}
-              >
-                <CheckCircle2
-                  aria-hidden="true"
-                  className="text-primary"
-                  size={20}
-                  strokeWidth={2.5}
-                />
-                <h3 className="mt-4 font-bold text-card-foreground">
-                  {rule.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {rule.description}
-                </p>
-              </article>
-            ))}
-          </div>
+          <motion.div
+            className="mt-10 grid gap-5 lg:grid-cols-3"
+            initial="hidden"
+            variants={staggerContainer}
+            viewport={{ once: true, amount: 0.15 }}
+            whileInView="show"
+          >
+            {protectedJourney.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <motion.article
+                  className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm"
+                  key={item.title}
+                  variants={cardReveal}
+                >
+                  <span className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Icon aria-hidden="true" size={22} strokeWidth={2.2} />
+                  </span>
+                  <h3 className="mt-5 text-xl font-extrabold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {item.description}
+                  </p>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+
+          <p className="mx-auto mt-8 max-w-2xl text-center text-sm font-semibold text-foreground">
+            Insights support your evaluation — investment decisions remain
+            yours.
+          </p>
         </div>
       </AnimatedSection>
 
-      <section className="bg-primary" aria-labelledby="how-final-cta-heading">
-        <motion.div
-          className="asancha-page-container py-16 text-primary-foreground"
-          initial={{ opacity: 0, y: 24 }}
-          viewport={{ once: true, amount: 0.25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/80">
-                Next step
-              </p>
-              <h2
-                className="mt-3 max-w-3xl text-3xl font-extrabold tracking-normal sm:text-4xl"
-                id="how-final-cta-heading"
-              >
-                Choose your next step.
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/80">
-                Create an account to set up your property profile, define your
-                requirements, submit opportunities, offer services, and access a
-                role-specific workspace.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
+      <AnimatedSection
+        className="border-t border-border bg-muted/35"
+        labelledBy="get-started-heading"
+      >
+        <div className="asancha-page-container py-16 sm:py-20">
+          <div className="rounded-3xl bg-foreground px-6 py-12 text-center text-primary-foreground shadow-xl sm:px-10 sm:py-16">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+              Ready to get started?
+            </p>
+            <h2
+              className="mx-auto mt-3 max-w-3xl text-3xl font-extrabold tracking-normal sm:text-4xl"
+              id="get-started-heading"
+            >
+              Choose your next step with Asancha.
+            </h2>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/auth/sign-up"
-              >
-                Create an account
-              </Link>
-              <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
                 href="/marketplace"
               >
-                Explore properties
+                Find Properties
+                <ArrowRight aria-hidden="true" size={17} />
               </Link>
               <Link
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/40"
-                href="/api-partner/apply"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-foreground/10 focus:outline-none focus:ring-4 focus:ring-primary-foreground/30"
+                href="/list-property"
               >
-                Apply for API access
+                List a Property
               </Link>
             </div>
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 text-sm text-primary-foreground/72 lg:flex-row lg:gap-8">
+              <p>
+                Are you an agent, sourcer or property professional?{" "}
+                <Link
+                  className="cursor-pointer font-bold text-primary underline-offset-4 hover:underline focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-primary"
+                  href="#choose-your-journey"
+                >
+                  Explore Professionals →
+                </Link>
+              </p>
+              <p>
+                Technology or data partner?{" "}
+                <Link
+                  className="cursor-pointer font-bold text-primary underline-offset-4 hover:underline focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-primary"
+                  href="/api-partners"
+                >
+                  Explore API Partnerships →
+                </Link>
+              </p>
+            </div>
           </div>
-        </motion.div>
-      </section>
+        </div>
+      </AnimatedSection>
     </main>
   );
 }

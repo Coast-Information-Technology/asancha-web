@@ -25,6 +25,7 @@
 
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { CheckCircle2, CircleAlert, LockKeyhole } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -33,11 +34,9 @@ import { cache } from "react";
 import { JsonLd } from "@/src/components/seo/json-ld";
 import { ACCESS_TOKEN_COOKIE_NAME } from "@/src/features/auth/server/auth-session-cookies";
 import { marketplaceApi } from "@/src/features/marketplace/api/marketplace.api";
-import {
-  MARKETPLACE_PAGE_ROUTES,
-  MARKETPLACE_SAFE_MESSAGES,
-} from "@/src/features/marketplace/constants/marketplace.constants";
+import { MARKETPLACE_PAGE_ROUTES } from "@/src/features/marketplace/constants/marketplace.constants";
 import type {
+  MarketplaceInvestmentMetrics,
   MarketplaceListingDetail,
   MarketplacePublicMedia,
   MarketplaceRestrictedSection,
@@ -47,6 +46,7 @@ import {
   createPublicListingPreviewJsonLd,
 } from "@/src/lib/seo/json-ld";
 import {
+  type BusinessProfileType,
   getDashboardPathForBusinessProfile,
   isBusinessProfileType,
 } from "@/src/lib/auth/role-guards";
@@ -59,8 +59,22 @@ interface ListingPreviewPageProps {
 
 interface ListingAccessContext {
   hasAccessToken: boolean;
+  businessProfileType: BusinessProfileType | null;
   dashboardHref: string;
 }
+
+type InformationClassification =
+  "Calculation" | "Calculation / estimate" | "Estimate" | "Fact";
+
+const DEFAULT_INVESTMENT_DISCLAIMER =
+  "Investment figures may include estimates and calculations. Review the information labels and assumptions before making an investment decision.";
+
+const PROTECTED_INFORMATION_CATEGORIES = [
+  "Detailed deal information",
+  "Supporting documents",
+  "Property / transaction information",
+  "Investment Pack, where available",
+] as const;
 
 /**
  * Retrieves one public listing while allowing React to reuse the request
@@ -106,6 +120,156 @@ function formatCurrency(value: number | null, currency: string): string {
     currency,
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+/**
+ * Renders the authority classification attached to a displayed value.
+ */
+function InformationLabel({
+  classification,
+}: {
+  classification: InformationClassification;
+}) {
+  return (
+    <span className="inline-flex rounded-full border border-primary/20 bg-accent px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-wide text-primary">
+      {classification}
+    </span>
+  );
+}
+
+/**
+ * Uses a richer backend-authored disclaimer when provided, while replacing
+ * the deprecated generic marketplace wording.
+ */
+function getInvestmentDisclaimer(metrics: MarketplaceInvestmentMetrics) {
+  const backendDisclaimer = metrics.disclaimer?.trim();
+
+  if (
+    backendDisclaimer &&
+    backendDisclaimer.toLowerCase() !==
+      "public marketplace metrics are estimates only."
+  ) {
+    return backendDisclaimer;
+  }
+
+  return DEFAULT_INVESTMENT_DISCLAIMER;
+}
+
+/**
+ * Builds an evidence-led overview only from values present on the listing.
+ */
+function getInvestmentOverview(listing: MarketplaceListingDetail): string {
+  const metrics = listing.investmentMetrics;
+
+  if (!metrics) {
+    return "Review the available property information and confirm any additional assumptions before deciding whether to progress.";
+  }
+
+  const sentences: string[] = [];
+
+  if (listing.price !== null && metrics.estimatedMarketValue !== null) {
+    sentences.push(
+      `This opportunity is listed at ${formatCurrency(listing.price, listing.currency)} against an estimated market value of ${formatCurrency(metrics.estimatedMarketValue, metrics.currency)}.`,
+    );
+  } else if (listing.price !== null) {
+    sentences.push(
+      `This opportunity is listed at ${formatCurrency(listing.price, listing.currency)}.`,
+    );
+  }
+
+  if (metrics.bmvDiscountPercent !== null) {
+    sentences.push(
+      `The available figures indicate an estimated ${metrics.bmvDiscountPercent}% below-market discount.`,
+    );
+  }
+
+  if (
+    metrics.estimatedMonthlyRent !== null &&
+    metrics.grossYieldPercent !== null
+  ) {
+    sentences.push(
+      `Based on an estimated monthly rent of ${formatCurrency(metrics.estimatedMonthlyRent, metrics.currency)}, the indicated gross yield is approximately ${metrics.grossYieldPercent}%.`,
+    );
+  } else if (metrics.grossYieldPercent !== null) {
+    sentences.push(
+      `The available figures indicate a gross yield of approximately ${metrics.grossYieldPercent}%.`,
+    );
+  }
+
+  if (metrics.refurbishmentEstimate !== null) {
+    sentences.push(
+      `A refurbishment allowance of ${formatCurrency(metrics.refurbishmentEstimate, metrics.currency)} is currently estimated and should be independently assessed.`,
+    );
+  }
+
+  return (
+    sentences.join(" ") ||
+    "Review the available investment figures and their assumptions before deciding whether to progress."
+  );
+}
+
+function getInvestmentAssumptions(
+  metrics: MarketplaceInvestmentMetrics,
+): string[] {
+  const assumptions: string[] = [];
+
+  if (metrics.bmvDiscountPercent !== null) {
+    assumptions.push(
+      "The below-market comparison uses the asking price and estimated market value shown on this page.",
+    );
+  }
+
+  if (metrics.grossYieldPercent !== null) {
+    assumptions.push(
+      "Gross yield is calculated from the indicated annual rent and asking price before finance, tax, management, maintenance and other costs.",
+    );
+  }
+
+  if (metrics.refurbishmentEstimate !== null) {
+    assumptions.push(
+      "The refurbishment figure is an estimate and may change following inspection, specification and professional quotations.",
+    );
+  }
+
+  if (
+    metrics.estimatedRoiPercent !== null ||
+    metrics.totalInvestmentEstimate !== null
+  ) {
+    assumptions.push(
+      "ROI and total-investment figures may combine estimates and calculations; confirm their inputs before relying on them.",
+    );
+  }
+
+  return assumptions;
+}
+
+function getKeyOpportunity(listing: MarketplaceListingDetail): string {
+  const metrics = listing.investmentMetrics;
+
+  if (metrics?.bmvDiscountPercent !== null && metrics?.bmvDiscountPercent) {
+    return `${metrics.bmvDiscountPercent}% estimated below-market positioning based on the available comparison.`;
+  }
+
+  if (metrics?.grossYieldPercent !== null && metrics?.grossYieldPercent) {
+    return `${metrics.grossYieldPercent}% indicated gross yield based on the available rental estimate.`;
+  }
+
+  return "The published property information provides a starting point for further evaluation.";
+}
+
+function getKeyConsideration(listing: MarketplaceListingDetail): string {
+  const refurbishmentEstimate =
+    listing.investmentMetrics?.refurbishmentEstimate;
+
+  if (refurbishmentEstimate !== null && refurbishmentEstimate !== undefined) {
+    return `The ${formatCurrency(refurbishmentEstimate, listing.currency)} refurbishment estimate should be validated through inspection and professional quotations.`;
+  }
+
+  if (listing.occupancyStatus) {
+    return `The property is listed as ${formatEnumLabel(listing.occupancyStatus).toLowerCase()}; confirm the current position and any implications before progressing.`;
+  }
+
+  return "Confirm the property information, assumptions, condition and protected deal details before making a decision.";
 }
 
 /**
@@ -168,17 +332,17 @@ function getPublicImages(
  * Reads the role claim from the access token for frontend route guidance only.
  * Backend authorization remains the final authority for protected actions.
  */
-function getDashboardHrefFromAccessToken(
+function getBusinessProfileTypeFromAccessToken(
   accessToken: string | null | undefined,
-): string {
+): BusinessProfileType | null {
   if (!accessToken) {
-    return "/dashboard";
+    return null;
   }
 
   const [, payload] = accessToken.split(".");
 
   if (!payload) {
-    return "/dashboard";
+    return null;
   }
 
   try {
@@ -191,10 +355,10 @@ function getDashboardHrefFromAccessToken(
     ) as { role?: unknown };
 
     return isBusinessProfileType(decodedPayload.role)
-      ? getDashboardPathForBusinessProfile(decodedPayload.role)
-      : "/dashboard";
+      ? decodedPayload.role
+      : null;
   } catch {
-    return "/dashboard";
+    return null;
   }
 }
 
@@ -204,10 +368,15 @@ function getDashboardHrefFromAccessToken(
 async function getListingAccessContext(): Promise<ListingAccessContext> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
+  const businessProfileType =
+    getBusinessProfileTypeFromAccessToken(accessToken);
 
   return {
     hasAccessToken: Boolean(accessToken),
-    dashboardHref: getDashboardHrefFromAccessToken(accessToken),
+    businessProfileType,
+    dashboardHref: businessProfileType
+      ? getDashboardPathForBusinessProfile(businessProfileType)
+      : "/dashboard",
   };
 }
 
@@ -225,6 +394,8 @@ function getRestrictionActionPath(
         return "/account/business-profiles/add";
 
       case "authentication_required":
+        return accessContext.dashboardHref;
+
       case "verification_required":
       case "payment_required":
       case "reservation_required":
@@ -232,10 +403,6 @@ function getRestrictionActionPath(
       default:
         return section.actionPath || accessContext.dashboardHref;
     }
-  }
-
-  if (section.actionPath) {
-    return section.actionPath;
   }
 
   const returnTo = encodeURIComponent(
@@ -256,7 +423,7 @@ function getRestrictionActionPath(
     case "reservation_required":
     case "permission_required":
     default:
-      return `/auth/sign-in?returnTo=${returnTo}`;
+      return section.actionPath || `/auth/sign-in?returnTo=${returnTo}`;
   }
 }
 
@@ -366,6 +533,33 @@ export default async function ListingPreviewPage({
   const signInReturnPath = encodeURIComponent(
     MARKETPLACE_PAGE_ROUTES.listing(listing.slug),
   );
+  const signInPath = `/auth/sign-in?returnTo=${signInReturnPath}`;
+  const investmentAssumptions = listing.investmentMetrics
+    ? getInvestmentAssumptions(listing.investmentMetrics)
+    : [];
+  const hasInvestorProfile = accessContext.businessProfileType === "investor";
+  const explainableInvestorMatch =
+    hasInvestorProfile && listing.investorMatch?.matchReasons.length
+      ? listing.investorMatch
+      : null;
+  const investorProfileAction = accessContext.hasAccessToken
+    ? hasInvestorProfile
+      ? "/dashboard/investor/preferences"
+      : "/account/business-profiles/add"
+    : "/auth/sign-up";
+  const progressionLabel = listing.canRequestAccess
+    ? "Request Access"
+    : listing.canReserve
+      ? "Reserve This Opportunity"
+      : listing.canStartConversation
+        ? "Ask About This Opportunity"
+        : "View Available Actions";
+  const listingBadgeLabels = new Set(
+    listing.badges.map((badge) => badge.trim().toLowerCase()),
+  );
+  const propertyDetails = listing.features.filter(
+    (feature) => !listingBadgeLabels.has(feature.trim().toLowerCase()),
+  );
 
   return (
     <>
@@ -398,6 +592,13 @@ export default async function ListingPreviewPage({
                 <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-bold text-foreground">
                   {formatEnumLabel(listing.calculatedStatus)}
                 </span>
+
+                {listing.verificationStatus ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent px-3 py-1 text-xs font-bold text-primary">
+                    <CheckCircle2 aria-hidden="true" size={14} />
+                    Verification: {formatEnumLabel(listing.verificationStatus)}
+                  </span>
+                ) : null}
               </div>
 
               <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
@@ -445,9 +646,12 @@ export default async function ListingPreviewPage({
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm lg:min-w-64">
-              <p className="text-sm font-semibold text-muted-foreground">
-                Asking price
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-muted-foreground">
+                  Asking price
+                </p>
+                <InformationLabel classification="Fact" />
+              </div>
 
               <p className="mt-2 text-3xl font-extrabold tracking-tight text-foreground">
                 {formatCurrency(listing.price, listing.currency)}
@@ -536,38 +740,6 @@ export default async function ListingPreviewPage({
                 </div>
               </section>
 
-              {listing.features.length > 0 ? (
-                <section
-                  aria-labelledby="listing-features-heading"
-                  className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
-                >
-                  <h2
-                    className="text-2xl font-bold text-foreground"
-                    id="listing-features-heading"
-                  >
-                    Property highlights
-                  </h2>
-
-                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                    {listing.features.map((feature) => (
-                      <li
-                        className="flex gap-3 text-sm leading-6 text-muted-foreground"
-                        key={feature}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="font-bold text-primary"
-                        >
-                          ✓
-                        </span>
-
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
-
               {listing.investmentMetrics ? (
                 <section
                   aria-labelledby="investment-metrics-heading"
@@ -577,14 +749,15 @@ export default async function ListingPreviewPage({
                     className="text-2xl font-bold text-foreground"
                     id="investment-metrics-heading"
                   >
-                    Public investment metrics
+                    Key investment numbers
                   </h2>
 
                   <dl className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {listing.investmentMetrics.estimatedMarketValue !== null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Estimated market value
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Estimated market value</span>
+                          <InformationLabel classification="Estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -598,8 +771,9 @@ export default async function ListingPreviewPage({
 
                     {listing.investmentMetrics.bmvDiscountPercent !== null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          BMV discount
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>BMV discount</span>
+                          <InformationLabel classification="Calculation / estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -610,8 +784,9 @@ export default async function ListingPreviewPage({
 
                     {listing.investmentMetrics.estimatedMonthlyRent !== null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Estimated monthly rent
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Estimated monthly rent</span>
+                          <InformationLabel classification="Estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -625,8 +800,9 @@ export default async function ListingPreviewPage({
 
                     {listing.investmentMetrics.grossYieldPercent !== null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Estimated gross yield
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Gross yield</span>
+                          <InformationLabel classification="Calculation" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -637,8 +813,9 @@ export default async function ListingPreviewPage({
 
                     {listing.investmentMetrics.estimatedRoiPercent !== null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Estimated ROI
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Estimated ROI</span>
+                          <InformationLabel classification="Calculation / estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -650,8 +827,9 @@ export default async function ListingPreviewPage({
                     {listing.investmentMetrics.refurbishmentEstimate !==
                     null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Refurbishment estimate
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Refurbishment cost</span>
+                          <InformationLabel classification="Estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -666,8 +844,9 @@ export default async function ListingPreviewPage({
                     {listing.investmentMetrics.totalInvestmentEstimate !==
                     null ? (
                       <div className="rounded-xl bg-muted p-4">
-                        <dt className="text-sm font-semibold text-muted-foreground">
-                          Total investment estimate
+                        <dt className="flex items-start justify-between gap-3 text-sm font-semibold text-muted-foreground">
+                          <span>Total investment</span>
+                          <InformationLabel classification="Calculation / estimate" />
                         </dt>
 
                         <dd className="mt-2 text-xl font-extrabold text-foreground">
@@ -680,211 +859,396 @@ export default async function ListingPreviewPage({
                     ) : null}
                   </dl>
 
-                  <p className="mt-6 rounded-xl border border-accent bg-accent p-4 text-sm leading-6 text-accent-foreground">
-                    {listing.investmentMetrics.disclaimer ||
-                      MARKETPLACE_SAFE_MESSAGES.aiDisclaimer}
-                  </p>
-                </section>
-              ) : null}
+                  <div className="mt-6 rounded-xl border border-accent bg-accent p-4 text-sm leading-6 text-accent-foreground">
+                    <p>{getInvestmentDisclaimer(listing.investmentMetrics)}</p>
 
-              {listing.strategies.length > 0 || listing.badges.length > 0 ? (
-                <section
-                  aria-labelledby="listing-suitability-heading"
-                  className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
-                >
-                  <h2
-                    className="text-2xl font-bold text-foreground"
-                    id="listing-suitability-heading"
-                  >
-                    Opportunity suitability
-                  </h2>
-
-                  {listing.strategies.length > 0 ? (
-                    <div className="mt-5">
-                      <h3 className="text-sm font-bold text-foreground">
-                        Potential strategies
-                      </h3>
-
-                      <ul className="mt-3 flex flex-wrap gap-2">
-                        {listing.strategies.map((strategy) => (
-                          <li
-                            className="rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-bold text-foreground"
-                            key={strategy}
+                    {investmentAssumptions.length > 0 ? (
+                      <details className="group mt-3">
+                        <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-md font-bold text-primary hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring marker:content-none">
+                          View assumptions &amp; methodology
+                          <span
+                            aria-hidden="true"
+                            className="transition-transform group-open:rotate-90"
                           >
-                            {formatEnumLabel(strategy)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-
-                  {listing.badges.length > 0 ? (
-                    <div className="mt-6">
-                      <h3 className="text-sm font-bold text-foreground">
-                        Highlights
-                      </h3>
-
-                      <ul className="mt-3 flex flex-wrap gap-2">
-                        {listing.badges.map((badge) => (
-                          <li
-                            className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
-                            key={badge}
-                          >
-                            {badge}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </section>
-              ) : null}
-
-              {listing.restrictedSections.length > 0 ? (
-                <section
-                  aria-labelledby="restricted-information-heading"
-                  className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
-                >
-                  <h2
-                    className="text-2xl font-bold text-foreground"
-                    id="restricted-information-heading"
-                  >
-                    Protected deal information
-                  </h2>
-
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    These sections are not included in the public property
-                    preview.
-                  </p>
-
-                  <div className="mt-6 grid gap-4">
-                    {listing.restrictedSections.map((section) => (
-                      <article
-                        className="rounded-xl border border-border bg-muted p-5"
-                        key={section.key}
-                      >
-                        <h3 className="font-bold text-foreground">
-                          {section.title}
-                        </h3>
-
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          {section.message}
-                        </p>
-
-                        {section.actionLabel ? (
-                          <Link
-                            className="mt-4 inline-flex rounded-lg font-bold text-primary hover:underline focus:outline-none focus:ring-4 focus:ring-ring/20"
-                            href={getRestrictionActionPath(
-                              section,
-                              listing.slug,
-                              accessContext,
-                            )}
-                          >
-                            {section.actionLabel}
-                          </Link>
-                        ) : null}
-                      </article>
-                    ))}
+                            →
+                          </span>
+                        </summary>
+                        <ul className="mt-4 grid gap-2 border-t border-primary/15 pt-4">
+                          {investmentAssumptions.map((assumption) => (
+                            <li className="flex gap-2" key={assumption}>
+                              <span aria-hidden="true">•</span>
+                              <span>{assumption}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : null}
                   </div>
                 </section>
               ) : null}
+
+              {listing.investmentMetrics || listing.strategies.length > 0 ? (
+                <section
+                  aria-labelledby="investment-overview-heading"
+                  className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
+                >
+                  <h2
+                    className="text-2xl font-bold text-foreground"
+                    id="investment-overview-heading"
+                  >
+                    Investment overview
+                  </h2>
+
+                  <p className="mt-4 text-base leading-8 text-muted-foreground">
+                    {getInvestmentOverview(listing)}
+                  </p>
+
+                  <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+                    {listing.strategies.length > 0 ? (
+                      <div className="rounded-xl border border-border bg-muted p-4">
+                        <dt className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                          Potential strategy
+                        </dt>
+                        <dd className="mt-2 font-bold text-foreground">
+                          {listing.strategies
+                            .map((strategy) => formatEnumLabel(strategy))
+                            .join(", ")}
+                        </dd>
+                      </div>
+                    ) : null}
+                    <div className="rounded-xl border border-border bg-muted p-4">
+                      <dt className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                        Key opportunity
+                      </dt>
+                      <dd className="mt-2 text-sm leading-6 text-foreground">
+                        {getKeyOpportunity(listing)}
+                      </dd>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted p-4 sm:col-span-2">
+                      <dt className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                        Key consideration
+                      </dt>
+                      <dd className="mt-2 text-sm leading-6 text-foreground">
+                        {getKeyConsideration(listing)}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className="mt-5 text-xs leading-5 text-muted-foreground">
+                    This summary interprets available public information and
+                    does not guarantee value, rent, yield, returns or property
+                    condition.
+                  </p>
+                </section>
+              ) : null}
+
+              <section
+                aria-labelledby="listing-suitability-heading"
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-primary">
+                      Personalised suitability
+                    </p>
+                    <h2
+                      className="mt-2 text-2xl font-bold text-foreground"
+                      id="listing-suitability-heading"
+                    >
+                      How This Opportunity Matches You
+                    </h2>
+                  </div>
+
+                  {explainableInvestorMatch ? (
+                    <div className="rounded-xl bg-primary px-4 py-3 text-center text-primary-foreground">
+                      <strong className="block text-2xl">
+                        {explainableInvestorMatch.scorePercent}%
+                      </strong>
+                      <span className="text-xs font-bold uppercase tracking-wide">
+                        Explainable match
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {explainableInvestorMatch ? (
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-xl border border-border bg-muted p-5">
+                      <h3 className="font-bold text-foreground">
+                        Matching requirements
+                      </h3>
+                      <ul className="mt-4 grid gap-3">
+                        {explainableInvestorMatch.matchReasons.map((reason) => (
+                          <li
+                            className="flex gap-3 text-sm leading-6 text-muted-foreground"
+                            key={reason}
+                          >
+                            <CheckCircle2
+                              aria-hidden="true"
+                              className="mt-0.5 shrink-0 text-primary"
+                              size={18}
+                            />
+                            <span>{reason}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted p-5">
+                      <h3 className="font-bold text-foreground">
+                        Points to consider
+                      </h3>
+                      {explainableInvestorMatch.mismatchReasons.length > 0 ? (
+                        <ul className="mt-4 grid gap-3">
+                          {explainableInvestorMatch.mismatchReasons.map(
+                            (reason) => (
+                              <li
+                                className="flex gap-3 text-sm leading-6 text-muted-foreground"
+                                key={reason}
+                              >
+                                <CircleAlert
+                                  aria-hidden="true"
+                                  className="mt-0.5 shrink-0 text-primary"
+                                  size={18}
+                                />
+                                <span>{reason}</span>
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      ) : (
+                        <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                          No mismatch reasons were provided. Continue reviewing
+                          the property information and assumptions before
+                          progressing.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mt-4 max-w-3xl text-sm leading-6 text-muted-foreground">
+                      {hasInvestorProfile
+                        ? "Complete or update your investor requirements to compare this opportunity with your budget, target location, strategy, yield and property preferences."
+                        : "Create an investor profile to see how this opportunity aligns with your budget, target location, strategy and investment criteria."}
+                    </p>
+                    <Link
+                      className="mt-5 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      href={investorProfileAction}
+                    >
+                      {hasInvestorProfile
+                        ? "Review Investor Requirements"
+                        : "Create Investor Profile"}
+                    </Link>
+                  </>
+                )}
+              </section>
+
+              {propertyDetails.length > 0 ? (
+                <section
+                  aria-labelledby="listing-features-heading"
+                  className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
+                >
+                  <h2
+                    className="text-2xl font-bold text-foreground"
+                    id="listing-features-heading"
+                  >
+                    Property details
+                  </h2>
+
+                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {propertyDetails.map((feature) => (
+                      <li
+                        className="flex gap-3 text-sm leading-6 text-muted-foreground"
+                        key={feature}
+                      >
+                        <CheckCircle2
+                          aria-hidden="true"
+                          className="mt-0.5 shrink-0 text-primary"
+                          size={18}
+                        />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+
+              <section
+                aria-labelledby="restricted-information-heading"
+                className="rounded-2xl border border-border bg-foreground p-6 text-primary-foreground shadow-sm sm:p-8"
+              >
+                <h2
+                  className="text-2xl font-bold text-primary-foreground"
+                  id="restricted-information-heading"
+                >
+                  Protected Deal Information
+                </h2>
+
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-primary-foreground/75">
+                  Eligible investors may be able to access additional property
+                  and deal information after signing in and completing the
+                  required verification.
+                </p>
+
+                <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {PROTECTED_INFORMATION_CATEGORIES.map((category) => (
+                    <li
+                      className="flex items-center gap-3 rounded-xl border border-primary-foreground/15 bg-primary-foreground/8 p-4 text-sm font-bold"
+                      key={category}
+                    >
+                      <LockKeyhole
+                        aria-hidden="true"
+                        className="shrink-0"
+                        size={18}
+                      />
+                      <span>{category}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {listing.restrictedSections.length > 0 ? (
+                  <details className="group mt-5 rounded-xl border border-primary-foreground/15 p-4">
+                    <summary className="cursor-pointer list-none font-bold marker:content-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground">
+                      View access requirements
+                    </summary>
+                    <div className="mt-4 grid gap-4 border-t border-primary-foreground/15 pt-4">
+                      {listing.restrictedSections.map((section) => (
+                        <article key={section.key}>
+                          <h3 className="font-bold">{section.title}</h3>
+                          <p className="mt-1 text-sm leading-6 text-primary-foreground/70">
+                            {section.message}
+                          </p>
+                          {section.actionLabel ? (
+                            <Link
+                              className="mt-2 inline-flex cursor-pointer rounded-md font-bold text-primary-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground"
+                              href={getRestrictionActionPath(
+                                section,
+                                listing.slug,
+                                accessContext,
+                              )}
+                            >
+                              {accessContext.hasAccessToken &&
+                              section.reason === "authentication_required"
+                                ? "Continue"
+                                : section.actionLabel}
+                            </Link>
+                          ) : null}
+                        </article>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+
+                <Link
+                  className="mt-6 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+                  href={
+                    accessContext.hasAccessToken
+                      ? accessContext.dashboardHref
+                      : signInPath
+                  }
+                >
+                  {accessContext.hasAccessToken
+                    ? "Review Access Requirements"
+                    : "Sign In to Request Access"}
+                </Link>
+              </section>
             </div>
 
             <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
               <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <h2 className="text-xl font-bold text-foreground">
-                  Continue with this opportunity
+                  Interested in This Opportunity?
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {accessContext.hasAccessToken
-                    ? "Continue to your dashboard to check which protected actions are available to your active profile."
-                    : "Create an account or sign in to save this listing and check which protected actions are available to your active profile."}
+                    ? "Continue with the next action currently available to your active profile. Eligibility and access remain subject to the applicable platform requirements."
+                    : "Sign in or create an account to save this property, access eligible deal information and take the next available step."}
                 </p>
 
                 <div className="mt-5 grid gap-3">
                   {accessContext.hasAccessToken ? (
                     <Link
-                      className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                      className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
                       href={accessContext.dashboardHref}
                     >
-                      Continue to dashboard
+                      {progressionLabel}
                     </Link>
                   ) : (
                     <>
                       <Link
-                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
-                        href={`/auth/sign-in?returnTo=${signInReturnPath}`}
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus:outline-none focus:ring-4 focus:ring-ring/20"
+                        href={signInPath}
                       >
-                        Sign in to continue
+                        Sign In to Continue
                       </Link>
 
                       <Link
-                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                         href="/auth/sign-up"
                       >
-                        Create an account
+                        Create an Account
                       </Link>
                     </>
                   )}
 
                   <Link
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
+                    className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-foreground hover:bg-muted focus:outline-none focus:ring-4 focus:ring-ring/20"
                     href="/support"
                   >
-                    Ask a question
+                    Ask a Question
                   </Link>
                 </div>
               </section>
-
-              <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <h2 className="font-bold text-foreground">
-                  Listing information
-                </h2>
-
-                <dl className="mt-4 space-y-4 text-sm">
-                  <div>
-                    <dt className="font-semibold text-muted-foreground">
-                      Listing type
-                    </dt>
-
-                    <dd className="mt-1 font-bold text-foreground">
-                      {formatEnumLabel(listing.listingType)}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="font-semibold text-muted-foreground">
-                      Deal status
-                    </dt>
-
-                    <dd className="mt-1 font-bold text-foreground">
-                      {formatEnumLabel(listing.dealStatus)}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="font-semibold text-muted-foreground">
-                      Published
-                    </dt>
-
-                    <dd className="mt-1 font-bold text-foreground">
-                      {formatDate(listing.publishedAt)}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="font-semibold text-muted-foreground">
-                      Last updated
-                    </dt>
-
-                    <dd className="mt-1 font-bold text-foreground">
-                      {formatDate(listing.updatedAt)}
-                    </dd>
-                  </div>
-                </dl>
-              </section>
             </aside>
           </div>
+
+          <section
+            aria-labelledby="listing-information-heading"
+            className="mt-8 rounded-2xl border border-border bg-muted p-6 sm:p-8"
+          >
+            <h2
+              className="text-lg font-bold text-foreground"
+              id="listing-information-heading"
+            >
+              Listing information
+            </h2>
+
+            <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <dt className="font-semibold text-muted-foreground">
+                  Listing type
+                </dt>
+                <dd className="mt-1 font-bold text-foreground">
+                  {formatEnumLabel(listing.listingType)}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-muted-foreground">
+                  Opportunity status
+                </dt>
+                <dd className="mt-1 font-bold text-foreground">
+                  {formatEnumLabel(listing.calculatedStatus)}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-muted-foreground">
+                  Published
+                </dt>
+                <dd className="mt-1 font-bold text-foreground">
+                  {formatDate(listing.publishedAt)}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-muted-foreground">
+                  Last updated
+                </dt>
+                <dd className="mt-1 font-bold text-foreground">
+                  {formatDate(listing.updatedAt)}
+                </dd>
+              </div>
+            </dl>
+          </section>
         </article>
       </main>
     </>
