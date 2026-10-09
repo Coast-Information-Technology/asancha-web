@@ -73,6 +73,49 @@ export const PUBLIC_HEADER_NAVIGATION = [
     access: "public",
   },
   {
+    label: "Services",
+    href: "/services",
+    description: "Property expertise from sourcing to interior design.",
+    access: "public",
+    children: [
+      {
+        label: "Property Sourcing",
+        href: "/services/property-sourcing",
+        description:
+          "We source exclusive off-market properties with high returns for investors, landlords, and first-time buyers.",
+        access: "public",
+      },
+      {
+        label: "Property Investments",
+        href: "/services/property-investment",
+        description:
+          "We help investors identify, acquire, and maximize returns on high-performing properties.",
+        access: "public",
+      },
+      {
+        label: "Property Management",
+        href: "/services/property-management",
+        description:
+          "We handle everything from tenant sourcing to maintenance, ensuring your property stays profitable and hassle-free.",
+        access: "public",
+      },
+      {
+        label: "Property Refurbishment",
+        href: "/services/property-refurbishment",
+        description:
+          "We transform outdated properties into modern, high-value investments with premium renovation services.",
+        access: "public",
+      },
+      {
+        label: "Interior Designs",
+        href: "/services/interior-design",
+        description:
+          "Transform your property with elegant, functional, and market-ready interiors designed to enhance comfort and value.",
+        access: "public",
+      },
+    ],
+  },
+  {
     label: "Professionals",
     href: "/professionals",
     description: "Explore professional routes through Asancha.",
