@@ -309,8 +309,45 @@ const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
   contactDetails.address.formatted.join(", "),
 )}&output=embed`;
 
-export default function ContactPage() {
+const serviceEnquiryDefaults: Record<
+  string,
+  { category: string; subject: string }
+> = {
+  "property-sourcing": {
+    category: "Property sourcing",
+    subject: "Property sourcing enquiry",
+  },
+  "property-investment": {
+    category: "Property investment or joint venture",
+    subject: "Property investment or joint venture enquiry",
+  },
+  "property-management": {
+    category: "Property management",
+    subject: "Property management enquiry",
+  },
+  "property-refurbishment": {
+    category: "Property refurbishment",
+    subject: "Property refurbishment enquiry",
+  },
+  "interior-design": {
+    category: "Interior design",
+    subject: "Interior design enquiry",
+  },
+};
+
+interface ContactPageProps {
+  searchParams: Promise<{ service?: string | string[] }>;
+}
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
   const jsonLd = createContactPageJsonLd();
+  const requestedService = (await searchParams).service;
+  const serviceKey = Array.isArray(requestedService)
+    ? requestedService[0]
+    : requestedService;
+  const enquiryDefaults = serviceKey
+    ? serviceEnquiryDefaults[serviceKey]
+    : undefined;
 
   return (
     <>
@@ -454,7 +491,10 @@ export default function ContactPage() {
               </p>
             </div>
             <Reveal className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-              <ContactForm />
+              <ContactForm
+                initialCategory={enquiryDefaults?.category}
+                initialSubject={enquiryDefaults?.subject}
+              />
             </Reveal>
           </div>
         </section>

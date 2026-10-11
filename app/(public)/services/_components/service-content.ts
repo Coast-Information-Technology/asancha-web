@@ -3,9 +3,9 @@ export const services = [
   {
     slug: "property-sourcing",
     label: "Property Sourcing",
-    title: "Find High-Yield Property Deals Before Anyone Else",
+    title: "Find Property Opportunities with Clearer Investment Context",
     description:
-      "We source exclusive off-market properties with high returns for investors, landlords, and first-time buyers.",
+      "Explore property-sourcing support for investors, landlords and buyers, with structured opportunity information and no guarantee of availability or returns.",
     image: "/images/services/img/bg-img/property sourcing.jpg",
     heroLinks: [
       {
@@ -44,9 +44,9 @@ export const services = [
         intro: [],
         cards: [
           {
-            title: "Exclusive Off-Market Deals",
+            title: "Market and Direct Opportunities",
             paragraphs: [
-              "Gain access to properties before they reach the public market.",
+              "Review available opportunities from approved sources, including direct or off-market routes where genuinely available.",
             ],
             image: {
               src: "/images/services/img/icons/market.png",
@@ -66,7 +66,7 @@ export const services = [
           {
             title: "Expert Negotiation & Acquisition Support",
             paragraphs: [
-              "We handle the process to secure the best price and terms.",
+              "We support offer and negotiation activity; price and terms remain subject to the parties, evidence and professional advice.",
             ],
             image: {
               src: "/images/services/img/icons/agreement.png",
@@ -74,9 +74,9 @@ export const services = [
             },
           },
           {
-            title: "High Rental Yields & Capital Appreciation",
+            title: "Rental & Market Indicators",
             paragraphs: [
-              "We ensure every sourced property has strong ROI potential.",
+              "Review clearly labelled rental, yield and market indicators without treating estimates as guaranteed outcomes.",
             ],
             image: {
               src: "/images/services/img/icons/market1.png",
@@ -99,7 +99,7 @@ export const services = [
           {
             title: "Property Identification",
             paragraphs: [
-              "Our experts source high-yield properties that match your",
+              "Potential opportunities are reviewed against your stated requirements and available information.",
             ],
           },
           {
@@ -111,7 +111,7 @@ export const services = [
           {
             title: "Offer & Negotiation",
             paragraphs: [
-              "Our team secures the best deals with favorable terms.",
+              "Offer and negotiation support is provided where agreed, without guaranteeing price or terms.",
             ],
           },
           {
@@ -129,10 +129,10 @@ export const services = [
   },
   {
     slug: "property-investment",
-    label: "Property Investments",
-    title: "Secure High-Yield Real Estate Investments with Expert Guidance",
+    label: "Property Investment & Joint Ventures",
+    title: "Explore Property Investment and Joint-Venture Enquiries",
     description:
-      "We help investors identify, acquire, and maximize returns on high-performing properties.",
+      "Discuss property opportunities and potential arrangements with clear due-diligence, eligibility and risk boundaries. Enquiries are not investment offers or return guarantees.",
     image: "/images/services/img/bg-img/investment-property.jpg",
     heroLinks: [
       {
@@ -140,19 +140,19 @@ export const services = [
         href: "/marketplace",
       },
       {
-        label: "Get Expert Investment Advice",
+        label: "Enquire About Opportunities",
         href: "/contact",
       },
     ],
     sections: [
       {
-        title: "Why Invest with Asancha Properties?",
+        title: "Why Explore Opportunities with Asancha?",
         intro: [],
         cards: [
           {
-            title: "High-Yield Property Investments",
+            title: "Investment-Focused Opportunities",
             paragraphs: [
-              "Maximize ROI with carefully selected real estate opportunities.",
+              "Review property opportunities using available information, stated criteria and appropriate due diligence.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -160,9 +160,9 @@ export const services = [
             },
           },
           {
-            title: "Exclusive Off-Market Deals",
+            title: "Available Direct Opportunities",
             paragraphs: [
-              "Gain access to lucrative properties before they hit the market.",
+              "Review direct or off-market opportunities where they are genuinely available and approved for presentation.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -172,7 +172,7 @@ export const services = [
           {
             title: "Data-Driven Market Analysis",
             paragraphs: [
-              "We use in-depth research to ensure profitable investments.",
+              "Available research can support evaluation but cannot ensure profitability or future performance.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -180,9 +180,9 @@ export const services = [
             },
           },
           {
-            title: "Expert Financial & Legal Guidance",
+            title: "Professional Coordination",
             paragraphs: [
-              "Assistance with financing, legal processes, and risk management.",
+              "Where applicable, Asancha may coordinate introductions or information; regulated financial and legal advice must come from appropriately authorised professionals.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -225,7 +225,7 @@ export const services = [
           {
             title: "Fix & Flip Properties",
             paragraphs: [
-              "Buy undervalued properties, renovate, and sell for profit.",
+              "Evaluate renovation-led opportunities, costs and potential exit routes with appropriate due diligence.",
             ],
             image: {
               src: "/images/services/img/icons/financial-statement.png",
@@ -245,7 +245,7 @@ export const services = [
           {
             title: "Land Development",
             paragraphs: [
-              "Acquire and develop land for high-appreciation returns.",
+              "Explore land and development opportunities subject to planning, professional review and risk assessment.",
             ],
             image: {
               src: "/images/services/img/icons/development.png",
@@ -255,7 +255,7 @@ export const services = [
           {
             title: "Joint Venture Investments",
             paragraphs: [
-              "Partner with us for profitable real estate ventures.",
+              "Enquire about potential joint-venture discussions, subject to eligibility, due diligence, formal terms and independent advice.",
             ],
             image: {
               src: "/images/services/img/icons/rental1.png",
@@ -338,7 +338,7 @@ export const services = [
           {
             title: "Market Research & Property Selection",
             paragraphs: [
-              "Identifying the best properties for maximum returns.",
+              "Reviewing available opportunities against agreed criteria and risk tolerance.",
             ],
           },
           {
@@ -352,7 +352,7 @@ export const services = [
           {
             title: "Ongoing Investment Management",
             paragraphs: [
-              "Monitoring performance and maximizing profitability.",
+              "Monitoring available information and reviewing performance against the agreed plan.",
             ],
           },
         ],
@@ -385,7 +385,7 @@ export const services = [
           {
             title: "High-Net-Worth Individuals",
             paragraphs: [
-              "Maximize returns with premium investment strategies.",
+              "Explore opportunities against your objectives and risk tolerance without guaranteed returns.",
             ],
             image: {
               src: "/images/services/img/bg-img/individual-invests.jpg",
@@ -417,9 +417,9 @@ export const services = [
   {
     slug: "property-management",
     label: "Property Management",
-    title: "Maximize Your Rental Income with Stress-Free Property Management",
+    title: "Property Management Support with a Clearly Defined Scope",
     description:
-      "We handle everything from tenant sourcing to maintenance, ensuring your property stays profitable and hassle-free.",
+      "Enquire about property-management support, from tenant-related coordination to maintenance workflows. Scope, coverage and delivery responsibility are confirmed before engagement.",
     image: "/images/services/img/bg-img/property-management.jpg",
     heroLinks: [
       {
@@ -559,7 +559,7 @@ export const services = [
           {
             title: "Lease Agreements & Rent Collection",
             paragraphs: [
-              "We handle contracts, deposits, and ensure timely payments.",
+              "Contract, deposit and payment responsibilities depend on the agreed service scope and applicable legal requirements.",
             ],
           },
           {
@@ -632,18 +632,18 @@ export const services = [
   {
     slug: "property-refurbishment",
     label: "Property Refurbishment",
-    title: "Increase Property Value with Expert Refurbishment Solutions",
+    title: "Plan and Progress Your Property Refurbishment",
     description:
-      "We transform outdated properties into modern, high-value investments with premium renovation services.",
+      "Discuss refurbishment requirements, project types and staged delivery. Scope, responsible contractors, costs and availability are confirmed before engagement.",
     image: "/images/services/img/bg-img/refurbishment.avif",
     heroLinks: [
       {
-        label: "Request a Free Property Assessment",
+        label: "Discuss Your Project",
         href: "/contact",
       },
       {
-        label: "See Our Recent Transformations",
-        href: "/contact",
+        label: "View Project Types",
+        href: "#service-section-1",
       },
     ],
     sections: [
@@ -842,19 +842,19 @@ export const services = [
   },
   {
     slug: "interior-design",
-    label: "Interior Designs",
-    title: "Elevate Your Space with Luxury Interior Design",
+    label: "Interior Design",
+    title: "Explore Interior Design Support for Your Property",
     description:
-      "Transform your property with elegant, functional, and market-ready interiors designed to enhance comfort and value.",
+      "Discuss design categories, property requirements and availability through a consultation. Imagery is illustrative unless identified as verified project work.",
     image: "/images/services/img/bg-img/interior-decoration.jpg",
     heroLinks: [
       {
-        label: "Get a Free Design Consultation",
+        label: "Book a Design Consultation",
         href: "/contact",
       },
       {
-        label: "View Our Interior Design Portfolio",
-        href: "/contact",
+        label: "Explore Design Services",
+        href: "#service-section-1",
       },
     ],
     sections: [

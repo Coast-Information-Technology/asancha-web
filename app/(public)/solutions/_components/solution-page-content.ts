@@ -1,5 +1,7 @@
 import type { SolutionPageExperienceProps } from "./solution-page-experience";
 
+import { DUMMY_MARKETPLACE_LISTINGS } from "@/src/features/marketplace/constants/marketplace-dummy-data";
+
 const dummyNote =
   "Illustrative marketplace data for this preview. This component is ready to receive live marketplace API data.";
 
@@ -18,27 +20,14 @@ export const investorPageContent = {
   ],
   sections: [
     {
-      kind: "showcase",
+      kind: "listings",
       eyebrow: "Sourced opportunities",
       heading: "See the product, not just the promise.",
       description:
         "Published opportunities appear early so you can understand what Asancha helps you discover.",
-      label: "Example opportunity",
-      title: "3-bed terrace · Manchester",
-      badge: "Published",
-      metrics: [
-        { label: "Asking price", value: "£185,000" },
-        { label: "Est. rent", value: "£1,150 pcm" },
-        { label: "Gross yield", value: "7.5%" },
-        { label: "Strategy", value: "Buy-to-let" },
-      ],
-      details: [
-        "Tenanted property",
-        "Light refurbishment indicated",
-        "Investor information available",
-        "Match context shown after profile setup",
-      ],
-      note: dummyNote,
+      items: DUMMY_MARKETPLACE_LISTINGS.slice(0, 3),
+      action: { label: "View All Properties", href: "/marketplace" },
+      note: "Public-safe preview data from the current marketplace data source. Calculations and estimates are labelled on each card and do not guarantee outcomes.",
     },
     {
       kind: "steps",
@@ -305,6 +294,14 @@ export const ownerPageContent = {
         "Clear route to enquire",
       ],
       note: dummyNote,
+      image: {
+        src: "/auth-bg.avif",
+        alt: "Illustrative public property opportunity preview",
+      },
+      action: {
+        label: "View Property",
+        href: "/marketplace/manchester-bmv-terrace-near-ancoats",
+      },
     },
     {
       kind: "cards",
@@ -375,17 +372,30 @@ export const ownerPageContent = {
       ],
     },
     {
-      kind: "timeline",
+      kind: "workspace",
       eyebrow: "Owner workspace",
       heading: "Track status and know what happens next.",
       description: "A submission is not automatically published or verified.",
+      stats: [
+        { label: "Properties", value: "1" },
+        { label: "Published", value: "0" },
+        { label: "Enquiries", value: "2" },
+        { label: "Actions", value: "1" },
+      ],
+      tabs: ["Properties", "Enquiries", "Documents", "Messages"],
       items: [
-        "Draft",
-        "Submitted",
-        "Under review",
-        "Approved / Action required",
-        "Published",
-        "Progressing",
+        {
+          title: "Birmingham apartment",
+          meta: "Draft → Submitted → Under review → Published → Progressing",
+          status: "Action required",
+          actions: ["Edit listing", "Upload documents"],
+        },
+        {
+          title: "Approved listing activity",
+          meta: "Permitted activity becomes available as the listing progresses.",
+          status: "Illustrative",
+          actions: ["View enquiries", "Messages"],
+        },
       ],
     },
     {
@@ -436,13 +446,13 @@ export const ownerPageContent = {
 
 export const agentPageContent = {
   eyebrow: "For property agents",
-  title: "Present Client Properties to Relevant Buyers & Investors",
+  title: "Manage Client Properties and Reach Relevant Investors",
   description:
     "Manage authorised client stock, control listing information and progress enquiries through one structured agent workspace.",
-  primaryAction: { label: "Create Agent Account", href: "/auth/sign-up" },
+  primaryAction: { label: "Join as a Property Agent", href: "/auth/sign-up" },
   secondaryAction: {
-    label: "Submit a Property",
-    href: "/dashboard/property-agent/properties/new",
+    label: "See How It Works",
+    href: "/how-it-works",
   },
   trustIndicators: [
     "Multi-property management",
@@ -527,6 +537,14 @@ export const agentPageContent = {
         "Controlled supporting documents",
       ],
       note: dummyNote,
+      image: {
+        src: "/auth-bg.avif",
+        alt: "Illustrative agent-managed public property listing",
+      },
+      action: {
+        label: "View Property",
+        href: "/marketplace/manchester-bmv-terrace-near-ancoats",
+      },
     },
     {
       kind: "cards",
@@ -558,6 +576,40 @@ export const agentPageContent = {
           description:
             "See publication, correction and progression states clearly.",
           icon: "check",
+        },
+      ],
+    },
+    {
+      kind: "comparison",
+      eyebrow: "Investor discovery",
+      heading: "Show why approved client stock may be relevant.",
+      description:
+        "Discovery uses stated investor criteria as decision support and never guarantees a buyer, viewing, offer or completion.",
+      columns: [
+        {
+          title: "Investor criteria",
+          items: [
+            { label: "Location", value: "Leeds" },
+            { label: "Budget", value: "Up to £350k" },
+            { label: "Strategy", value: "HMO" },
+          ],
+        },
+        {
+          title: "Client listing",
+          badge: "Potentially relevant",
+          items: [
+            { label: "Location", value: "Leeds" },
+            { label: "Asking price", value: "£310k" },
+            { label: "Strategy", value: "HMO" },
+          ],
+        },
+        {
+          title: "Important boundary",
+          items: [
+            { label: "Match type", value: "Advisory" },
+            { label: "Buyer", value: "Not guaranteed" },
+            { label: "Due diligence", value: "Still required" },
+          ],
         },
       ],
     },
@@ -644,11 +696,11 @@ export const agentPageContent = {
 
 export const sourcerPageContent = {
   eyebrow: "For property sourcers",
-  title: "Present Sourced Property Opportunities to Relevant Investors",
+  title: "Get Your Property Opportunities in Front of Relevant Investors",
   description:
     "Package investment-focused opportunities, disclose sourcing fees and manage reviewed deals from one sourcer workspace.",
   primaryAction: { label: "Join as a Property Sourcer", href: "/auth/sign-up" },
-  secondaryAction: { label: "Explore Properties", href: "/marketplace" },
+  secondaryAction: { label: "See How It Works", href: "/how-it-works" },
   trustIndicators: [
     "Structured deal presentation",
     "Investor alignment",
@@ -707,6 +759,14 @@ export const sourcerPageContent = {
         "Protected deal pack access",
       ],
       note: dummyNote,
+      image: {
+        src: "/auth-bg.avif",
+        alt: "Illustrative sourced property deal preview",
+      },
+      action: {
+        label: "View Example Property",
+        href: "/marketplace/leeds-light-refurb-semi-detached",
+      },
     },
     {
       kind: "cards",
@@ -797,6 +857,70 @@ export const sourcerPageContent = {
           title: "Liverpool buy-to-let",
           meta: "Published to eligible investors",
           status: "Published",
+        },
+      ],
+    },
+    {
+      kind: "comparison",
+      eyebrow: "Transparent sourcing fees",
+      heading: "Keep each money flow clear and separate.",
+      description:
+        "Deal-specific sourcing fees are disclosed separately from the property price, platform charges and any reservation-related payment.",
+      columns: [
+        {
+          title: "Property price",
+          items: [
+            { label: "Example asking price", value: "£160,000" },
+            { label: "Information type", value: "Property fact" },
+          ],
+        },
+        {
+          title: "Sourcing fee",
+          badge: "Disclosed separately",
+          items: [
+            { label: "Example fee", value: "£3,000" },
+            { label: "Payee / timing", value: "Deal-specific terms" },
+          ],
+        },
+        {
+          title: "Other payments",
+          items: [
+            { label: "Platform charges", value: "Separate where applicable" },
+            { label: "Reservation payment", value: "Not a purchase" },
+          ],
+        },
+      ],
+    },
+    {
+      kind: "cards",
+      eyebrow: "Trust & verification",
+      heading: "Professional checks support trust without overclaiming.",
+      description:
+        "Sourcer, authority, document and opportunity review are separate controls; approval of one does not automatically verify every deal statement.",
+      items: [
+        {
+          title: "Professional Profile",
+          description:
+            "Complete the identity and business checks relevant to the sourcer role.",
+          icon: "agent",
+        },
+        {
+          title: "Authority Evidence",
+          description:
+            "Provide lawful authority information where the submitted opportunity requires it.",
+          icon: "document",
+        },
+        {
+          title: "Opportunity Review",
+          description:
+            "Submission, approval, publication and verification remain distinct states.",
+          icon: "search",
+        },
+        {
+          title: "Advisory Matching",
+          description:
+            "Matching supports discovery and does not guarantee investor demand or suitability.",
+          icon: "shield",
         },
       ],
     },
@@ -933,15 +1057,29 @@ export const providerPageContent = {
           icon: "briefcase",
         },
         {
-          title: "Survey & Inspection",
+          title: "Survey & Valuation",
           description: "Survey, valuation, inspection and condition services.",
           icon: "search",
         },
         {
-          title: "Property Operations",
-          description:
-            "Refurbishment, planning, management, tax and property marketing.",
+          title: "Construction & Refurbishment",
+          description: "Refurbishment, construction and planning support.",
           icon: "building",
+        },
+        {
+          title: "Property Management",
+          description: "Property operations, management and related services.",
+          icon: "building",
+        },
+        {
+          title: "Tax & Accounting",
+          description: "Property-related tax and accounting support.",
+          icon: "briefcase",
+        },
+        {
+          title: "Photography & Floor Plans",
+          description: "Approved property marketing and visual services.",
+          icon: "document",
         },
       ],
     },
@@ -966,7 +1104,7 @@ export const providerPageContent = {
         "Platform contact route",
         "Only approved status labels shown",
       ],
-      note: dummyNote,
+      note: "Illustrative provider profile. Status wording must map to the approved production verification scope before release.",
     },
     {
       kind: "showcase",
@@ -987,7 +1125,7 @@ export const providerPageContent = {
         "Respond or request information",
         "Private details remain controlled",
       ],
-      note: dummyNote,
+      note: "Illustrative property-linked enquiry. Private address, user and document information remains controlled.",
     },
     {
       kind: "cards",
@@ -1024,7 +1162,7 @@ export const providerPageContent = {
       eyebrow: "Provider workspace",
       heading: "Manage enquiries and work in one place.",
       description:
-        "Payment-aware actions remain supporting functionality after enquiry and booking management.",
+        "Illustrative figures demonstrate supported workspace areas. Payment-aware actions remain secondary to enquiries and bookings.",
       stats: [
         { label: "New enquiries", value: "6" },
         { label: "Bookings", value: "3" },
@@ -1046,9 +1184,43 @@ export const providerPageContent = {
       ],
     },
     {
+      kind: "cards",
+      eyebrow: "Professional verification",
+      heading: "Build trust with evidence relevant to the service category.",
+      description:
+        "Requirements can include identity, company information, qualifications, licences, registrations or insurance. Asancha does not replace professional regulators or insurers.",
+      items: [
+        {
+          title: "Category-Specific Checks",
+          description:
+            "Evidence requirements follow the selected service category rather than one generic badge.",
+          icon: "clipboard",
+        },
+        {
+          title: "Scoped Status Wording",
+          description:
+            "Only display approval language supported by the evidence actually reviewed.",
+          icon: "check",
+        },
+        {
+          title: "Actionable Review",
+          description:
+            "Providers can see when evidence is under review or requires correction.",
+          icon: "document",
+        },
+        {
+          title: "Ongoing Responsibility",
+          description:
+            "Provider approval does not verify every quote, deliverable or professional opinion.",
+          icon: "shield",
+        },
+      ],
+    },
+    {
       kind: "split",
-      eyebrow: "Professional trust",
-      heading: "Build trust with the right evidence.",
+      eyebrow: "Public vs protected",
+      heading:
+        "Present professional information without exposing private evidence.",
       description:
         "Approval does not replace a regulator, professional body, licence issuer or insurer.",
       leftTitle: "May appear on the profile",
@@ -1066,6 +1238,27 @@ export const providerPageContent = {
         "Payment evidence and conversations",
       ],
     },
+    {
+      kind: "split",
+      eyebrow: "Payment-aware workflows",
+      heading: "Keep payments in their proper supporting role.",
+      description:
+        "Where enabled, payment-related actions follow booking, access and secure review rules. Uploading proof does not approve a payment.",
+      leftTitle: "May be available in the workflow",
+      leftItems: [
+        "Service fee or quote reference",
+        "Payment reference status",
+        "Permitted proof submission",
+        "Booking-linked payment context",
+      ],
+      rightTitle: "Important boundaries",
+      rightItems: [
+        "Payment proof is not payment approval",
+        "Platform and provider fees remain distinct",
+        "Property or reservation money flows remain separate",
+        "Frontend status never overrides secure checks",
+      ],
+    },
   ],
   faqs: [
     {
@@ -1079,6 +1272,21 @@ export const providerPageContent = {
         "Eligible requests can include only the property context you are permitted to access.",
     },
     {
+      question: "Can I set my coverage area and availability?",
+      answer:
+        "Yes. Provider profiles support service-area and availability information, subject to the approved profile and category workflow.",
+    },
+    {
+      question: "Can I provide quotes or pricing guidance?",
+      answer:
+        "Where enabled, providers can use permitted quote or pricing workflows. Any displayed guidance must remain accurate and follow the applicable category rules.",
+    },
+    {
+      question: "How do bookings and payment references work?",
+      answer:
+        "Bookings, messages and payment-aware actions are separate workflow states. A payment reference or uploaded proof does not itself approve a payment.",
+    },
+    {
       question: "Does Asancha guarantee bookings or revenue?",
       answer:
         "No. The platform supports discovery and workflow but cannot guarantee enquiries, work or revenue.",
@@ -1090,14 +1298,18 @@ export const providerPageContent = {
 } satisfies SolutionPageExperienceProps;
 
 export const apiPartnerPageContent = {
-  eyebrow: "Asancha API partners",
-  title: "Bring Asancha Property Sourcing & Intelligence into Your Product",
+  eyebrow: "Asancha API partnerships",
+  title: "Connect Your Platform to Asancha Property Sourcing Capabilities",
   description:
-    "Connect approved Apps and systems to selected Asancha property capabilities through scoped APIs, secure credentials and event-driven integrations.",
+    "Apply to integrate approved Asancha property sourcing and intelligence capabilities into your product or internal system, with App-specific permissions and controlled access.",
   primaryAction: { label: "Apply for API Access", href: "/api-partner/apply" },
   secondaryAction: {
-    label: "Explore API Capabilities",
-    href: "#solution-section-0",
+    label: "Explore Integration Use Cases",
+    href: "#solution-section-3",
+  },
+  utilityAction: {
+    label: "Check Application Status",
+    href: "/api-partner/application-status",
   },
   trustIndicators: [
     "Scoped access",
@@ -1136,6 +1348,34 @@ export const apiPartnerPageContent = {
           description:
             "React to approved listing and App events through webhooks.",
           icon: "key",
+        },
+      ],
+    },
+    {
+      kind: "workspace",
+      eyebrow: "API App workspace",
+      heading: "Manage each approved integration separately.",
+      description:
+        "Illustrative App-level view. It never displays full credentials, private endpoints or internal error traces.",
+      stats: [
+        { label: "Apps", value: "2" },
+        { label: "Requests", value: "12.4k" },
+        { label: "Webhook delivery", value: "99.2%" },
+        { label: "Actions", value: "1" },
+      ],
+      tabs: ["Apps", "Scopes", "Keys", "Usage", "Webhooks"],
+      items: [
+        {
+          title: "Property Discovery App",
+          meta: "Production · scopes: listings:read · key: as_live_••••7K2P",
+          status: "Active",
+          actions: ["Usage", "Webhook status", "Last activity"],
+        },
+        {
+          title: "Research Integration",
+          meta: "Test environment · requested scopes under review",
+          status: "In review",
+          actions: ["Scope request", "App status"],
         },
       ],
     },
@@ -1249,6 +1489,8 @@ export const apiPartnerPageContent = {
           description:
             "Environment handling and endpoint, error and authentication guidance where supported.",
           icon: "document",
+          href: "/api-partner/docs",
+          action: "Developer documentation",
         },
         {
           title: "Webhooks",
@@ -1261,6 +1503,8 @@ export const apiPartnerPageContent = {
           description:
             "App-level usage, key and status visibility where supported.",
           icon: "investor",
+          href: "/api-partner/usage",
+          action: "Usage workspace",
         },
       ],
     },
@@ -1348,6 +1592,11 @@ export const apiPartnerPageContent = {
       answer:
         "Commercial terms may depend on approved capabilities, scope and expected usage; applying does not activate billing.",
     },
+    {
+      question: "How are rate limits and support handled?",
+      answer:
+        "Limits and support arrangements depend on the approved App, capabilities and applicable agreement. Confirmed details are provided through approved partner resources.",
+    },
   ],
   finalCtaHeading: "Apply for API access.",
   finalCtaDescription:
@@ -1356,11 +1605,14 @@ export const apiPartnerPageContent = {
 
 export const aboutPageContent = {
   eyebrow: "About Asancha",
-  title: "Building a More Intelligent Way to Source Property",
+  title: "Making Property Sourcing Smarter, Simpler and More Connected",
   description:
-    "Asancha is a UK property sourcing platform bringing structured opportunities, clearer intelligence, relevant matching and controlled progression into one connected experience.",
+    "Asancha is a UK property sourcing platform connecting investors with opportunities from property owners, agents and sourcers. Structured information, intelligent matching and connected professional services support clearer discovery, evaluation and progression.",
   primaryAction: { label: "Explore Properties", href: "/marketplace" },
-  secondaryAction: { label: "See How It Works", href: "/how-it-works" },
+  secondaryAction: {
+    label: "For Property Sourcers",
+    href: "/solutions/property-sourcers",
+  },
   trustIndicators: [
     "UK property focus",
     "Structured sourcing",
@@ -1370,12 +1622,11 @@ export const aboutPageContent = {
   sections: [
     {
       kind: "showcase",
-      eyebrow: "Why Asancha exists",
-      heading:
-        "Property sourcing should feel connected, clear and trustworthy.",
+      eyebrow: "Our story",
+      heading: "Why Asancha was created.",
       description:
-        "Property information and next steps are often fragmented across people, documents and systems. Asancha was built to organise that journey without replacing professional judgement.",
-      label: "Our purpose",
+        "Property opportunities, supporting information and next steps are often fragmented across people, documents and systems. Asancha is being built to organise that journey while keeping professional judgement and due diligence where they belong.",
+      label: "Why we started",
       title: "Bring the opportunity and the next step together",
       details: [
         "Make opportunities easier to understand",
@@ -1385,11 +1636,28 @@ export const aboutPageContent = {
       ],
     },
     {
+      kind: "split",
+      eyebrow: "Mission & vision",
+      heading: "A clearer direction for UK property sourcing.",
+      description:
+        "These concise statements describe the purpose and long-term direction of the Asancha platform.",
+      leftTitle: "Our mission",
+      leftItems: [
+        "Make UK property sourcing more accessible, informed and connected",
+        "Bring opportunities, information and relevant participants into one experience",
+      ],
+      rightTitle: "Our vision",
+      rightItems: [
+        "A property sourcing ecosystem with clearer information",
+        "Help people discover and progress suitable opportunities with greater confidence",
+      ],
+    },
+    {
       kind: "steps",
       eyebrow: "What Asancha brings together",
-      heading: "Source. Understand. Verify. Progress.",
+      heading: "Source. Evaluate. Match. Verify. Progress.",
       description:
-        "Four connected ideas express the platform more clearly than a long inventory of features.",
+        "These are conceptual stages; they do not imply that every opportunity is verified, suitable or guaranteed to complete.",
       items: [
         {
           title: "Source",
@@ -1397,9 +1665,14 @@ export const aboutPageContent = {
             "Discover or submit structured UK property opportunities.",
         },
         {
-          title: "Understand",
+          title: "Evaluate",
           description:
             "Review clearer information, comparisons and explainable indicators.",
+        },
+        {
+          title: "Match",
+          description:
+            "Understand how an opportunity may align with stated preferences.",
         },
         {
           title: "Verify",
@@ -1424,24 +1697,82 @@ export const aboutPageContent = {
           title: "Investors",
           description: "Discover, compare and progress relevant opportunities.",
           icon: "investor",
+          href: "/solutions/investors",
+          action: "Investor journey",
         },
         {
-          title: "Owners & Agents",
+          title: "Property Owners",
           description:
-            "Present owned or represented property through controlled routes.",
+            "Present owned property through a controlled listing route.",
           icon: "building",
+          href: "/solutions/property-owners",
+          action: "Owner journey",
+        },
+        {
+          title: "Property Agents",
+          description:
+            "Manage authorised client stock and approved listing activity.",
+          icon: "agent",
+          href: "/solutions/property-agents",
+          action: "Agent journey",
         },
         {
           title: "Property Sourcers",
           description:
             "Package investment-focused opportunities with transparent information.",
           icon: "search",
+          href: "/solutions/property-sourcers",
+          action: "Sourcer journey",
         },
         {
-          title: "Providers & Partners",
+          title: "Service Providers",
           description:
-            "Support the journey with expertise or approved integrations.",
+            "Support property journeys with relevant professional services.",
           icon: "users",
+          href: "/solutions/service-providers",
+          action: "Provider journey",
+        },
+        {
+          title: "API Partners",
+          description:
+            "Connect approved products and internal systems through scoped access.",
+          icon: "key",
+          href: "/api-partners",
+          action: "API partnerships",
+        },
+      ],
+    },
+    {
+      kind: "cards",
+      eyebrow: "What makes us different",
+      heading:
+        "Property sourcing with clearer context and connected next steps.",
+      description:
+        "The platform combines opportunity discovery with structured information, explainable relevance and controlled progression.",
+      items: [
+        {
+          title: "Relevant Opportunities",
+          description:
+            "Focus discovery around stated property goals and preferences.",
+          icon: "search",
+        },
+        {
+          title: "Clearer Information",
+          description:
+            "Present facts, calculations and estimates with clearer labels.",
+          icon: "clipboard",
+        },
+        {
+          title: "Explainable Matching",
+          description:
+            "Show why an opportunity may align without promising suitability.",
+          icon: "sparkles",
+        },
+        {
+          title: "Connected Progression",
+          description:
+            "Keep permitted records, communication and next actions together.",
+          icon: "check",
         },
       ],
     },
@@ -1489,6 +1820,22 @@ export const aboutPageContent = {
         "Payment and reservation records",
         "Restricted conversations and analysis",
       ],
+    },
+    {
+      kind: "showcase",
+      eyebrow: "People & credibility",
+      heading: "Trust should be supported by evidence, not invented claims.",
+      description:
+        "Asancha publishes its platform policies, access boundaries and contact routes openly. Named founder, team and milestone information will only be added after the business owner supplies and approves it.",
+      label: "Company transparency",
+      title: "Clear routes to policies, support and accountable contact",
+      details: [
+        "Public terms, privacy and platform rules",
+        "Documented role and access boundaries",
+        "Public contact and support routes",
+        "No fabricated testimonials, volumes or performance statistics",
+      ],
+      action: { label: "Contact Asancha", href: "/contact" },
     },
     {
       kind: "route",

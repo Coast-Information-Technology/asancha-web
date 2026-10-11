@@ -21,6 +21,10 @@ interface ContactFormErrors {
 
 const enquiryCategories = [
   "Property sourcing",
+  "Property investment or joint venture",
+  "Property management",
+  "Property refurbishment",
+  "Interior design",
   "Property submission",
   "Property agent enquiry",
   "Property sourcer enquiry",
@@ -32,6 +36,11 @@ const enquiryCategories = [
   "Business or general enquiry",
   "Other",
 ] as const;
+
+interface ContactFormProps {
+  initialCategory?: string;
+  initialSubject?: string;
+}
 
 const accountStatusOptions = [
   "No",
@@ -51,11 +60,14 @@ const publicReferencePattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]{2,120}$/;
 /**
  * Renders a safe public contact form.
  */
-export function ContactForm() {
+export function ContactForm({
+  initialCategory = "",
+  initialSubject = "",
+}: ContactFormProps) {
   const [form, setForm] = useState({
     accountStatus: "",
     email: "",
-    enquiryCategory: "",
+    enquiryCategory: initialCategory,
     fullName: "",
     marketingConsent: false,
     message: "",
@@ -63,7 +75,7 @@ export function ContactForm() {
     preferredContactMethod: "Email",
     privacyAcknowledged: false,
     relatedPublicReference: "",
-    subject: "",
+    subject: initialSubject,
   });
   const [errors, setErrors] = useState<ContactFormErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -206,8 +218,7 @@ export function ContactForm() {
           className="mb-2 block text-sm font-bold text-foreground"
           htmlFor="contact-enquiry-category"
         >
-          What can we help you with?{" "}
-          <span className="text-destructive">*</span>
+          What can we help you with? <span className="text-destructive">*</span>
         </label>
         <select
           aria-describedby={

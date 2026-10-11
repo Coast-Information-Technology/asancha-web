@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -25,6 +26,9 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { MarketplaceListingCard } from "@/src/components/marketplace/marketplace-listing-card";
+import type { MarketplaceListingCard as MarketplaceListingCardType } from "@/src/features/marketplace/types/marketplace.types";
+
 type IconName =
   | "agent"
   | "booking"
@@ -42,7 +46,13 @@ type IconName =
   | "sliders"
   | "sparkles"
   | "users";
-type Card = { title: string; description: string; icon?: IconName };
+type Card = {
+  title: string;
+  description: string;
+  icon?: IconName;
+  href?: string;
+  action?: string;
+};
 type Metric = { label: string; value: string };
 type ContentSection =
   | {
@@ -70,6 +80,17 @@ type ContentSection =
       metrics?: Metric[];
       details: string[];
       note?: string;
+      image?: { src: string; alt: string };
+      action?: { label: string; href: string };
+    }
+  | {
+      kind: "listings";
+      eyebrow: string;
+      heading: string;
+      description: string;
+      items: MarketplaceListingCardType[];
+      action: { label: string; href: string };
+      note?: string;
     }
   | {
       kind: "workspace";
@@ -78,7 +99,12 @@ type ContentSection =
       description: string;
       stats: Metric[];
       tabs: string[];
-      items: Array<{ title: string; meta: string; status: string }>;
+      items: Array<{
+        title: string;
+        meta: string;
+        status: string;
+        actions?: string[];
+      }>;
     }
   | {
       kind: "split";
@@ -130,6 +156,7 @@ export interface SolutionPageExperienceProps {
   description: string;
   primaryAction: { label: string; href: string };
   secondaryAction?: { label: string; href: string };
+  utilityAction?: { label: string; href: string };
   trustIndicators: string[];
   sections: ContentSection[];
   faqs: Array<{ question: string; answer: string }>;
@@ -245,6 +272,15 @@ function CardGrid({ items }: { items: Card[] }) {
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {item.description}
             </p>
+            {item.href ? (
+              <Link
+                className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
+                href={item.href}
+              >
+                {item.action ?? "Explore"}
+                <ArrowRight aria-hidden="true" size={16} />
+              </Link>
+            ) : null}
           </motion.article>
         );
       })}
@@ -297,7 +333,7 @@ function RenderSection({
       <Section className={bg} id={id}>
         <Heading {...section} id={id} />
         <motion.ol
-          className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4"
+          className={`mt-10 grid gap-5 md:grid-cols-2 ${section.items.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}
           variants={stagger}
         >
           {section.items.map((item, i) => (
@@ -334,6 +370,17 @@ function RenderSection({
         <div className="grid gap-10 lg:grid-cols-[.82fr_1.18fr] lg:items-center">
           <Heading {...section} id={id} />
           <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
+            {section.image ? (
+              <div className="relative aspect-[16/7] overflow-hidden bg-muted">
+                <Image
+                  alt={section.image.alt}
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  src={section.image.src}
+                />
+              </div>
+            ) : null}
             <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
               <p className="text-xs font-bold uppercase tracking-wide text-primary">
                 {section.label}
@@ -378,9 +425,48 @@ function RenderSection({
                   {section.note}
                 </p>
               )}
+              {section.action ? (
+                <Link
+                  className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary-hover"
+                  href={section.action.href}
+                >
+                  {section.action.label}
+                  <ArrowRight aria-hidden="true" size={16} />
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>
+      </Section>
+    );
+  if (section.kind === "listings")
+    return (
+      <Section className={bg} id={id}>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <Heading {...section} id={id} />
+          <Link
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-bold text-primary shadow-sm hover:bg-muted"
+            href={section.action.href}
+          >
+            {section.action.label}
+            <ArrowRight aria-hidden="true" size={16} />
+          </Link>
+        </div>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {section.items.map((listing) => (
+            <MarketplaceListingCard
+              headingLevel={3}
+              key={listing.listingPublicId}
+              listing={listing}
+              viewMode="grid"
+            />
+          ))}
+        </div>
+        {section.note ? (
+          <p className="mt-6 text-sm leading-6 text-muted-foreground">
+            {section.note}
+          </p>
+        ) : null}
       </Section>
     );
   if (section.kind === "workspace")
@@ -421,6 +507,18 @@ function RenderSection({
                   <p className="mt-1 text-sm text-muted-foreground">
                     {item.meta}
                   </p>
+                  {item.actions?.length ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {item.actions.map((action) => (
+                        <span
+                          className="rounded-lg border border-border bg-muted px-2.5 py-1 text-xs font-bold text-foreground"
+                          key={action}
+                        >
+                          {action}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-primary">
                   {item.status}
@@ -606,6 +704,16 @@ export function SolutionPageExperience(props: SolutionPageExperienceProps) {
                 </Link>
               )}
             </motion.div>
+            {props.utilityAction ? (
+              <motion.p className="mt-4" variants={reveal}>
+                <Link
+                  className="text-sm font-bold text-primary-foreground/80 underline-offset-4 hover:text-primary-foreground hover:underline"
+                  href={props.utilityAction.href}
+                >
+                  {props.utilityAction.label}
+                </Link>
+              </motion.p>
+            ) : null}
             <motion.ul
               className="mt-8 flex flex-wrap gap-x-6 gap-y-3"
               variants={stagger}

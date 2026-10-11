@@ -17,10 +17,10 @@ import { AboutPageExperience } from "./_components/about-page-experience";
 export const metadata: Metadata = {
   metadataBase: new URL("https://asancha.co.uk"),
   title: {
-    absolute: "About Asancha | AI Property Intelligence and Property Sourcing",
+    absolute: "About Asancha | Smarter, Connected Property Sourcing",
   },
   description:
-    "Learn how Asancha combines AI-powered property intelligence, structured property sourcing, verification workflows, and personalised opportunity matching across the UK property market.",
+    "Learn how Asancha connects UK property opportunities, clearer information, explainable matching and controlled progression across investors and property professionals.",
   keywords: [
     "about Asancha",
     "Asancha property sourcing",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     locale: "en_GB",
     url: "https://asancha.co.uk/about",
     siteName: "Asancha",
-    title: "About Asancha | AI Property Intelligence and Property Sourcing",
+    title: "About Asancha | Smarter, Connected Property Sourcing",
     description:
       "Learn how Asancha combines structured property sourcing, AI-powered intelligence, personalised matching, verification workflows, and controlled property access across the UK.",
     images: [
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "About Asancha | AI Property Intelligence and Property Sourcing",
+    title: "About Asancha | Smarter, Connected Property Sourcing",
     description:
       "Discover how Asancha is building a more structured, intelligent, and trusted way to source and understand UK property opportunities.",
     images: [

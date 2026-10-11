@@ -32,16 +32,16 @@ import { createPublicPageJsonLdBundle } from "@/src/lib/seo/json-ld";
 import { PublicPageHero } from "../_components/public-page-hero";
 
 export const metadata: Metadata = {
-  title: "Support | Asancha",
+  title: "Help Centre | Asancha",
   description:
-    "Get public support guidance for Asancha marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
+    "Find public guidance for Asancha marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
   alternates: {
     canonical: "/support",
   },
   openGraph: {
-    title: "Support | Asancha",
+    title: "Help Centre | Asancha",
     description:
-      "Find the right Asancha support path for marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
+      "Find the right Asancha help route for marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
     url: "/support",
     type: "website",
   },
@@ -81,7 +81,7 @@ const supportAreas = [
 ] as const;
 
 const publicSupportRules = [
-  "Use public support for general questions only.",
+  "Use the public Help Centre for general guidance only.",
   "Do not submit passwords, API keys, webhook secrets, or full identity documents.",
   "Do not share private payment details through public contact or support forms.",
   "Sign in before asking about account-specific documents, bookings, payments, or partner settings.",
@@ -97,17 +97,17 @@ const accountSupportExamples = [
 ] as const;
 
 /**
- * Renders the public support page.
+ * Renders the public Help Centre page.
  */
 export default function SupportPage() {
   const jsonLd = createPublicPageJsonLdBundle({
     path: "/support",
-    name: "Asancha Support",
+    name: "Asancha Help Centre",
     description:
-      "Get public support guidance for Asancha marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
+      "Find public guidance for Asancha marketplace browsing, signup, onboarding, verification, payments, bookings, and API partner applications.",
     breadcrumbs: [
       { name: "Home", path: "/" },
-      { name: "Support", path: "/support" },
+      { name: "Help Centre", path: "/support" },
     ],
   });
 
@@ -117,15 +117,15 @@ export default function SupportPage() {
 
       <main>
         <PublicPageHero
-          description="Public support can guide you toward the right next step. For account-specific issues, sign in so Asancha can show safer, account-aware support options."
-          eyebrow="Support"
+          description="The Help Centre can guide you towards the right next step. For account-specific issues, sign in to contact Asancha support through a safer, account-aware route."
+          eyebrow="Help Centre"
           primaryAction={{
             label: "Sign in for account support",
             href: "/auth/sign-in?next=/account/support",
           }}
           secondaryAction={{ label: "Contact Asancha", href: "/contact" }}
-          secondaryDescription="Use this page for general support guidance around marketplace discovery, signup, onboarding, public user roles, service provider workflows, payment-sensitive actions, and API partner applications."
-          title="Get help without exposing sensitive information."
+          secondaryDescription="Use this page for general guidance around marketplace discovery, signup, onboarding, public user roles, service provider workflows, payment-sensitive actions, and API partner applications."
+          title="Find guidance and the right route for help."
         />
 
         <section
@@ -135,31 +135,31 @@ export default function SupportPage() {
           <div className="asancha-page-container py-16">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                Support paths
+                Help routes
               </p>
 
               <h2
                 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground"
                 id="support-paths-heading"
               >
-                Choose the right support route for your issue.
+                Choose the right help route for your issue.
               </h2>
 
               <p className="mt-4 text-base leading-7 text-muted-foreground">
-                Public support is for general guidance. Account-aware support is
-                for private records, protected workflows, and user-specific
-                activity.
+                The public Help Centre provides general guidance. Asancha
+                support handles private records, protected workflows and
+                user-specific activity after sign-in.
               </p>
             </div>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               <article className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-card-foreground">
-                  Public support
+                  Public guidance
                 </h3>
 
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Use public support for general questions about marketplace
+                  Use the Help Centre for general questions about marketplace
                   browsing, public pages, signup, role selection, or API partner
                   application entry.
                 </p>
@@ -245,18 +245,18 @@ export default function SupportPage() {
             <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
               <div>
                 <p className="text-sm font-bold uppercase tracking-wide text-primary">
-                  Public support safety
+                  Help Centre safety
                 </p>
 
                 <h2
                   className="mt-3 text-3xl font-extrabold tracking-tight text-foreground"
                   id="support-public-safety-heading"
                 >
-                  Keep private information out of public support messages.
+                  Keep private information out of public enquiries.
                 </h2>
 
                 <p className="mt-4 text-base leading-7 text-muted-foreground">
-                  Public support should not collect sensitive records. When a
+                  Public guidance should not collect sensitive records. When a
                   support request depends on private account data, the safer
                   route is to sign in and use account-aware support.
                 </p>

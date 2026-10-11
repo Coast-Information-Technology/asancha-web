@@ -39,6 +39,187 @@ interface ServiceSection {
   background: string;
 }
 
+interface ServiceTrustContent {
+  audience: string[];
+  included: string[];
+  delivery: string;
+  caveat: string;
+  faqs: Array<{ question: string; answer: string }>;
+}
+
+const serviceTrustContent: Record<string, ServiceTrustContent> = {
+  "property-sourcing": {
+    audience: [
+      "Investors with defined property requirements",
+      "Landlords exploring additional opportunities",
+      "Buyers seeking structured sourcing support",
+    ],
+    included: [
+      "Requirements and budget discussion",
+      "Opportunity identification where available",
+      "Clearly labelled property and investment indicators",
+      "Offer and progression coordination where agreed",
+    ],
+    delivery:
+      "Asancha’s role, any third-party involvement and the applicable sourcing fee are confirmed before engagement.",
+    caveat:
+      "Opportunity availability, price, yield, finance, buyer suitability and transaction completion are not guaranteed.",
+    faqs: [
+      {
+        question: "Does every enquiry result in a sourced property?",
+        answer:
+          "No. Availability depends on your requirements, the market and the opportunities available at the relevant time.",
+      },
+      {
+        question: "How are sourcing fees handled?",
+        answer:
+          "Any applicable sourcing fee, payment timing and service scope should be disclosed and agreed before you proceed.",
+      },
+      {
+        question: "Are property figures guaranteed?",
+        answer:
+          "No. Facts, calculations and estimates should be reviewed separately and supported by appropriate professional due diligence.",
+      },
+    ],
+  },
+  "property-investment": {
+    audience: [
+      "Prospective and experienced property investors",
+      "Eligible parties exploring a joint-venture discussion",
+      "Businesses or funds seeking an initial opportunity conversation",
+    ],
+    included: [
+      "Exploratory opportunity discussion",
+      "Available property information and evaluation context",
+      "Indicative process and next-step coordination",
+      "Introductions to appropriate professionals where agreed",
+    ],
+    delivery:
+      "An enquiry is exploratory and is not an investment offer, financial promotion, partnership commitment or confirmation that Asancha directly provides regulated advice.",
+    caveat:
+      "Capital is at risk. Returns, income, value growth, financing and completion are not guaranteed. Independent financial, legal and tax advice may be required.",
+    faqs: [
+      {
+        question: "Is this an investment offer?",
+        answer:
+          "No. The page provides a route to enquire. Any potential arrangement requires eligibility checks, due diligence, approved information and formal documentation.",
+      },
+      {
+        question: "Are returns or rental income guaranteed?",
+        answer:
+          "No. Property values, rental income, yields and returns can change and are never guaranteed by Asancha.",
+      },
+      {
+        question: "Who provides financial or legal advice?",
+        answer:
+          "Regulated financial and legal advice must be provided by appropriately authorised independent professionals.",
+      },
+    ],
+  },
+  "property-management": {
+    audience: [
+      "Landlords and property owners",
+      "Investors requiring management support",
+      "Owners seeking an initial service consultation",
+    ],
+    included: [
+      "Initial property and service-needs review",
+      "Tenant, maintenance and operational coordination where agreed",
+      "Defined reporting and communication arrangements",
+      "A confirmed service scope before work begins",
+    ],
+    delivery:
+      "Geographic coverage, the responsible service provider and whether Asancha delivers or coordinates each activity are confirmed during consultation.",
+    caveat:
+      "Service availability, tenant outcomes, payment timing and property profitability are not guaranteed.",
+    faqs: [
+      {
+        question: "Which locations are covered?",
+        answer:
+          "Coverage is confirmed during consultation; the public page does not claim nationwide availability.",
+      },
+      {
+        question: "Who performs the management work?",
+        answer:
+          "The responsible party and any approved third-party involvement are identified in the agreed service scope.",
+      },
+      {
+        question: "Is rental income guaranteed?",
+        answer:
+          "No. Rental income, occupancy, tenant performance and profitability cannot be guaranteed.",
+      },
+    ],
+  },
+  "property-refurbishment": {
+    audience: [
+      "Owners planning property improvements",
+      "Investors evaluating refurbishment projects",
+      "Landlords preparing or updating rental property",
+    ],
+    included: [
+      "Initial project discussion",
+      "Scope and requirements review",
+      "Staged planning and delivery discussion",
+      "Quotation or professional introductions where applicable",
+    ],
+    delivery:
+      "The responsible contractor, professional team, service coverage and contractual delivery scope are confirmed before work begins.",
+    caveat:
+      "Images are illustrative unless explicitly identified as verified Asancha project work. Cost, timing, permissions and outcomes are project-specific.",
+    faqs: [
+      {
+        question: "What project types can I discuss?",
+        answer:
+          "You can enquire about refurbishment, improvement and renovation needs; feasibility and availability are confirmed after review.",
+      },
+      {
+        question: "Are the displayed images completed Asancha projects?",
+        answer:
+          "Not unless the page explicitly labels and verifies them as such. General imagery is illustrative.",
+      },
+      {
+        question: "Are quotes and completion dates guaranteed?",
+        answer:
+          "No. Scope, surveys, permissions, availability and formal terms determine cost and timing.",
+      },
+    ],
+  },
+  "interior-design": {
+    audience: [
+      "Owners planning residential interiors",
+      "Landlords preparing property for occupation",
+      "Investors considering presentation or furnishing requirements",
+    ],
+    included: [
+      "Design consultation",
+      "Requirements and style discussion",
+      "Space, furnishing or presentation scope where available",
+      "Confirmed next steps and responsible delivery party",
+    ],
+    delivery:
+      "Service availability, coverage and whether work is delivered directly or coordinated through a third party are confirmed during consultation.",
+    caveat:
+      "Imagery demonstrates service categories and is not presented as verified project evidence unless explicitly labelled.",
+    faqs: [
+      {
+        question: "What design services are available?",
+        answer:
+          "Available categories and the appropriate scope are confirmed after an initial consultation.",
+      },
+      {
+        question: "Which areas are covered?",
+        answer:
+          "Availability and geographic coverage are confirmed when your enquiry is reviewed.",
+      },
+      {
+        question: "Are the displayed interiors completed Asancha projects?",
+        answer:
+          "Not unless they are specifically identified and approved as authentic project examples.",
+      },
+    ],
+  },
+};
+
 const sectionClass = "border-b border-border bg-background";
 const mutedSectionClass = "border-b border-border bg-muted";
 
@@ -386,7 +567,118 @@ function ContentSection({
   return <CardsSection index={index} section={section} />;
 }
 
+function ScopeSection({ content }: { content: ServiceTrustContent }) {
+  return (
+    <section
+      aria-labelledby="service-scope-heading"
+      className="border-b border-border bg-background"
+    >
+      <div className="asancha-page-container py-16 sm:py-20">
+        <SectionHeading
+          description="Understand who the service is for, what an enquiry may include and the boundaries confirmed before engagement."
+          id="service-scope-heading"
+          title="Who It Is For and What Is Included"
+        />
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          <article className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-card-foreground">
+              Who can enquire
+            </h3>
+            <ul className="mt-5 grid list-none gap-3 p-0">
+              {content.audience.map((item) => (
+                <li className="flex gap-3 text-sm leading-6" key={item}>
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="mt-1 shrink-0 text-primary"
+                    size={16}
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </article>
+          <article className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-card-foreground">
+              What may be included
+            </h3>
+            <ul className="mt-5 grid list-none gap-3 p-0">
+              {content.included.map((item) => (
+                <li className="flex gap-3 text-sm leading-6" key={item}>
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="mt-1 shrink-0 text-primary"
+                    size={16}
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </article>
+          <article className="rounded-2xl border border-border bg-muted p-6">
+            <h3 className="text-lg font-bold text-foreground">
+              Delivery and important boundaries
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              {content.delivery}
+            </p>
+            <p className="mt-4 rounded-xl border border-border bg-card p-4 text-sm font-semibold leading-6 text-foreground">
+              {content.caveat}
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ServiceFaqs({ content }: { content: ServiceTrustContent }) {
+  return (
+    <section
+      aria-labelledby="service-faq-heading"
+      className="border-b border-border bg-background"
+    >
+      <div className="asancha-page-container py-16 sm:py-20">
+        <SectionHeading
+          description="Practical answers about scope, delivery and the next step."
+          id="service-faq-heading"
+          title="Frequently Asked Questions"
+        />
+        <div className="mx-auto mt-10 grid max-w-4xl gap-3">
+          {content.faqs.map((faq) => (
+            <details
+              className="group rounded-xl border border-border bg-card shadow-sm"
+              key={faq.question}
+            >
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-bold text-card-foreground">
+                {faq.question}
+                <span
+                  aria-hidden="true"
+                  className="text-xl text-primary transition group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="border-t border-border px-5 py-4 text-sm leading-6 text-muted-foreground">
+                {faq.answer}
+              </p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function ServicePage({ service }: { service: ServiceContent }) {
+  const trustContent = serviceTrustContent[service.slug];
+  const contactAction =
+    service.heroLinks.find((link) => link.href === "/contact") ??
+    service.heroLinks.at(-1);
+  const getServiceHref = (href: string) =>
+    href === "/contact"
+      ? `/contact?service=${service.slug}#contact-form`
+      : href;
+
   return (
     <article className="bg-background text-foreground">
       <section className="relative isolate overflow-hidden bg-foreground text-primary-foreground">
@@ -401,6 +693,12 @@ export function ServicePage({ service }: { service: ServiceContent }) {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,23,.96),rgba(2,6,23,.78)_58%,rgba(2,6,23,.5))]" />
         <div className="asancha-page-container py-20 sm:py-28">
           <div className="max-w-4xl">
+            <Link
+              className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-primary-foreground/75 hover:text-primary-foreground hover:underline"
+              href="/services"
+            >
+              <span aria-hidden="true">←</span> All services
+            </Link>
             <p className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-2 text-xs font-bold uppercase tracking-wide backdrop-blur-sm">
               <Sparkles aria-hidden="true" size={14} />
               {service.label}
@@ -419,7 +717,7 @@ export function ServicePage({ service }: { service: ServiceContent }) {
                       ? "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground/40"
                       : "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-primary-foreground/35 bg-primary-foreground/10 px-6 py-3 text-sm font-bold text-primary-foreground backdrop-blur-sm transition hover:bg-primary-foreground/20 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-foreground/40"
                   }
-                  href={link.href}
+                  href={getServiceHref(link.href)}
                   key={link.label}
                 >
                   {link.label}
@@ -432,9 +730,49 @@ export function ServicePage({ service }: { service: ServiceContent }) {
           </div>
         </div>
       </section>
+      {trustContent ? <ScopeSection content={trustContent} /> : null}
       {service.sections.map((section, index) => (
         <ContentSection index={index} key={section.title} section={section} />
       ))}
+      {trustContent ? <ServiceFaqs content={trustContent} /> : null}
+      <section
+        aria-labelledby="service-next-step-heading"
+        className="bg-primary"
+      >
+        <div className="asancha-page-container flex flex-col gap-7 py-16 text-primary-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wide text-primary-foreground/70">
+              Next step
+            </p>
+            <h2
+              className="mt-3 text-3xl font-extrabold sm:text-4xl"
+              id="service-next-step-heading"
+            >
+              Discuss {service.label.toLowerCase()} with Asancha.
+            </h2>
+            <p className="mt-3 max-w-2xl text-primary-foreground/80">
+              Tell us what you need. Scope, availability, delivery
+              responsibility and any applicable fees will be confirmed before
+              engagement.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <Link
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background hover:bg-foreground/80"
+              href={getServiceHref(contactAction?.href ?? "/contact")}
+            >
+              {contactAction?.label ?? "Contact Asancha"}
+              <ArrowRight aria-hidden="true" size={17} />
+            </Link>
+            <Link
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10"
+              href="/services"
+            >
+              Explore Other Services
+            </Link>
+          </div>
+        </div>
+      </section>
     </article>
   );
 }

@@ -74,10 +74,10 @@ export const AUTHENTICATED_TOP_BAR_NAVIGATION = [
     access: "authenticated",
   },
   {
-    label: "Support",
+    label: "Help Centre",
     href: "/support",
-    description: "Get public or account-aware support.",
-    iconName: "Headphones",
+    description: "Find public guidance or the right support route.",
+    iconName: "CircleHelp",
     access: "public",
   },
 ] as const satisfies readonly NavigationItem[];
@@ -105,10 +105,10 @@ export const DASHBOARD_DESKTOP_TOP_BAR_ITEMS = [
     access: "authenticated",
   },
   {
-    label: "Help / Support",
+    label: "Help Centre",
     href: "/support",
-    description: "Open support.",
-    iconName: "Headphones",
+    description: "Open public guidance and help routes.",
+    iconName: "CircleHelp",
     access: "public",
   },
 ] as const satisfies readonly NavigationItem[];

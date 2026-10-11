@@ -52,6 +52,36 @@ export interface NavigationSection {
 
 export const PUBLIC_HEADER_NAVIGATION = [
   {
+    label: "Company",
+    href: "/about",
+    description: "Learn about Asancha, contact the team or find guidance.",
+    iconName: "Info",
+    access: "public",
+    children: [
+      {
+        label: "About Asancha",
+        href: "/about",
+        description: "Learn about Asancha and how the platform works.",
+        iconName: "Info",
+        access: "public",
+      },
+      {
+        label: "Contact",
+        href: "/contact",
+        description: "Send a service, partnership or general enquiry.",
+        iconName: "Mail",
+        access: "public",
+      },
+      {
+        label: "Help Centre",
+        href: "/support",
+        description: "Find public guidance and the right help route.",
+        iconName: "CircleHelp",
+        access: "public",
+      },
+    ],
+  },
+  {
     label: "Find Properties",
     href: "/marketplace",
     description: "Browse public property opportunities.",
@@ -82,35 +112,35 @@ export const PUBLIC_HEADER_NAVIGATION = [
         label: "Property Sourcing",
         href: "/services/property-sourcing",
         description:
-          "We source exclusive off-market properties with high returns for investors, landlords, and first-time buyers.",
+          "Explore structured property-sourcing support and available opportunities.",
         access: "public",
       },
       {
-        label: "Property Investments",
+        label: "Property Investment & Joint Ventures",
         href: "/services/property-investment",
         description:
-          "We help investors identify, acquire, and maximize returns on high-performing properties.",
+          "Enquire about opportunities and potential arrangements with clear risk boundaries.",
         access: "public",
       },
       {
         label: "Property Management",
         href: "/services/property-management",
         description:
-          "We handle everything from tenant sourcing to maintenance, ensuring your property stays profitable and hassle-free.",
+          "Discuss property-management scope, coverage and delivery responsibility.",
         access: "public",
       },
       {
         label: "Property Refurbishment",
         href: "/services/property-refurbishment",
         description:
-          "We transform outdated properties into modern, high-value investments with premium renovation services.",
+          "Discuss refurbishment requirements, project types and staged next steps.",
         access: "public",
       },
       {
-        label: "Interior Designs",
+        label: "Interior Design",
         href: "/services/interior-design",
         description:
-          "Transform your property with elegant, functional, and market-ready interiors designed to enhance comfort and value.",
+          "Explore interior-design categories and request a consultation.",
         access: "public",
       },
     ],
@@ -166,13 +196,6 @@ export const PUBLIC_HEADER_NAVIGATION = [
         access: "public",
       },
     ],
-  },
-  {
-    label: "About",
-    href: "/about",
-    description: "Learn about Asancha.",
-    iconName: "Info",
-    access: "public",
   },
 ] as const satisfies readonly NavigationItem[];
 
@@ -258,6 +281,13 @@ export const PUBLIC_FOOTER_NAVIGATION = [
         access: "public",
       },
       {
+        label: "Services",
+        href: "/services",
+        description: "Explore Asancha property services.",
+        iconName: "PanelsTopLeft",
+        access: "public",
+      },
+      {
         label: "FAQs",
         href: "/faqs",
         description: "Read common questions.",
@@ -335,7 +365,7 @@ export const PUBLIC_FOOTER_NAVIGATION = [
     ],
   },
   {
-    label: "Support",
+    label: "Help & Contact",
     description: "Public help and contact routes.",
     items: [
       {
@@ -346,10 +376,10 @@ export const PUBLIC_FOOTER_NAVIGATION = [
         access: "public",
       },
       {
-        label: "Support",
+        label: "Help Centre",
         href: "/support",
-        description: "Get support.",
-        iconName: "Headphones",
+        description: "Find guidance and the right help route.",
+        iconName: "CircleHelp",
         access: "public",
       },
       {
