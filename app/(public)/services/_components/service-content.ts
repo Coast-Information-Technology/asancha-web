@@ -40,6 +40,65 @@ export const services = [
         background: "#ffffff",
       },
       {
+        title: "What We Can Source for You",
+        intro: [],
+        cards: [
+          {
+            title: "Buy-to-Let Investments",
+            paragraphs: [
+              "Generate passive income with high-occupancy rental properties.",
+            ],
+            image: {
+              src: "/images/services/img/icons/management.png",
+              alt: "",
+            },
+          },
+          {
+            title: "Fix & Flip Properties",
+            paragraphs: [
+              "Buy undervalued properties, renovate, and sell for profit.",
+            ],
+            image: {
+              src: "/images/services/img/icons/financial-statement.png",
+              alt: "",
+            },
+          },
+          {
+            title: "Commercial Real Estate & conversion",
+            paragraphs: [
+              "Invest in office spaces, retail, and mixed-use developments.",
+            ],
+            image: {
+              src: "/images/services/img/icons/agreement.png",
+              alt: "",
+            },
+          },
+          {
+            title: "Land Development",
+            paragraphs: [
+              "Acquire and develop land for high-appreciation returns.",
+            ],
+            image: {
+              src: "/images/services/img/icons/development.png",
+              alt: "",
+            },
+          },
+          {
+            title: "Joint Venture Investments",
+            paragraphs: [
+              "Partner with us for profitable real estate ventures.",
+            ],
+            image: {
+              src: "/images/services/img/icons/rental1.png",
+              alt: "",
+            },
+          },
+        ],
+        links: [],
+        layout: "sourcing-options",
+        background: "#ffffff",
+      },
+      {
         title: "Why Work With Us?",
         intro: [],
         cards: [
@@ -130,9 +189,9 @@ export const services = [
   {
     slug: "property-investment",
     label: "Property Investment & Joint Ventures",
-    title: "Explore Property Investment and Joint-Venture Enquiries",
+    title: "Secure High-Yield Real Estate Investments with Expert Guidance",
     description:
-      "Discuss property opportunities and potential arrangements with clear due-diligence, eligibility and risk boundaries. Enquiries are not investment offers or return guarantees.",
+      "We help investors identify, acquire, and maximize returns on high-performing properties.",
     image: "/images/services/img/bg-img/investment-property.jpg",
     heroLinks: [
       {
@@ -140,19 +199,19 @@ export const services = [
         href: "/marketplace",
       },
       {
-        label: "Enquire About Opportunities",
+        label: "Get Expert Investment Advice",
         href: "/contact",
       },
     ],
     sections: [
       {
-        title: "Why Explore Opportunities with Asancha?",
+        title: "Why Invest with Asancha Properties?",
         intro: [],
         cards: [
           {
-            title: "Investment-Focused Opportunities",
+            title: "High-Yield Property Investments",
             paragraphs: [
-              "Review property opportunities using available information, stated criteria and appropriate due diligence.",
+              "Maximize ROI with carefully selected real estate opportunities.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -160,9 +219,9 @@ export const services = [
             },
           },
           {
-            title: "Available Direct Opportunities",
+            title: "Exclusive Off-Market Deals",
             paragraphs: [
-              "Review direct or off-market opportunities where they are genuinely available and approved for presentation.",
+              "Gain access to lucrative properties before they hit the market.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -172,7 +231,7 @@ export const services = [
           {
             title: "Data-Driven Market Analysis",
             paragraphs: [
-              "Available research can support evaluation but cannot ensure profitability or future performance.",
+              "We use in-depth research to ensure profitable investments.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -180,9 +239,9 @@ export const services = [
             },
           },
           {
-            title: "Professional Coordination",
+            title: "Expert Financial & Legal Guidance",
             paragraphs: [
-              "Where applicable, Asancha may coordinate introductions or information; regulated financial and legal advice must come from appropriately authorised professionals.",
+              "Assistance with financing, legal processes, and risk management.",
             ],
             image: {
               src: "/images/services/img/icons/checked.png",
@@ -207,65 +266,6 @@ export const services = [
           src: "/images/services/img/bg-img/investment.jpg",
           alt: "",
         },
-      },
-      {
-        title: "Types of Property Investments We Offer",
-        intro: [],
-        cards: [
-          {
-            title: "Buy-to-Let Investments",
-            paragraphs: [
-              "Generate passive income with high-occupancy rental properties.",
-            ],
-            image: {
-              src: "/images/services/img/icons/management.png",
-              alt: "Trust icon",
-            },
-          },
-          {
-            title: "Fix & Flip Properties",
-            paragraphs: [
-              "Evaluate renovation-led opportunities, costs and potential exit routes with appropriate due diligence.",
-            ],
-            image: {
-              src: "/images/services/img/icons/financial-statement.png",
-              alt: "Growth icon",
-            },
-          },
-          {
-            title: "Commercial Real Estate",
-            paragraphs: [
-              "Invest in office spaces, retail, and mixed-use developments.",
-            ],
-            image: {
-              src: "/images/services/img/icons/agreement.png",
-              alt: "transaction icon",
-            },
-          },
-          {
-            title: "Land Development",
-            paragraphs: [
-              "Explore land and development opportunities subject to planning, professional review and risk assessment.",
-            ],
-            image: {
-              src: "/images/services/img/icons/development.png",
-              alt: "transaction icon",
-            },
-          },
-          {
-            title: "Joint Venture Investments",
-            paragraphs: [
-              "Enquire about potential joint-venture discussions, subject to eligibility, due diligence, formal terms and independent advice.",
-            ],
-            image: {
-              src: "/images/services/img/icons/rental1.png",
-              alt: "transaction icon",
-            },
-          },
-        ],
-        links: [],
-        layout: "grid",
-        background: "#ffffff",
       },
       {
         title: "Invest Earn Learn",
@@ -311,7 +311,12 @@ export const services = [
             ],
           },
         ],
-        links: [],
+        links: [
+          {
+            label: "Register as an investor",
+            href: "/contact?service=property-investment#contact-form",
+          },
+        ],
         layout: "education",
         background: "#04283a",
       },
@@ -319,7 +324,12 @@ export const services = [
         title: "Choose An Investment Product To Suit Your Requirements",
         intro: [],
         cards: [],
-        links: [],
+        links: [
+          {
+            label: "Register as an investor",
+            href: "/contact?service=property-investment#contact-form",
+          },
+        ],
         layout: "graphic",
         background: "#ffffff",
         image: {
@@ -328,17 +338,57 @@ export const services = [
         },
       },
       {
+        title: "Access to our Power Teams and Trusted Suppliers",
+        intro: [
+          "Asancha has in house experts and trusted partners for every stage of your investment. Including but not limited to:",
+        ],
+        cards: [
+          {
+            title: "Lawyer",
+            paragraphs: [],
+          },
+          {
+            title: "Financial Brokers",
+            paragraphs: [],
+          },
+          {
+            title: "Accountant",
+            paragraphs: [],
+          },
+          {
+            title: "Managers",
+            paragraphs: [],
+          },
+          {
+            title: "Architects",
+            paragraphs: [],
+          },
+          {
+            title: "Builders",
+            paragraphs: [],
+          },
+        ],
+        links: [
+          {
+            label: "Register as an investor",
+            href: "/contact?service=property-investment#contact-form",
+          },
+        ],
+        layout: "teams",
+        background: "#04283a",
+      },
+      {
         title: "How Our Property Investment Process Works",
         intro: [],
         cards: [
           {
             title: "Investment Consultation",
-            paragraphs: ["We analyze your goals and risk tolerance."],
+            paragraphs: ["We analyse your goals and risk tolerance."],
           },
           {
             title: "Market Research & Property Selection",
             paragraphs: [
-              "Reviewing available opportunities against agreed criteria and risk tolerance.",
+              "Identifying the best properties for maximum returns.",
             ],
           },
           {
@@ -352,7 +402,7 @@ export const services = [
           {
             title: "Ongoing Investment Management",
             paragraphs: [
-              "Monitoring available information and reviewing performance against the agreed plan.",
+              "Monitoring performance and maximizing profitability.",
             ],
           },
         ],
@@ -385,7 +435,7 @@ export const services = [
           {
             title: "High-Net-Worth Individuals",
             paragraphs: [
-              "Explore opportunities against your objectives and risk tolerance without guaranteed returns.",
+              "Maximize returns with premium investment strategies.",
             ],
             image: {
               src: "/images/services/img/bg-img/individual-invests.jpg",

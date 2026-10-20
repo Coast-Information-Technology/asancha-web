@@ -20,7 +20,6 @@ import {
   div as MotionDiv,
   section as MotionSection,
 } from "framer-motion/client";
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -243,17 +242,19 @@ export function HomePageExperience() {
         aria-labelledby="homepage-hero-heading"
         className="relative isolate overflow-hidden bg-foreground text-primary-foreground"
       >
-        <Image
+        <video
           aria-hidden="true"
-          alt=""
-          className="absolute inset-0 -z-20 object-cover object-[68%_center] sm:object-center"
-          fetchPriority="high"
-          fill
-          loading="eager"
-          quality={70}
-          sizes="100vw"
-          src="/images/og/asancha-homepage-og.jpg"
-        />
+          autoPlay
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] sm:object-center"
+          loop
+          muted
+          playsInline
+          poster="/images/og/asancha-homepage-og.jpg"
+          preload="metadata"
+          tabIndex={-1}
+        >
+          <source src="/videos/asancha-hero.mp4" type="video/mp4" />
+        </video>
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,23,0.96)_0%,rgba(2,6,23,0.8)_56%,rgba(2,6,23,0.56)_100%)]"

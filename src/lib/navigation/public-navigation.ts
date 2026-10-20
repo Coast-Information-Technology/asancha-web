@@ -104,7 +104,7 @@ export const PUBLIC_HEADER_NAVIGATION = [
   },
   {
     label: "Services",
-    href: "/services",
+    href: "/services/property-sourcing",
     description: "Property expertise from sourcing to interior design.",
     access: "public",
     children: [
@@ -278,13 +278,6 @@ export const PUBLIC_FOOTER_NAVIGATION = [
         href: "/marketplace",
         description: "Browse public property opportunities.",
         iconName: "Building2",
-        access: "public",
-      },
-      {
-        label: "Services",
-        href: "/services",
-        description: "Explore Asancha property services.",
-        iconName: "PanelsTopLeft",
         access: "public",
       },
       {

@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, FileCheck2, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { InvestmentPage } from "./investment-page";
 
 export interface ServiceContent {
   slug: string;
@@ -34,6 +35,8 @@ interface ServiceSection {
     | "timeline"
     | "education"
     | "property-types"
+    | "sourcing-options"
+    | "teams"
     | "graphic"
     | "grid";
   background: string;
@@ -544,6 +547,77 @@ function GraphicSection({
   );
 }
 
+function PropertyTypesSection({
+  index,
+  section,
+}: {
+  index: number;
+  section: ServiceSection;
+}) {
+  const id = `service-section-${index}`;
+
+  return (
+    <section aria-labelledby={id} className={sectionClass}>
+      <div className="asancha-page-container py-16 sm:py-20">
+        <SectionHeading id={id} title={section.title} />
+        <ul className="mt-10 grid list-none gap-4 p-0 md:grid-cols-3">
+          {section.cards.map((item) => (
+            <li
+              className="flex min-h-60 flex-col items-center justify-center rounded-[10px] border-2 border-[#04283a] p-8 text-center lg:min-h-[40vh]"
+              key={item.title}
+            >
+              <h3 className="text-2xl font-bold text-foreground lg:text-[28px]">
+                {item.title}
+              </h3>
+              <ItemCopy item={item} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function SourcingOptionsSection({
+  index,
+  section,
+}: {
+  index: number;
+  section: ServiceSection;
+}) {
+  const id = `service-section-${index}`;
+
+  return (
+    <section aria-labelledby={id} className={sectionClass}>
+      <div className="asancha-page-container py-16 sm:py-20">
+        <SectionHeading id={id} title={section.title} />
+        <ul className="mt-12 flex list-none flex-wrap justify-center gap-y-12 p-0">
+          {section.cards.map((item) => (
+            <li
+              className="w-full px-6 text-center md:w-1/2 lg:w-1/3"
+              key={item.title}
+            >
+              {item.image ? (
+                <Image
+                  alt={item.image.alt}
+                  className="mx-auto h-[65px] w-[65px] object-contain"
+                  height={65}
+                  src={item.image.src}
+                  width={65}
+                />
+              ) : null}
+              <h3 className="mt-8 text-lg font-bold text-foreground">
+                {item.title}
+              </h3>
+              <ItemCopy item={item} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function ContentSection({
   index,
   section,
@@ -551,6 +625,12 @@ function ContentSection({
   index: number;
   section: ServiceSection;
 }) {
+  if (section.layout === "sourcing-options") {
+    return <SourcingOptionsSection index={index} section={section} />;
+  }
+  if (section.layout === "property-types") {
+    return <PropertyTypesSection index={index} section={section} />;
+  }
   if (section.layout === "benefits") {
     return <BenefitsSection index={index} section={section} />;
   }
@@ -670,6 +750,9 @@ function ServiceFaqs({ content }: { content: ServiceTrustContent }) {
 }
 
 export function ServicePage({ service }: { service: ServiceContent }) {
+  if (service.slug === "property-investment") {
+    return <InvestmentPage service={service} />;
+  }
   const trustContent = serviceTrustContent[service.slug];
   const contactAction =
     service.heroLinks.find((link) => link.href === "/contact") ??
@@ -693,12 +776,6 @@ export function ServicePage({ service }: { service: ServiceContent }) {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(2,6,23,.96),rgba(2,6,23,.78)_58%,rgba(2,6,23,.5))]" />
         <div className="asancha-page-container py-20 sm:py-28">
           <div className="max-w-4xl">
-            <Link
-              className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-primary-foreground/75 hover:text-primary-foreground hover:underline"
-              href="/services"
-            >
-              <span aria-hidden="true">←</span> All services
-            </Link>
             <p className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 px-4 py-2 text-xs font-bold uppercase tracking-wide backdrop-blur-sm">
               <Sparkles aria-hidden="true" size={14} />
               {service.label}
@@ -763,12 +840,6 @@ export function ServicePage({ service }: { service: ServiceContent }) {
             >
               {contactAction?.label ?? "Contact Asancha"}
               <ArrowRight aria-hidden="true" size={17} />
-            </Link>
-            <Link
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-primary-foreground/35 px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary-foreground/10"
-              href="/services"
-            >
-              Explore Other Services
             </Link>
           </div>
         </div>

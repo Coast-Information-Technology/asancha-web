@@ -11,7 +11,6 @@ const publicRoutes = [
   "/how-it-works",
   "/marketplace",
   "/pricing",
-  "/services",
   "/services/property-sourcing",
   "/services/property-investment",
   "/services/property-management",
