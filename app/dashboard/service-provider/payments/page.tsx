@@ -1,32 +1,21 @@
-// File: app/dashboard/service-provider/payments/page.tsx
-
-/**
- * Asancha Service Provider Payments Route
- *
- * Purpose:
- * Displays safe service-provider payment references and payment states.
- *
- * Security notes:
- * - Payment proof does not equal payment approval.
- * - Provider secrets, webhook secrets, bank credentials, and raw provider
- *   payloads must never be rendered.
- */
-
 import type { Metadata } from "next";
-
-import { ServiceProviderCollectionPage } from "../../_components/service-provider-collection-page";
-import { SERVICE_PROVIDER_COLLECTION_CONFIG } from "../../_config/service-provider-dashboard.config";
+import { Suspense } from "react";
+import { PaymentList } from "@/src/features/payments/components/payment-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Service Provider Payments",
+  title: "Payments | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function ProviderPaymentsPage() {
-    return (
-        <ServiceProviderCollectionPage
-            config={
-                SERVICE_PROVIDER_COLLECTION_CONFIG.payments
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <PaymentList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

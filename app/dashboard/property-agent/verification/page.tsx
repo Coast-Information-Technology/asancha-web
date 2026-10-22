@@ -1,20 +1,21 @@
-// File: app/dashboard/property-agent/verification/page.tsx
-
 import type { Metadata } from "next";
-
-import { PropertyAgentCollectionPage } from "../../_components/property-agent-collection-page";
-import { PROPERTY_AGENT_COLLECTION_CONFIG } from "../../_config/property-agent-dashboard.config";
+import { Suspense } from "react";
+import { VerificationList } from "@/src/features/verification/components/verification-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Property Agent Verification",
+  title: "Verification centre | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function AgentVerificationPage() {
-    return (
-        <PropertyAgentCollectionPage
-            config={
-                PROPERTY_AGENT_COLLECTION_CONFIG.verification
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <VerificationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

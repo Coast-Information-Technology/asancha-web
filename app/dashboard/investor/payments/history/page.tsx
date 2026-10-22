@@ -1,27 +1,21 @@
-// File: app/dashboard/investor/payments/history/page.tsx
-
-/**
- * Asancha Investor Payment History Page
- *
- * Purpose:
- * Displays safe historical investor payment records.
- */
-
 import type { Metadata } from "next";
-
-import { InvestorCollectionPage } from "../../../_components/investor-collection-page";
-import { INVESTOR_COLLECTION_CONFIG } from "../../../_config/investor-dashboard.config";
+import { Suspense } from "react";
+import { PaymentList } from "@/src/features/payments/components/payment-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Investor Payment History",
+  title: "Payment history | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function InvestorPaymentHistoryPage() {
-    return (
-        <InvestorCollectionPage
-            config={
-                INVESTOR_COLLECTION_CONFIG.paymentHistory
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <PaymentList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

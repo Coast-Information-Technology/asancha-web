@@ -1,31 +1,21 @@
-// File: app/dashboard/investor/payments/page.tsx
-
-/**
- * Asancha Investor Payments Page
- *
- * Purpose:
- * Displays active investor payment references and required actions.
- *
- * Security notes:
- * - User-submitted proof is not final approval.
- * - Provider secrets and private bank details must not appear.
- */
-
 import type { Metadata } from "next";
-
-import { InvestorCollectionPage } from "../../_components/investor-collection-page";
-import { INVESTOR_COLLECTION_CONFIG } from "../../_config/investor-dashboard.config";
+import { Suspense } from "react";
+import { PaymentList } from "@/src/features/payments/components/payment-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Investor Payments",
+  title: "Payments | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function InvestorPaymentsPage() {
-    return (
-        <InvestorCollectionPage
-            config={
-                INVESTOR_COLLECTION_CONFIG.payments
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <PaymentList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

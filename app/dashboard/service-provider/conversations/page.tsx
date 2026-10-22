@@ -1,31 +1,21 @@
-// File: app/dashboard/service-provider/conversations/page.tsx
-
-/**
- * Asancha Service Provider Conversations Route
- *
- * Purpose:
- * Displays provider-scoped service, booking, verification, document, payment,
- * and support conversations.
- *
- * Security notes:
- * - Internal staff notes and unauthorised conversation messages remain hidden.
- */
-
 import type { Metadata } from "next";
-
-import { ServiceProviderCollectionPage } from "../../_components/service-provider-collection-page";
-import { SERVICE_PROVIDER_COLLECTION_CONFIG } from "../../_config/service-provider-dashboard.config";
+import { Suspense } from "react";
+import { ConversationList } from "@/src/features/conversations/components/conversation-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Service Provider Conversations",
+  title: "Messages | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function ProviderConversationsPage() {
-    return (
-        <ServiceProviderCollectionPage
-            config={
-                SERVICE_PROVIDER_COLLECTION_CONFIG.conversations
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <ConversationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

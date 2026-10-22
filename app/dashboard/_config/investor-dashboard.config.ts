@@ -111,6 +111,12 @@ export const INVESTOR_NAVIGATION:
             exactMatch: true,
         },
         {
+            label: "Conversations",
+            href: "/dashboard/investor/conversations",
+            description: "Messages about opportunities, verification and payments",
+            exactMatch: true,
+        },
+        {
             label: "Payments",
             href: "/dashboard/investor/payments",
             description:

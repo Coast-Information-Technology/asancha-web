@@ -1,30 +1,21 @@
-// File: app/dashboard/property-owner/verification/page.tsx
-
-/**
- * Asancha Property Owner Verification Page
- *
- * Purpose:
- * Displays safe property-owner verification and correction states.
- *
- * Security notes:
- * - Internal KYC notes and risk internals remain backend-only.
- */
-
 import type { Metadata } from "next";
-
-import { PropertyOwnerCollectionPage } from "../../_components/property-owner-collection-page";
-import { PROPERTY_OWNER_COLLECTION_CONFIG } from "../../_config/property-owner-dashboard.config";
+import { Suspense } from "react";
+import { VerificationList } from "@/src/features/verification/components/verification-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Property Owner Verification",
+  title: "Verification centre | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function PropertyOwnerVerificationPage() {
-    return (
-        <PropertyOwnerCollectionPage
-            config={
-                PROPERTY_OWNER_COLLECTION_CONFIG.verification
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <VerificationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

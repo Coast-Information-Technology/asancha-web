@@ -99,6 +99,20 @@ export const API_PARTNER_DASHBOARD_NAVIGATION = [
     access: "api_partner_authenticated",
   },
   {
+    label: "Conversations",
+    href: "/conversations",
+    description: "API partner messages and support conversations.",
+    iconName: "MessagesSquare",
+    access: "api_partner_authenticated",
+  },
+  {
+    label: "Verification",
+    href: "/verification",
+    description: "Review API partner verification and corrections.",
+    iconName: "ShieldCheck",
+    access: "api_partner_authenticated",
+  },
+  {
     label: "Payments",
     href: "/api-partner/payments",
     description: "View API partner payment references and statuses.",

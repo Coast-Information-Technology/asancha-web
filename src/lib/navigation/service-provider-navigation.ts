@@ -74,6 +74,13 @@ export const SERVICE_PROVIDER_DASHBOARD_NAVIGATION = [
     access: "authenticated",
   },
   {
+    label: "Verification",
+    href: "/verification",
+    description: "Review verification and respond to correction requests.",
+    iconName: "ShieldCheck",
+    access: "authenticated",
+  },
+  {
     label: "Payments",
     href: "/payments",
     description: "View payment references and payment statuses.",

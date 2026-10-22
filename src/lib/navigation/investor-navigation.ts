@@ -65,6 +65,13 @@ export const INVESTOR_DASHBOARD_NAVIGATION = [
     access: "authenticated",
   },
   {
+    label: "Conversations",
+    href: "/conversations",
+    description: "Messages about opportunities, verification and payments.",
+    iconName: "MessagesSquare",
+    access: "authenticated",
+  },
+  {
     label: "Payments",
     href: "/payments",
     description: "View payment references, status, and safe payment actions.",

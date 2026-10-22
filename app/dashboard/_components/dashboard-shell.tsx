@@ -730,6 +730,17 @@ function isNavigationItemActive(
     href: string,
     exactMatch: boolean,
 ): boolean {
+    const sharedWorkspace = href.match(
+        /^\/dashboard\/[^/]+\/(conversations|verification|payments)$/,
+    )?.[1];
+
+    if (sharedWorkspace && (
+        pathname === `/${sharedWorkspace}` ||
+        pathname.startsWith(`/${sharedWorkspace}/`)
+    )) {
+        return true;
+    }
+
     if (exactMatch) {
         return pathname === href;
     }
@@ -1555,6 +1566,15 @@ export function DashboardShell({
                         "API partner dashboard",
                     exactMatch: true,
                 })}
+                {[
+                    { label: "Conversations", href: "/conversations" },
+                    { label: "Verification", href: "/verification" },
+                    { label: "Payments", href: "/payments" },
+                ].map((item) => renderNavigationLink({
+                    ...item,
+                    description: item.label,
+                    exactMatch: false,
+                }))}
             </nav>
         );
 

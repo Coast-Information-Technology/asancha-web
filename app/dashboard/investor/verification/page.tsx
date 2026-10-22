@@ -1,30 +1,21 @@
-// File: app/dashboard/investor/verification/page.tsx
-
-/**
- * Asancha Investor Verification Page
- *
- * Purpose:
- * Displays safe investor verification states and correction actions.
- *
- * Security notes:
- * - Internal KYC notes and raw risk internals must never appear.
- */
-
 import type { Metadata } from "next";
-
-import { InvestorCollectionPage } from "../../_components/investor-collection-page";
-import { INVESTOR_COLLECTION_CONFIG } from "../../_config/investor-dashboard.config";
+import { Suspense } from "react";
+import { VerificationList } from "@/src/features/verification/components/verification-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Investor Verification",
+  title: "Verification centre | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function InvestorVerificationPage() {
-    return (
-        <InvestorCollectionPage
-            config={
-                INVESTOR_COLLECTION_CONFIG.verification
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <VerificationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

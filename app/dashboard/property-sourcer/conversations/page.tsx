@@ -1,20 +1,21 @@
-// File: app/dashboard/property-sourcer/conversations/page.tsx
-
 import type { Metadata } from "next";
-
-import { PropertySourcerCollectionPage } from "../../_components/property-sourcer-collection-page";
-import { PROPERTY_SOURCER_COLLECTION_CONFIG } from "../../_config/property-sourcer-dashboard.config";
+import { Suspense } from "react";
+import { ConversationList } from "@/src/features/conversations/components/conversation-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Property Sourcer Conversations",
+  title: "Messages | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function SourcerConversationsPage() {
-    return (
-        <PropertySourcerCollectionPage
-            config={
-                PROPERTY_SOURCER_COLLECTION_CONFIG.conversations
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <ConversationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }

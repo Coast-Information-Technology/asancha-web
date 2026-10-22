@@ -125,6 +125,14 @@ export const API_PARTNER_NAVIGATION = [
         href: API_PARTNER_PAGE_ROUTES.billing,
     },
     {
+        label: "Messages",
+        href: "/conversations",
+    },
+    {
+        label: "Verification",
+        href: "/verification",
+    },
+    {
         label: "Payments",
         href: API_PARTNER_PAGE_ROUTES.payments,
     },

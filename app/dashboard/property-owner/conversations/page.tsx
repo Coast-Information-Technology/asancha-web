@@ -1,31 +1,21 @@
-// File: app/dashboard/property-owner/conversations/page.tsx
-
-/**
- * Asancha Property Owner Conversations Page
- *
- * Purpose:
- * Displays owner-scoped property, listing, document, verification, booking,
- * payment, and support conversations.
- *
- * Security notes:
- * - Internal notes and hidden messages must not appear.
- */
-
 import type { Metadata } from "next";
-
-import { PropertyOwnerCollectionPage } from "../../_components/property-owner-collection-page";
-import { PROPERTY_OWNER_COLLECTION_CONFIG } from "../../_config/property-owner-dashboard.config";
+import { Suspense } from "react";
+import { ConversationList } from "@/src/features/conversations/components/conversation-screens";
+import {
+  Loading,
+  WorkspaceGate,
+} from "@/src/components/workspace/workspace-ui";
 
 export const metadata: Metadata = {
-    title: "Property Owner Conversations",
+  title: "Messages | Asancha",
+  robots: { index: false, follow: false },
 };
-
-export default function PropertyOwnerConversationsPage() {
-    return (
-        <PropertyOwnerCollectionPage
-            config={
-                PROPERTY_OWNER_COLLECTION_CONFIG.conversations
-            }
-        />
-    );
+export default function Page() {
+  return (
+    <WorkspaceGate>
+      <Suspense fallback={<Loading />}>
+        <ConversationList />
+      </Suspense>
+    </WorkspaceGate>
+  );
 }
