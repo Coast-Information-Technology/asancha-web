@@ -8,18 +8,58 @@ const DOCUMENT_TYPES_BY_FIELD: Readonly<Record<string, DocumentType>> = {
     proofOfAddressDocumentPublicId: "proof_of_address",
     proofOfFundsDocumentPublicId: "proof_of_funds",
     sourceOfFundsDocumentPublicId: "source_of_funds",
-    proofOfOwnershipDocumentPublicId: "property_ownership_proof",
     authorityDocumentPublicId: "authority_to_represent",
+    authorityToRepresentDocumentPublicId: "authority_to_represent",
+    executorAuthorityDocumentPublicId: "authority_to_represent",
+    executorLegalAuthorityDocumentPublicId: "authority_to_represent",
     companyRegistrationDocumentPublicId: "company_registration",
     businessProofDocumentPublicId: "compliance_document",
+    companyBusinessEvidenceDocumentPublicId: "compliance_document",
     proofOfBusinessIdentityDocumentPublicId: "sourcer_verification",
     agencyLicenceOrMembershipDocumentPublicId: "compliance_document",
     insuranceDocumentPublicId: "service_provider_verification",
     licenceOrProfessionalProofDocumentPublicId: "service_provider_verification",
-    propertyPhotosUploaded: "other",
-    floorplanUploaded: "other",
-    epcUploaded: "other",
 };
+
+function inferDocumentType(fieldName: string): DocumentType {
+    const configuredType =
+        DOCUMENT_TYPES_BY_FIELD[fieldName];
+
+    if (configuredType) {
+        return configuredType;
+    }
+
+    const normalizedFieldName =
+        fieldName.toLowerCase();
+
+    if (normalizedFieldName.includes("identity")) {
+        return "identity_document";
+    }
+
+    if (normalizedFieldName.includes("address")) {
+        return "proof_of_address";
+    }
+
+    if (normalizedFieldName.includes("authority")) {
+        return "authority_to_represent";
+    }
+
+    if (
+        normalizedFieldName.includes("company") &&
+        normalizedFieldName.includes("registration")
+    ) {
+        return "company_registration";
+    }
+
+    if (
+        normalizedFieldName.includes("business") ||
+        normalizedFieldName.includes("company")
+    ) {
+        return "compliance_document";
+    }
+
+    return "other";
+}
 
 function formatFieldName(fieldName: string): string {
     return fieldName
@@ -36,7 +76,7 @@ export async function uploadOnboardingDocument(
 ): Promise<string> {
     const result = await documentsApi.uploadDocument({
         data: {
-            documentType: DOCUMENT_TYPES_BY_FIELD[fieldName] ?? "other",
+            documentType: inferDocumentType(fieldName),
             customDocumentType: null,
             relatedType: "business_profile",
             relatedPublicId: null,

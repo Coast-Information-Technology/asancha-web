@@ -50,6 +50,8 @@ const INITIAL_VALUES:
     CreateBusinessProfileFormValues = {
     profileType: "",
 
+    operatingMode: "independent",
+
     companyPublicId: null,
 
     acceptedPolicies: [],
@@ -292,6 +294,8 @@ export function AddBusinessProfilePage() {
         setValues({
             profileType,
 
+            operatingMode: "independent",
+
             companyPublicId: null,
 
             acceptedPolicies: [],
@@ -338,7 +342,20 @@ export function AddBusinessProfilePage() {
         }
 
         if (
+            values.profileType === "property_owner" &&
+            values.operatingMode ===
+                "on_behalf_of_company" &&
+            !values.companyPublicId
+        ) {
+            setErrorMessage(
+                "Enter the public ID of the company represented by this property owner profile.",
+            );
+            return;
+        }
+
+        if (
             selectedType.requiresCompany &&
+            values.profileType !== "property_owner" &&
             !values.companyPublicId
         ) {
             setErrorMessage(
@@ -373,8 +390,19 @@ export function AddBusinessProfilePage() {
             profileType:
                 values.profileType,
 
+            operatingMode:
+                values.profileType ===
+                "property_owner"
+                    ? values.operatingMode
+                    : undefined,
+
             companyPublicId:
-                values.companyPublicId,
+                values.profileType ===
+                    "property_owner" &&
+                values.operatingMode ===
+                    "independent"
+                    ? null
+                    : values.companyPublicId,
         };
 
         try {
@@ -585,15 +613,78 @@ export function AddBusinessProfilePage() {
                             Profile requirements
                         </h2>
 
-                        {selectedType.requiresCompany ||
-                        selectedType.companyOptional ? (
+                        {values.profileType ===
+                        "property_owner" ? (
+                            <div className="mt-5">
+                                <label
+                                    htmlFor="operatingMode"
+                                    className="text-sm font-semibold"
+                                >
+                                    Operating mode
+                                </label>
+
+                                <select
+                                    id="operatingMode"
+                                    required
+                                    value={
+                                        values.operatingMode
+                                    }
+                                    onChange={(
+                                        event: ChangeEvent<HTMLSelectElement>,
+                                    ): void =>
+                                        setValues(
+                                            (current) => ({
+                                                ...current,
+                                                operatingMode:
+                                                    event
+                                                        .target
+                                                        .value as CreateBusinessProfileFormValues["operatingMode"],
+                                                companyPublicId:
+                                                    event
+                                                        .target
+                                                        .value ===
+                                                    "independent"
+                                                        ? null
+                                                        : current.companyPublicId,
+                                            }),
+                                        )
+                                    }
+                                    className="mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                                >
+                                    <option value="independent">
+                                        Independent
+                                    </option>
+                                    <option value="on_behalf_of_company">
+                                        On behalf of a company
+                                    </option>
+                                </select>
+
+                                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    Choose whether this
+                                    property owner profile
+                                    acts independently or for
+                                    a canonical company.
+                                </p>
+                            </div>
+                        ) : null}
+
+                        {(values.profileType ===
+                            "property_owner" &&
+                            values.operatingMode ===
+                                "on_behalf_of_company") ||
+                        (values.profileType !==
+                            "property_owner" &&
+                            (selectedType.requiresCompany ||
+                                selectedType.companyOptional)) ? (
                             <div className="mt-5">
                                 <label
                                     htmlFor="companyPublicId"
                                     className="text-sm font-semibold"
                                 >
                                     Company public ID
-                                    {selectedType.companyOptional
+                                    {values.profileType !==
+                                        "property_owner" &&
+                                    selectedType.companyOptional
                                         ? " (optional)"
                                         : ""}
                                 </label>
@@ -601,7 +692,11 @@ export function AddBusinessProfilePage() {
                                 <input
                                     id="companyPublicId"
                                     required={
-                                        selectedType.requiresCompany
+                                        values.profileType ===
+                                            "property_owner"
+                                            ? values.operatingMode ===
+                                              "on_behalf_of_company"
+                                            : selectedType.requiresCompany
                                     }
                                     value={
                                         values.companyPublicId ??

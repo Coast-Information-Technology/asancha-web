@@ -90,11 +90,28 @@ export const businessProfileSchema = z
       .min(2, "Profile name must contain at least 2 characters.")
       .max(120, "Profile name must contain no more than 120 characters."),
 
+    operatingMode: z
+      .enum(["independent", "on_behalf_of_company"])
+      .optional(),
+
     companyPublicId: optionalPublicIdSchema,
 
     policyAcceptances: z.array(profilePolicyAcceptanceSchema).default([]),
   })
   .superRefine((values, context) => {
+    if (
+      values.profileType === "property_owner" &&
+      values.operatingMode === "on_behalf_of_company" &&
+      !values.companyPublicId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["companyPublicId"],
+        message:
+          "Select the company this Property Owner profile represents.",
+      });
+    }
+
     const acceptanceKeys = values.policyAcceptances.map(
       (acceptance) => `${acceptance.policyType}:${acceptance.policyVersion}`,
     );

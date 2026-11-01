@@ -15,546 +15,480 @@
  */
 
 import type {
-    DashboardOnboardingStatus,
-    DashboardVerificationStatus,
+  DashboardOnboardingStatus,
+  DashboardVerificationStatus,
 } from "../../dashboard/_types/dashboard.types";
 
 export type AccountBusinessProfileType =
-    | "investor"
-    | "property_owner"
-    | "property_agent"
-    | "property_sourcer"
-    | "service_provider"
-    | "api_partner";
+  | "investor"
+  | "property_owner"
+  | "property_agent"
+  | "property_sourcer"
+  | "service_provider"
+  | "api_partner";
 
 export interface AccountBusinessProfileSummary {
-    profilePublicId: string;
-    profileType: AccountBusinessProfileType;
+  profilePublicId: string;
+  profileType: AccountBusinessProfileType;
 
-    displayName: string;
+  displayName: string;
 
-    onboardingStatus:
-        DashboardOnboardingStatus;
+  onboardingStatus: DashboardOnboardingStatus;
 
-    verificationStatus:
-        DashboardVerificationStatus;
+  verificationStatus: DashboardVerificationStatus;
 
-    lifecycleStatus: string;
+  lifecycleStatus: string;
 
-    isActive: boolean;
-    canSwitch: boolean;
-    canEdit: boolean;
+  isActive: boolean;
+  canSwitch: boolean;
+  canEdit: boolean;
 
-    pendingActionCount: number;
+  pendingActionCount: number;
 
-    dashboardPath: string | null;
-    detailPath: string;
-    continueSetupPath: string | null;
+  dashboardPath: string | null;
+  detailPath: string;
+  continueSetupPath: string | null;
 
-    switchLockedReason: string | null;
-    safeUserMessage: string | null;
+  switchLockedReason: string | null;
+  safeUserMessage: string | null;
 }
 
-export interface AccountOverview {
-    userPublicId: string;
+/**
+ * Public-safe authenticated user returned by GET /users/me.
+ *
+ * This is account identity data. It deliberately does not include general
+ * profile, business-profile, policy, document, payment, or dashboard data.
+ */
+export interface CurrentAccountUser {
+  publicId: string;
+  email: string;
+  role: AccountBusinessProfileType;
+  isVerified: boolean;
+  emailVerifiedAt: string | null;
+  onboardingStatus: string;
+  isActive: boolean;
+  isSuspended: boolean;
+  accountStatus: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-    email: string;
-    phoneNumber: string | null;
-
-    accountStatus: string;
-    emailVerificationStatus: string;
-
-    onboardingStatus:
-        DashboardOnboardingStatus;
-
-    activeBusinessProfile:
-        AccountBusinessProfileSummary | null;
-
-    availableBusinessProfiles:
-        AccountBusinessProfileSummary[];
-
-    policyAcceptanceSummary: {
-        complete: boolean;
-        acceptedCount: number;
-        missingCount: number;
-        outdatedCount: number;
-    };
-
-    verificationSummary: {
-        status:
-            DashboardVerificationStatus;
-
-        pendingReviewCount: number;
-        correctionRequiredCount: number;
-    };
-
-    documentSummary: {
-        total: number;
-        pending: number;
-        approved: number;
-        rejected: number;
-        replacementRequired: number;
-    };
-
-    paymentSummary: {
-        total: number;
-        pending: number;
-        submitted: number;
-        approved: number;
-        rejected: number;
-    };
-
-    safeUserMessage: string | null;
+/** Data payload returned by GET /users/me after the API envelope is unwrapped. */
+export interface CurrentAccountUserResponse {
+  user: CurrentAccountUser;
 }
 
 export interface AccountGeneralProfile {
-    publicId: string;
+  publicId: string;
 
-    firstName: string | null;
-    lastName: string | null;
+  firstName: string | null;
+  lastName: string | null;
 
-    displayName: string | null;
+  displayName: string | null;
 
-    phoneNumber: string | null;
-    preferredContactMethod:
-        | "email"
-        | "phone"
-        | "whatsapp"
-        | "platform_message"
-        | null;
-    profileImageUrl: string | null;
+  phoneNumber: string | null;
+  preferredContactMethod:
+    "email" | "phone" | "whatsapp" | "platform_message" | null;
+  profileImageUrl: string | null;
 
-    profileCompletionStatus:
-        | "not_started"
-        | "in_progress"
-        | "completed";
+  profileCompletionStatus: "not_started" | "in_progress" | "completed";
 
-    activeBusinessProfileType:
-        AccountBusinessProfileType | null;
+  activeBusinessProfileType: AccountBusinessProfileType | null;
 
-    createdAt: string;
-    updatedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccountGeneralProfileFormValues {
-    firstName: string;
-    lastName: string;
+  firstName: string;
+  lastName: string;
 
-    displayName: string;
+  displayName: string;
 
-    phoneNumber: string;
-    preferredContactMethod:
-        | "email"
-        | "phone"
-        | "whatsapp"
-        | "platform_message";
-    profileImageUrl: string;
+  phoneNumber: string;
+  preferredContactMethod: "email" | "phone" | "whatsapp" | "platform_message";
+  profileImageUrl: string;
 
-    informationAccurateConfirmed: boolean;
+  informationAccurateConfirmed: boolean;
 }
 
 export interface AccountPolicyAcceptance {
-    policyAcceptancePublicId: string;
+  policyAcceptancePublicId: string;
 
-    policyType: string;
-    policyTitle: string;
+  policyType: string;
+  policyTitle: string;
 
-    policyVersion: string;
-    currentVersion: string | null;
+  policyVersion: string;
+  currentVersion: string | null;
 
-    profileType:
-        AccountBusinessProfileType | null;
+  profileType: AccountBusinessProfileType | null;
 
-    accepted: boolean;
-    current: boolean;
+  accepted: boolean;
+  current: boolean;
 
-    acceptedAt: string | null;
+  acceptedAt: string | null;
 
-    source: string;
+  source: string;
 
-    requiresAction: boolean;
+  requiresAction: boolean;
 
-    actionPath: string | null;
+  actionPath: string | null;
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface AccountPolicyAcceptanceResponse {
-    items: AccountPolicyAcceptance[];
+  items: AccountPolicyAcceptance[];
 
-    summary: {
-        complete: boolean;
-        acceptedCount: number;
-        missingCount: number;
-        outdatedCount: number;
-    };
+  summary: {
+    complete: boolean;
+    acceptedCount: number;
+    missingCount: number;
+    outdatedCount: number;
+  };
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface AccountSecuritySummary {
-    email: string;
-    emailVerificationStatus: string;
+  email: string;
+  emailVerificationStatus: string;
 
-    passwordConfigured: boolean;
+  passwordConfigured: boolean;
 
-    activeSessionCount: number;
+  activeSessionCount: number;
 
-    recentFailedLoginCount: number;
+  recentFailedLoginCount: number;
 
-    securityNotificationCount: number;
+  securityNotificationCount: number;
 
-    canChangePassword: boolean;
-    canRequestEmailChange: boolean;
+  canChangePassword: boolean;
+  canRequestEmailChange: boolean;
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface AccountSession {
-    sessionPublicId: string;
+  sessionPublicId: string;
 
-    deviceName: string;
-    browserName: string | null;
-    operatingSystem: string | null;
+  deviceName: string;
+  browserName: string | null;
+  operatingSystem: string | null;
 
-    approximateLocation: string | null;
+  approximateLocation: string | null;
 
-    ipAddressMasked: string | null;
+  ipAddressMasked: string | null;
 
-    current: boolean;
+  current: boolean;
 
-    createdAt: string;
-    lastUsedAt: string;
+  createdAt: string;
+  lastUsedAt: string;
 
-    expiresAt: string | null;
+  expiresAt: string | null;
 
-    canRevoke: boolean;
+  canRevoke: boolean;
 }
 
 export interface AccountLoginActivity {
-    activityPublicId: string;
+  activityPublicId: string;
 
-    eventType:
-        | "login_success"
-        | "login_failure"
-        | "logout"
-        | "password_changed"
-        | "password_reset"
-        | "email_change_requested"
-        | "email_changed"
-        | "session_revoked"
-        | string;
+  eventType:
+    | "login_success"
+    | "login_failure"
+    | "logout"
+    | "password_changed"
+    | "password_reset"
+    | "email_change_requested"
+    | "email_changed"
+    | "session_revoked"
+    | string;
 
-    deviceName: string | null;
+  deviceName: string | null;
 
-    browserName: string | null;
+  browserName: string | null;
 
-    approximateLocation: string | null;
+  approximateLocation: string | null;
 
-    ipAddressMasked: string | null;
+  ipAddressMasked: string | null;
 
-    successful: boolean;
+  successful: boolean;
 
-    occurredAt: string;
+  occurredAt: string;
 }
 
 export interface AccountSecurityNotification {
-    notificationPublicId: string;
+  notificationPublicId: string;
 
-    title: string;
-    message: string;
+  title: string;
+  message: string;
 
-    severity:
-        | "information"
-        | "warning"
-        | "critical";
+  severity: "information" | "warning" | "critical";
 
-    read: boolean;
+  read: boolean;
 
-    actionLabel: string | null;
-    actionPath: string | null;
+  actionLabel: string | null;
+  actionPath: string | null;
 
-    createdAt: string;
+  createdAt: string;
 }
 
 export interface AccountSecurityResponse {
-    summary: AccountSecuritySummary;
+  summary: AccountSecuritySummary;
 
-    sessions: AccountSession[];
+  sessions: AccountSession[];
 
-    loginActivity:
-        AccountLoginActivity[];
+  loginActivity: AccountLoginActivity[];
 
-    securityNotifications:
-        AccountSecurityNotification[];
+  securityNotifications: AccountSecurityNotification[];
 }
 
 export interface AccountNotificationPreference {
-    preferenceKey: string;
+  preferenceKey: string;
 
-    label: string;
-    description: string;
+  label: string;
+  description: string;
 
-    category:
-        | "account"
-        | "security"
-        | "profiles"
-        | "documents"
-        | "verification"
-        | "listings"
-        | "reservations"
-        | "payments"
-        | "bookings"
-        | "conversations"
-        | "api"
-        | "recommendations"
-        | string;
+  category:
+    | "account"
+    | "security"
+    | "profiles"
+    | "documents"
+    | "verification"
+    | "listings"
+    | "reservations"
+    | "payments"
+    | "bookings"
+    | "conversations"
+    | "api"
+    | "recommendations"
+    | string;
 
-    inAppEnabled: boolean;
-    emailEnabled: boolean;
+  inAppEnabled: boolean;
+  emailEnabled: boolean;
 
-    required: boolean;
+  required: boolean;
 }
 
 export interface AccountNotificationPreferencesResponse {
-    items:
-        AccountNotificationPreference[];
+  items: AccountNotificationPreference[];
 
-    emailAddress: string;
+  emailAddress: string;
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface AccountStatusResponse {
-    accountStatus: string;
-    emailVerificationStatus: string;
+  accountStatus: string;
+  emailVerificationStatus: string;
 
-    generalProfileStatus: string;
+  generalProfileStatus: string;
 
-    onboardingStatus:
-        DashboardOnboardingStatus;
+  onboardingStatus: DashboardOnboardingStatus;
 
-    verificationStatus:
-        DashboardVerificationStatus;
+  verificationStatus: DashboardVerificationStatus;
 
-    activeBusinessProfileType:
-        AccountBusinessProfileType | null;
+  activeBusinessProfileType: AccountBusinessProfileType | null;
 
-    suspended: boolean;
-    suspensionMessage: string | null;
+  suspended: boolean;
+  suspensionMessage: string | null;
 
-    policyAcceptanceStatus: {
-        complete: boolean;
-        missingCount: number;
-        outdatedCount: number;
-    };
+  policyAcceptanceStatus: {
+    complete: boolean;
+    missingCount: number;
+    outdatedCount: number;
+  };
 
-    documentStatusSummary: {
-        total: number;
-        pending: number;
-        approved: number;
-        rejected: number;
-        replacementRequired: number;
-    };
+  documentStatusSummary: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    replacementRequired: number;
+  };
 
-    paymentStatusSummary: {
-        total: number;
-        pending: number;
-        submitted: number;
-        approved: number;
-        rejected: number;
-    };
+  paymentStatusSummary: {
+    total: number;
+    pending: number;
+    submitted: number;
+    approved: number;
+    rejected: number;
+  };
 
-    lockedActions: Array<{
-        actionKey: string;
-        title: string;
-        lockedReason: string | null;
-        actionLabel: string | null;
-        actionPath: string | null;
-    }>;
+  lockedActions: Array<{
+    actionKey: string;
+    title: string;
+    lockedReason: string | null;
+    actionLabel: string | null;
+    actionPath: string | null;
+  }>;
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface AccountSupportRequestFormValues {
-    category:
-        | "account"
-        | "profile"
-        | "verification"
-        | "documents"
-        | "payments"
-        | "bookings"
-        | "conversations"
-        | "listings"
-        | "api_partner"
-        | "technical"
-        | "other";
+  category:
+    | "account"
+    | "profile"
+    | "verification"
+    | "documents"
+    | "payments"
+    | "bookings"
+    | "conversations"
+    | "listings"
+    | "api_partner"
+    | "technical"
+    | "other";
 
-    subject: string;
-    message: string;
+  subject: string;
+  message: string;
 
-    relatedType: string | null;
-    relatedPublicId: string | null;
+  relatedType: string | null;
+  relatedPublicId: string | null;
 
-    preferredContactMethod:
-        | "email"
-        | "phone";
+  preferredContactMethod: "email" | "phone";
 
-    informationAccurateConfirmed: boolean;
+  informationAccurateConfirmed: boolean;
 }
 
 export interface AccountSupportRequestResult {
-    supportRequestPublicId: string;
+  supportRequestPublicId: string;
 
-    status: string;
+  status: string;
 
-    message: string;
+  message: string;
 }
 
 export interface AvailableBusinessProfileType {
-    profileType:
-        AccountBusinessProfileType;
+  profileType: AccountBusinessProfileType;
 
-    available: boolean;
+  available: boolean;
 
-    alreadyCreated: boolean;
+  alreadyCreated: boolean;
 
-    requiresCompany: boolean;
+  requiresCompany: boolean;
 
-    companyOptional: boolean;
+  companyOptional: boolean;
 
-    lockedReason: string | null;
+  lockedReason: string | null;
 
-    requiredPolicies: Array<{
-        policyType: string;
-        policyTitle: string;
-        policyVersion: string;
-        summary: string;
-        accepted: boolean;
-    }>;
+  requiredPolicies: Array<{
+    policyType: string;
+    policyTitle: string;
+    policyVersion: string;
+    summary: string;
+    accepted: boolean;
+  }>;
 }
 
 export interface AvailableBusinessProfileTypesResponse {
-    items:
-        AvailableBusinessProfileType[];
+  items: AvailableBusinessProfileType[];
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
 export interface CreateBusinessProfileFormValues {
-    profileType:
-        AccountBusinessProfileType | "";
+  profileType: AccountBusinessProfileType | "";
 
-    companyPublicId: string | null;
+  operatingMode: "independent" | "on_behalf_of_company";
 
-    acceptedPolicies: Array<{
-        policyType: string;
-        policyVersion: string;
-        accepted: boolean;
-    }>;
+  companyPublicId: string | null;
+
+  acceptedPolicies: Array<{
+    policyType: string;
+    policyVersion: string;
+    accepted: boolean;
+  }>;
 }
 
 export interface CreateBusinessProfileResult {
-    profile:
-        AccountBusinessProfileSummary;
+  profile: AccountBusinessProfileSummary;
 
-    onboardingPath: string | null;
+  onboardingPath: string | null;
 
-    message: string;
+  message: string;
 }
 
 export interface BusinessProfileDetail {
-    profile:
-        AccountBusinessProfileSummary;
+  profile: AccountBusinessProfileSummary;
 
-    statusSummary: {
-        onboardingStatus:
-            DashboardOnboardingStatus;
+  statusSummary: {
+    onboardingStatus: DashboardOnboardingStatus;
 
-        verificationStatus:
-            DashboardVerificationStatus;
+    verificationStatus: DashboardVerificationStatus;
 
-        documentStatus: string;
-        policyStatus: string;
-        paymentStatus: string;
-    };
+    documentStatus: string;
+    policyStatus: string;
+    paymentStatus: string;
+  };
 
-    actions: Array<{
-        actionKey: string;
-        label: string;
+  actions: Array<{
+    actionKey: string;
+    label: string;
 
-        allowed: boolean;
-        lockedReason: string | null;
+    allowed: boolean;
+    lockedReason: string | null;
 
-        path: string | null;
-    }>;
+    path: string | null;
+  }>;
 
-    recentActivity: Array<{
-        activityPublicId: string;
+  recentActivity: Array<{
+    activityPublicId: string;
 
-        title: string;
-        description: string | null;
+    title: string;
+    description: string | null;
 
-        occurredAt: string;
-    }>;
+    occurredAt: string;
+  }>;
 
-    safeUserMessage: string | null;
+  safeUserMessage: string | null;
 }
 
-export interface UpdateAccountGeneralProfilePayload
-    extends Record<string, unknown> {
-    firstName: string;
-    lastName: string;
-    displayName: string;
-    phoneNumber: string;
-    preferredContactMethod:
-        | "email"
-        | "phone"
-        | "whatsapp"
-        | "platform_message";
-    profileImageUrl: string | null;
+export interface UpdateAccountGeneralProfilePayload extends Record<
+  string,
+  unknown
+> {
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  phoneNumber: string;
+  preferredContactMethod: "email" | "phone" | "whatsapp" | "platform_message";
+  profileImageUrl: string | null;
 }
 
-export type ChangePasswordPayload =
-    Record<string, unknown> & {
-        currentPassword: string;
-        newPassword: string;
-    };
+export type ChangePasswordPayload = Record<string, unknown> & {
+  currentPassword: string;
+  newPassword: string;
+};
 
-export type RequestEmailChangePayload =
-    Record<string, unknown> & {
-        newEmail: string;
-        password: string;
-    };
+export type RequestEmailChangePayload = Record<string, unknown> & {
+  newEmail: string;
+  password: string;
+};
 
-export type UpdateNotificationPreferencesPayload =
-    Record<string, unknown> & {
-        data: {
-            preferences: Array<{
-                preferenceKey: string;
-                inAppEnabled: boolean;
-                emailEnabled: boolean;
-            }>;
-        };
-    };
+export type UpdateNotificationPreferencesPayload = Record<string, unknown> & {
+  data: {
+    preferences: Array<{
+      preferenceKey: string;
+      inAppEnabled: boolean;
+      emailEnabled: boolean;
+    }>;
+  };
+};
 
-export type CreateSupportRequestPayload =
-    Record<string, unknown> & {
-        data:
-            AccountSupportRequestFormValues;
-    };
+export type CreateSupportRequestPayload = Record<string, unknown> & {
+  data: AccountSupportRequestFormValues;
+};
 
-export type CreateBusinessProfilePayload =
-    Record<string, unknown> & {
-        profileType:
-            AccountBusinessProfileType;
+export type CreateBusinessProfilePayload = Record<string, unknown> & {
+  profileType: AccountBusinessProfileType;
 
-        companyPublicId?:
-            string | null;
+  operatingMode?: "independent" | "on_behalf_of_company";
 
-        acceptedPolicies?: Array<{
-            policyType: string;
-            policyVersion: string;
-            accepted: boolean;
-        }>;
-    };
+  companyPublicId?: string | null;
+
+  acceptedPolicies?: Array<{
+    policyType: string;
+    policyVersion: string;
+    accepted: boolean;
+  }>;
+};

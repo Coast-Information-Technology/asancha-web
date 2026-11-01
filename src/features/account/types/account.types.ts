@@ -40,6 +40,10 @@ export type StandardBusinessProfileType = Exclude<
   "api_partner"
 >;
 
+export type BusinessProfileOperatingMode =
+  | "independent"
+  | "on_behalf_of_company";
+
 export type AccountStatus =
   "pending" | "active" | "suspended" | "locked" | "deactivated";
 
@@ -251,6 +255,7 @@ export interface PolicyAcceptanceRecord {
 export interface AddBusinessProfilePayload {
   profileType: BusinessProfileType;
   displayName: string;
+  operatingMode?: BusinessProfileOperatingMode;
   companyPublicId?: string | null;
   policyAcceptances: PolicyAcceptanceInput[];
 }
