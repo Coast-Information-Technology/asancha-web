@@ -25,9 +25,11 @@
 import { z } from "zod";
 
 import {
+  BUSINESS_PROFILE_OPERATING_MODES,
   BUSINESS_PROFILE_TYPES,
   PROFILE_POLICY_CONTEXTS,
 } from "../constants/account.constants";
+import { BusinessProfileOperatingMode } from "../types/account.types";
 
 const businessProfileTypeSchema = z.enum(BUSINESS_PROFILE_TYPES, {
   error: "Choose a valid business profile type.",
@@ -91,7 +93,7 @@ export const businessProfileSchema = z
       .max(120, "Profile name must contain no more than 120 characters."),
 
     operatingMode: z
-      .enum(["independent", "on_behalf_of_company"])
+      .enum(BUSINESS_PROFILE_OPERATING_MODES)
       .optional(),
 
     companyPublicId: optionalPublicIdSchema,
@@ -101,7 +103,8 @@ export const businessProfileSchema = z
   .superRefine((values, context) => {
     if (
       values.profileType === "property_owner" &&
-      values.operatingMode === "on_behalf_of_company" &&
+      values.operatingMode ===
+        BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY &&
       !values.companyPublicId
     ) {
       context.addIssue({

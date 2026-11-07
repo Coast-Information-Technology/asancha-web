@@ -1815,18 +1815,6 @@ export function DashboardShell({
                         className="flex flex-none items-center gap-1"
                     >
                         <Link
-                            href="/marketplace"
-                            className="hidden items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] md:inline-flex"
-                        >
-                            <Building2
-                                aria-hidden="true"
-                                size={16}
-                                strokeWidth={2.4}
-                            />
-                            Marketplace
-                        </Link>
-
-                        <Link
                             href="/notifications"
                             className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label={
@@ -1853,18 +1841,6 @@ export function DashboardShell({
                                     )}
                                 </span>
                             ) : null}
-                        </Link>
-
-                        <Link
-                            href="/account/support"
-                            className="hidden items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] sm:inline-flex"
-                        >
-                            <Headphones
-                                aria-hidden="true"
-                                size={16}
-                                strokeWidth={2.4}
-                            />
-                            Support
                         </Link>
 
                         <div className="relative">

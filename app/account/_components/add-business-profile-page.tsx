@@ -30,6 +30,7 @@ import {
     authApiGet,
     authApiPost,
 } from "../../../src/lib/api/auth-fetch";
+import { BusinessProfileOperatingMode } from "../../../src/features/account/types/account.types";
 import {
     getDashboardPathForBusinessProfile,
     isBusinessProfileType,
@@ -50,7 +51,7 @@ const INITIAL_VALUES:
     CreateBusinessProfileFormValues = {
     profileType: "",
 
-    operatingMode: "independent",
+    operatingMode: BusinessProfileOperatingMode.INDEPENDENT,
 
     companyPublicId: null,
 
@@ -66,6 +67,12 @@ interface BackendBusinessProfileSummary {
     createdAt: string;
     updatedAt: string;
     summary: Record<string, unknown>;
+}
+
+interface BackendLinkedCompany {
+    companyPublicId: string;
+    companyName: string;
+    tradingName?: string | null;
 }
 
 interface RequiredProfilePolicy {
@@ -198,6 +205,15 @@ export function AddBusinessProfilePage() {
     const [isLoadingPolicies, setIsLoadingPolicies] =
         useState(false);
 
+    const [linkedCompany, setLinkedCompany] =
+        useState<BackendLinkedCompany | null>(null);
+
+    const [isLoadingCompany, setIsLoadingCompany] =
+        useState(false);
+
+    const [companyErrorMessage, setCompanyErrorMessage] =
+        useState<string | null>(null);
+
     const [isCreating, setIsCreating] =
         useState(false);
 
@@ -287,6 +303,37 @@ export function AddBusinessProfilePage() {
             ],
         );
 
+    const loadLinkedCompany =
+        useCallback(async (): Promise<void> => {
+            setIsLoadingCompany(true);
+            setCompanyErrorMessage(null);
+            setLinkedCompany(null);
+
+            try {
+                const company =
+                    await authApiGet<BackendLinkedCompany>(
+                        "/companies/me",
+                    );
+
+                setLinkedCompany(company);
+                setValues((current) => ({
+                    ...current,
+                    companyPublicId:
+                        company.companyPublicId,
+                }));
+            } catch {
+                setValues((current) => ({
+                    ...current,
+                    companyPublicId: null,
+                }));
+                setCompanyErrorMessage(
+                    "We could not find an eligible company linked to your account.",
+                );
+            } finally {
+                setIsLoadingCompany(false);
+            }
+        }, []);
+
     const selectProfileType = (
         profileType:
             CreateBusinessProfileFormValues["profileType"],
@@ -294,17 +341,53 @@ export function AddBusinessProfilePage() {
         setValues({
             profileType,
 
-            operatingMode: "independent",
+            operatingMode: BusinessProfileOperatingMode.INDEPENDENT,
 
             companyPublicId: null,
 
             acceptedPolicies: [],
         });
 
+        setLinkedCompany(null);
+        setCompanyErrorMessage(null);
+
         setErrorMessage(null);
 
         if (profileType) {
             void loadRequiredPolicies(profileType);
+
+            const profileTypeRequirement =
+                availableTypes?.items.find(
+                    (item) =>
+                        item.profileType ===
+                        profileType,
+                );
+
+            if (
+                profileType !== "property_owner" &&
+                profileTypeRequirement?.requiresCompany
+            ) {
+                void loadLinkedCompany();
+            }
+        }
+    };
+
+    const selectOperatingMode = (
+        operatingMode: CreateBusinessProfileFormValues["operatingMode"],
+    ): void => {
+        setValues((current) => ({
+            ...current,
+            operatingMode,
+            companyPublicId: null,
+        }));
+        setLinkedCompany(null);
+        setCompanyErrorMessage(null);
+
+        if (
+            operatingMode ===
+            BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY
+        ) {
+            void loadLinkedCompany();
         }
     };
 
@@ -344,11 +427,13 @@ export function AddBusinessProfilePage() {
         if (
             values.profileType === "property_owner" &&
             values.operatingMode ===
-                "on_behalf_of_company" &&
+                BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY &&
             !values.companyPublicId
         ) {
             setErrorMessage(
-                "Enter the public ID of the company represented by this property owner profile.",
+                isLoadingCompany
+                    ? "Wait while we resolve the company linked to your account."
+                    : "A linked company is required when operating on behalf of a company.",
             );
             return;
         }
@@ -359,7 +444,9 @@ export function AddBusinessProfilePage() {
             !values.companyPublicId
         ) {
             setErrorMessage(
-                "Enter the public ID of the company connected to this profile.",
+                isLoadingCompany
+                    ? "Wait while we resolve the company linked to your account."
+                    : "A linked company is required for this business profile.",
             );
             return;
         }
@@ -400,7 +487,7 @@ export function AddBusinessProfilePage() {
                 values.profileType ===
                     "property_owner" &&
                 values.operatingMode ===
-                    "independent"
+                    BusinessProfileOperatingMode.INDEPENDENT
                     ? null
                     : values.companyPublicId,
         };
@@ -632,29 +719,25 @@ export function AddBusinessProfilePage() {
                                     onChange={(
                                         event: ChangeEvent<HTMLSelectElement>,
                                     ): void =>
-                                        setValues(
-                                            (current) => ({
-                                                ...current,
-                                                operatingMode:
-                                                    event
-                                                        .target
-                                                        .value as CreateBusinessProfileFormValues["operatingMode"],
-                                                companyPublicId:
-                                                    event
-                                                        .target
-                                                        .value ===
-                                                    "independent"
-                                                        ? null
-                                                        : current.companyPublicId,
-                                            }),
+                                        selectOperatingMode(
+                                            event.target
+                                                .value as CreateBusinessProfileFormValues["operatingMode"],
                                         )
                                     }
                                     className="mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
                                 >
-                                    <option value="independent">
+                                    <option
+                                        value={
+                                            BusinessProfileOperatingMode.INDEPENDENT
+                                        }
+                                    >
                                         Independent
                                     </option>
-                                    <option value="on_behalf_of_company">
+                                    <option
+                                        value={
+                                            BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY
+                                        }
+                                    >
                                         On behalf of a company
                                     </option>
                                 </select>
@@ -671,53 +754,66 @@ export function AddBusinessProfilePage() {
                         {(values.profileType ===
                             "property_owner" &&
                             values.operatingMode ===
-                                "on_behalf_of_company") ||
+                                BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY) ||
                         (values.profileType !==
                             "property_owner" &&
-                            (selectedType.requiresCompany ||
-                                selectedType.companyOptional)) ? (
+                            selectedType.requiresCompany) ? (
                             <div className="mt-5">
-                                <label
-                                    htmlFor="companyPublicId"
-                                    className="text-sm font-semibold"
-                                >
-                                    Company public ID
-                                    {values.profileType !==
-                                        "property_owner" &&
-                                    selectedType.companyOptional
-                                        ? " (optional)"
-                                        : ""}
-                                </label>
+                                <p className="text-sm font-semibold">
+                                    Linked company
+                                </p>
 
-                                <input
-                                    id="companyPublicId"
-                                    required={
-                                        values.profileType ===
-                                            "property_owner"
-                                            ? values.operatingMode ===
-                                              "on_behalf_of_company"
-                                            : selectedType.requiresCompany
-                                    }
-                                    value={
-                                        values.companyPublicId ??
-                                        ""
-                                    }
-                                    onChange={(
-                                        event: ChangeEvent<HTMLInputElement>,
-                                    ): void =>
-                                        setValues(
-                                            (current) => ({
-                                                ...current,
-                                                companyPublicId:
-                                                    event
-                                                        .target
-                                                        .value ||
-                                                    null,
-                                            }),
-                                        )
-                                    }
-                                    className="mt-2 min-h-11 w-full rounded-[var(--asancha-radius-md)] border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
-                                />
+                                <div
+                                    aria-live="polite"
+                                    className="mt-2 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 text-sm"
+                                >
+                                    {isLoadingCompany ? (
+                                        <p className="text-[var(--muted-foreground)]">
+                                            Resolving your linked
+                                            company…
+                                        </p>
+                                    ) : linkedCompany ? (
+                                        <div>
+                                            <p className="font-semibold">
+                                                {
+                                                    linkedCompany.companyName
+                                                }
+                                            </p>
+
+                                            {linkedCompany.tradingName ? (
+                                                <p className="mt-1 text-[var(--muted-foreground)]">
+                                                    Trading as{" "}
+                                                    {
+                                                        linkedCompany.tradingName
+                                                    }
+                                                </p>
+                                            ) : null}
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <p className="text-[var(--destructive)]">
+                                                {companyErrorMessage ??
+                                                    "No linked company has been resolved."}
+                                            </p>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    void loadLinkedCompany();
+                                                }}
+                                                className="mt-3 cursor-pointer text-sm font-semibold text-[var(--primary)] underline-offset-4 hover:underline"
+                                            >
+                                                Try again
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    Company identity is
+                                    resolved securely from
+                                    your account.
+                                </p>
                             </div>
                         ) : null}
 
@@ -806,9 +902,10 @@ export function AddBusinessProfilePage() {
                             disabled={
                                 isCreating ||
                                 isLoadingPolicies ||
+                                isLoadingCompany ||
                                 !selectedType.available
                             }
-                            className="mt-6 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
+                            className="mt-6 min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {isCreating
                                 ? "Creating…"

@@ -40,9 +40,10 @@ export type StandardBusinessProfileType = Exclude<
   "api_partner"
 >;
 
-export type BusinessProfileOperatingMode =
-  | "independent"
-  | "on_behalf_of_company";
+export enum BusinessProfileOperatingMode {
+  INDEPENDENT = "independent",
+  ON_BEHALF_OF_COMPANY = "on_behalf_of_company",
+}
 
 export type AccountStatus =
   "pending" | "active" | "suspended" | "locked" | "deactivated";

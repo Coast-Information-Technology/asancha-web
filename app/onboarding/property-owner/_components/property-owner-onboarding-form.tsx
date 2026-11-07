@@ -44,6 +44,7 @@ import {
     authApiPost,
     authApiPut,
 } from "../../../../src/lib/api/auth-fetch";
+import { BusinessProfileOperatingMode } from "../../../../src/features/account/types/account.types";
 import {
     PROPERTY_OWNER_ONBOARDING_FLOW,
 } from "../../_config/role-onboarding-flows";
@@ -164,6 +165,12 @@ interface PropertyOwnerOnboardingStartResponse {
     data: Record<string, unknown>;
     createdAt: string;
     updatedAt: string;
+}
+
+interface BackendLinkedCompany {
+    companyPublicId: string;
+    companyName: string;
+    tradingName?: string | null;
 }
 
 interface FieldOption {
@@ -852,6 +859,27 @@ function getFieldConfig(
         };
     }
 
+    if (fieldName === "operatingMode") {
+        return {
+            name: fieldName,
+            label: "Operating mode",
+            type: "select",
+            required,
+            options: [
+                {
+                    value:
+                        BusinessProfileOperatingMode.INDEPENDENT,
+                    label: "Independent",
+                },
+                {
+                    value:
+                        BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY,
+                    label: "On behalf of a company",
+                },
+            ],
+        };
+    }
+
     return {
         name: fieldName,
         label: formatFieldName(fieldName),
@@ -1200,6 +1228,7 @@ function getDocumentAcceptType(): string {
 export function PropertyOwnerOnboardingForm() {
     const router = useRouter();
     const hasStartedInitialLoad = useRef(false);
+    const hasStartedCompanyResolution = useRef(false);
 
     const [stepsResponse, setStepsResponse] =
         useState<PropertyOwnerOnboardingStepsResponse>(
@@ -1217,6 +1246,12 @@ export function PropertyOwnerOnboardingForm() {
         useState(true);
     const [isSaving, setIsSaving] =
         useState(false);
+    const [linkedCompany, setLinkedCompany] =
+        useState<BackendLinkedCompany | null>(null);
+    const [isLoadingCompany, setIsLoadingCompany] =
+        useState(false);
+    const [companyErrorMessage, setCompanyErrorMessage] =
+        useState<string | null>(null);
     const [uploadStates, setUploadStates] =
         useState<UploadStateByField>({});
     const [
@@ -1332,6 +1367,57 @@ export function PropertyOwnerOnboardingForm() {
                 : [],
         [activeStep],
     );
+
+    const loadLinkedCompany =
+        useCallback(async (): Promise<void> => {
+            setIsLoadingCompany(true);
+            setCompanyErrorMessage(null);
+            setLinkedCompany(null);
+
+            try {
+                const company =
+                    await authApiGet<BackendLinkedCompany>(
+                        "/companies/me",
+                    );
+
+                setLinkedCompany(company);
+                setValues((currentValues) => ({
+                    ...currentValues,
+                    companyPublicId:
+                        company.companyPublicId,
+                }));
+            } catch {
+                setValues((currentValues) => ({
+                    ...currentValues,
+                    companyPublicId: null,
+                }));
+                setCompanyErrorMessage(
+                    "We could not find an eligible company linked to your account.",
+                );
+            } finally {
+                setIsLoadingCompany(false);
+            }
+        }, []);
+
+    const requiresLinkedCompany =
+        activeStepFields.some(
+            (field) =>
+                field.name === "companyPublicId",
+        );
+
+    useEffect(() => {
+        if (
+            !requiresLinkedCompany ||
+            hasStartedCompanyResolution.current
+        ) {
+            return;
+        }
+
+        hasStartedCompanyResolution.current = true;
+        queueMicrotask(() => {
+            void loadLinkedCompany();
+        });
+    }, [loadLinkedCompany, requiresLinkedCompany]);
 
     const completedRequiredCount =
         activeStepFields.filter(
@@ -1908,6 +1994,72 @@ export function PropertyOwnerOnboardingForm() {
                             View uploaded file
                         </a>
                     ) : null}
+                </div>
+            );
+        }
+
+        if (field.name === "companyPublicId") {
+            return (
+                <div
+                    key={field.name}
+                    className="rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--background)] p-4"
+                >
+                    <p className="text-sm font-semibold">
+                        {field.required ? (
+                            <span
+                                aria-hidden="true"
+                                className="mr-1 text-[var(--destructive)]"
+                            >
+                                *
+                            </span>
+                        ) : null}
+                        Linked company
+                    </p>
+
+                    <div
+                        aria-live="polite"
+                        className="mt-2 rounded-[var(--asancha-radius-md)] bg-[var(--muted)] p-4 text-sm"
+                    >
+                        {isLoadingCompany ? (
+                            <p className="text-[var(--muted-foreground)]">
+                                Resolving your linked company…
+                            </p>
+                        ) : linkedCompany ? (
+                            <div>
+                                <p className="font-semibold">
+                                    {linkedCompany.companyName}
+                                </p>
+                                {linkedCompany.tradingName ? (
+                                    <p className="mt-1 text-[var(--muted-foreground)]">
+                                        Trading as{" "}
+                                        {linkedCompany.tradingName}
+                                    </p>
+                                ) : null}
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-[var(--destructive)]">
+                                    {companyErrorMessage ??
+                                        "No linked company has been resolved."}
+                                </p>
+                                <button
+                                    type="button"
+                                    disabled={disabled}
+                                    onClick={() => {
+                                        void loadLinkedCompany();
+                                    }}
+                                    className="mt-3 cursor-pointer text-sm font-semibold text-[var(--primary)] underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    Try again
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+                        Company identity is resolved securely
+                        from your account.
+                    </p>
                 </div>
             );
         }

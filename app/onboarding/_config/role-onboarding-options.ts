@@ -30,13 +30,12 @@ export const INVESTOR_FUNDING_METHODS = [
     "other",
 ] as const;
 
-export const BUSINESS_PROFILE_OPERATING_MODES = [
-    "independent",
-    "on_behalf_of_company",
-] as const;
-
-export type BusinessProfileOperatingMode =
-    (typeof BUSINESS_PROFILE_OPERATING_MODES)[number];
+export {
+    BUSINESS_PROFILE_OPERATING_MODES,
+} from "../../../src/features/account/constants/account.constants";
+export {
+    BusinessProfileOperatingMode,
+} from "../../../src/features/account/types/account.types";
 
 export type SourceOfFunds = (typeof SOURCE_OF_FUNDS)[number];
 export type PurchaseReadiness = (typeof PURCHASE_READINESS)[number];

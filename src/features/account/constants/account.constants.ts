@@ -21,7 +21,13 @@
  * - Constants guide frontend behaviour only; backend checks remain final.
  */
 
+import { BusinessProfileOperatingMode } from "../types/account.types";
 import type { BusinessProfileType, PolicyType } from "../types/account.types";
+
+export const BUSINESS_PROFILE_OPERATING_MODES = [
+  BusinessProfileOperatingMode.INDEPENDENT,
+  BusinessProfileOperatingMode.ON_BEHALF_OF_COMPANY,
+] as const;
 
 export const BUSINESS_PROFILE_TYPES = [
   "investor",

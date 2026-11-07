@@ -18,6 +18,7 @@ import type {
   DashboardOnboardingStatus,
   DashboardVerificationStatus,
 } from "../../dashboard/_types/dashboard.types";
+import type { BusinessProfileOperatingMode } from "../../../src/features/account/types/account.types";
 
 export type AccountBusinessProfileType =
   | "investor"
@@ -389,7 +390,7 @@ export interface AvailableBusinessProfileTypesResponse {
 export interface CreateBusinessProfileFormValues {
   profileType: AccountBusinessProfileType | "";
 
-  operatingMode: "independent" | "on_behalf_of_company";
+  operatingMode: BusinessProfileOperatingMode;
 
   companyPublicId: string | null;
 
@@ -482,7 +483,7 @@ export type CreateSupportRequestPayload = Record<string, unknown> & {
 export type CreateBusinessProfilePayload = Record<string, unknown> & {
   profileType: AccountBusinessProfileType;
 
-  operatingMode?: "independent" | "on_behalf_of_company";
+  operatingMode?: BusinessProfileOperatingMode;
 
   companyPublicId?: string | null;
 
