@@ -42,7 +42,7 @@ export const DASHBOARD_PAGE_ROUTES = {
   apiPartner: "/dashboard/api-partner",
 
   account: "/account",
-  notifications: "/notifications",
+  notifications: "/account/notifications",
 } as const;
 
 export const DASHBOARD_PROFILE_PATHS = {
@@ -518,7 +518,7 @@ export const DASHBOARD_SHARED_NAVIGATION: DashboardNavigationGroup[] = [
       {
         key: "notifications",
         label: "Notifications",
-        href: "/notifications",
+        href: "/account/notifications",
         icon: "bell",
         badgeKey: "unreadNotifications",
       },

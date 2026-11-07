@@ -116,7 +116,7 @@ export interface GeneralProfile {
   displayName: string | null;
   phoneNumber: string | null;
   preferredContactMethod: PreferredContactMethod | null;
-  profileImageUrl: string | null;
+  profileImageDocumentPublicId: string | null;
   dateOfBirth: string | null;
   nationality: string | null;
   residentialAddress: GeneralProfileAddress | null;
@@ -212,7 +212,7 @@ export interface UpdateGeneralProfilePayload {
   displayName?: string;
   phoneNumber?: string | null;
   preferredContactMethod?: PreferredContactMethod | null;
-  profileImageUrl?: string | null;
+  profileImageDocumentPublicId?: string | null;
   dateOfBirth?: string | null;
   nationality?: string | null;
   residentialAddress?: GeneralProfileAddress | null;

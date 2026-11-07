@@ -68,8 +68,8 @@ export const AUTHENTICATED_TOP_BAR_NAVIGATION = [
   },
   {
     label: "Notifications",
-    href: "/notifications",
-    description: "Open the notification inbox.",
+    href: "/account/notifications",
+    description: "Manage notification preferences.",
     iconName: "Bell",
     access: "authenticated",
   },
@@ -99,8 +99,8 @@ export const DASHBOARD_DESKTOP_TOP_BAR_ITEMS = [
   },
   {
     label: "Notifications",
-    href: "/notifications",
-    description: "View notification inbox.",
+    href: "/account/notifications",
+    description: "Manage notification preferences.",
     iconName: "Bell",
     access: "authenticated",
   },
@@ -116,8 +116,8 @@ export const DASHBOARD_DESKTOP_TOP_BAR_ITEMS = [
 export const DASHBOARD_MOBILE_TOP_BAR_ITEMS = [
   {
     label: "Notifications",
-    href: "/notifications",
-    description: "Open notifications.",
+    href: "/account/notifications",
+    description: "Manage notification preferences.",
     iconName: "Bell",
     access: "authenticated",
   },
@@ -154,8 +154,8 @@ export const DASHBOARD_MOBILE_BOTTOM_BAR_ITEMS = [
   },
   {
     label: "Notifications",
-    href: "/notifications",
-    description: "Open notifications.",
+    href: "/account/notifications",
+    description: "Manage notification preferences.",
     iconName: "Bell",
     access: "authenticated",
   },

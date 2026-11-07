@@ -51,15 +51,8 @@ export const NOTIFICATIONS_API_ENDPOINTS = {
 } as const;
 
 export const NOTIFICATION_PAGE_ROUTES = {
-    root: "/notifications",
-    preferences: "/notifications/preferences",
-
-    detail: (
-        notificationPublicId: string,
-    ): string =>
-        `/notifications/${encodeURIComponent(
-            notificationPublicId,
-        )}`,
+    root: "/account/notifications",
+    preferences: "/account/notifications",
 } as const;
 
 export const NOTIFICATION_CATEGORY_OPTIONS = [

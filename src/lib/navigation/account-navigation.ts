@@ -99,8 +99,8 @@ export const ACCOUNT_AVATAR_MENU_ITEMS = [
   },
   {
     label: "Notifications",
-    href: "/notifications",
-    description: "Open your notification inbox.",
+    href: "/account/notifications",
+    description: "Manage your notification preferences.",
     iconName: "Bell",
     access: "authenticated",
   },

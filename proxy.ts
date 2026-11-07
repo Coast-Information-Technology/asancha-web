@@ -189,11 +189,20 @@ async function consumeEmailVerificationToken(
 }
 
 /**
- * Checks whether the request contains the access-token cookie used for
- * authenticated page guidance.
+ * Checks whether the request contains enough session state for authenticated
+ * page guidance. The access token may expire before the refresh token; the
+ * authenticated API proxy remains responsible for validating and refreshing
+ * the session.
  */
-function hasAccessTokenCookie(request: NextRequest): boolean {
-  return Boolean(request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value);
+function hasAuthSessionCookie(request: NextRequest): boolean {
+  const accessToken = request.cookies
+    .get(ACCESS_TOKEN_COOKIE_NAME)
+    ?.value?.trim();
+  const refreshToken = request.cookies
+    .get(REFRESH_TOKEN_COOKIE_NAME)
+    ?.value?.trim();
+
+  return Boolean(accessToken || refreshToken);
 }
 
 /**
@@ -260,7 +269,7 @@ function createSignInRedirect(request: NextRequest): URL {
  */
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
-  const hasAccessToken = hasAccessTokenCookie(request);
+  const hasAuthSession = hasAuthSessionCookie(request);
 
   const passwordResetResponse = capturePasswordResetToken(request);
 
@@ -290,11 +299,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     startsWithAny(pathname, PROTECTED_ROUTE_PREFIXES) ||
     startsWithAny(pathname, PROTECTED_API_PARTNER_ROUTE_PREFIXES);
 
-  if (isProtectedRoute && !hasAccessToken) {
+  if (isProtectedRoute && !hasAuthSession) {
     return redirectToSignInAndClearSession(request);
   }
 
-  if (hasAccessToken && isGuestPreferredRoute(pathname)) {
+  if (hasAuthSession && isGuestPreferredRoute(pathname)) {
     return NextResponse.redirect(createRedirectUrl(request, "/dashboard"));
   }
 

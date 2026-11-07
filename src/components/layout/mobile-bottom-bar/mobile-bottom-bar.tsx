@@ -73,7 +73,8 @@ export function MobileBottomBar({
                   <span aria-hidden="true">•</span>
                   <span>{item.label}</span>
 
-                  {item.href === "/notifications" && notificationCount > 0 ? (
+                  {item.href === "/account/notifications" &&
+                  notificationCount > 0 ? (
                     <span className="absolute right-4 top-2 rounded-full bg-gray-950 px-1.5 py-0.5 text-[0.65rem] text-white">
                       <span className="sr-only">Unread notifications: </span>
                       {notificationCount}

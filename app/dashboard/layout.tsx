@@ -16,8 +16,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { DashboardShell } from "./_components/dashboard-shell";
-
 export const metadata: Metadata = {
     title: {
         default: "Dashboard | Asancha",
@@ -40,9 +38,5 @@ export interface DashboardLayoutProps {
 export default function DashboardLayout({
     children,
 }: DashboardLayoutProps) {
-    return (
-        <DashboardShell>
-            {children}
-        </DashboardShell>
-    );
+    return children;
 }

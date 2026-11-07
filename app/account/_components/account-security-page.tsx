@@ -168,11 +168,6 @@ export function AccountSecurityPage() {
     ] = useState("");
 
     const [
-        showCurrentPassword,
-        setShowCurrentPassword,
-    ] = useState(false);
-
-    const [
         showNewPassword,
         setShowNewPassword,
     ] = useState(false);
@@ -183,8 +178,13 @@ export function AccountSecurityPage() {
     ] = useState(false);
 
     const [
-        showEmailChangePassword,
-        setShowEmailChangePassword,
+        isPasswordFormOpen,
+        setIsPasswordFormOpen,
+    ] = useState(false);
+
+    const [
+        isEmailFormOpen,
+        setIsEmailFormOpen,
     ] = useState(false);
 
     const [isLoading, setIsLoading] =
@@ -290,6 +290,7 @@ export function AccountSecurityPage() {
             setCurrentPassword("");
             setNewPassword("");
             setConfirmNewPassword("");
+            setIsPasswordFormOpen(false);
 
             setSuccessMessage(
                 "Your password has been changed.",
@@ -366,6 +367,7 @@ export function AccountSecurityPage() {
 
             setNewEmail("");
             setEmailChangePassword("");
+            setIsEmailFormOpen(false);
 
             setSuccessMessage(
                 "Your email-change request has been submitted. Follow the confirmation instructions sent by Asancha.",
@@ -499,11 +501,29 @@ export function AccountSecurityPage() {
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                        Changing your password may revoke
-                        other sessions according to
-                        platform security policy.
+                        For your security, changing your
+                        password may sign you out on your
+                        other devices.
                     </p>
 
+                    {!isPasswordFormOpen ? (
+                        <button
+                            type="button"
+                            disabled={
+                                !securitySummary
+                                    .canChangePassword
+                            }
+                            onClick={() =>
+                                setIsPasswordFormOpen(
+                                    true,
+                                )
+                            }
+                            className="mt-5 min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            Start password change
+                        </button>
+                    ) : (
+                        <>
                     <div className="mt-5 grid gap-4">
                         <div>
                             <label
@@ -513,49 +533,27 @@ export function AccountSecurityPage() {
                                 Current password
                             </label>
 
-                            <div className="relative">
-                                <input
-                                    id="currentPassword"
-                                    type={
-                                        showCurrentPassword
-                                            ? "text"
-                                            : "password"
-                                    }
-                                    autoComplete="current-password"
-                                    value={currentPassword}
-                                    onChange={(
-                                        event: ChangeEvent<HTMLInputElement>,
-                                    ): void =>
-                                        setCurrentPassword(
-                                            event
-                                                .target
-                                                .value,
-                                        )
-                                    }
-                                    className={
-                                        passwordInputClassName
-                                    }
-                                />
-
-                                <PasswordVisibilityButton
-                                    isVisible={
-                                        showCurrentPassword
-                                    }
-                                    label={
-                                        showCurrentPassword
-                                            ? "Hide current password"
-                                            : "Show current password"
-                                    }
-                                    onToggle={() =>
-                                        setShowCurrentPassword(
-                                            (
-                                                current,
-                                            ) =>
-                                                !current,
-                                        )
-                                    }
-                                />
-                            </div>
+                            <input
+                                id="currentPassword"
+                                name="currentPasswordConfirmation"
+                                type="password"
+                                autoComplete="off"
+                                data-1p-ignore="true"
+                                data-lpignore="true"
+                                value={currentPassword}
+                                onChange={(
+                                    event: ChangeEvent<HTMLInputElement>,
+                                ): void =>
+                                    setCurrentPassword(
+                                        event
+                                            .target
+                                            .value,
+                                    )
+                                }
+                                className={
+                                    inputClassName
+                                }
+                            />
                         </div>
 
                         <div>
@@ -667,19 +665,39 @@ export function AccountSecurityPage() {
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={
-                            isChangingPassword ||
-                            !securitySummary
-                                .canChangePassword
-                        }
-                        className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
-                    >
-                        {isChangingPassword
-                            ? "Changing…"
-                            : "Change password"}
-                    </button>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                        <button
+                            type="submit"
+                            disabled={
+                                isChangingPassword ||
+                                !securitySummary
+                                    .canChangePassword
+                            }
+                            className="min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {isChangingPassword
+                                ? "Changing…"
+                                : "Change password"}
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={isChangingPassword}
+                            onClick={() => {
+                                setCurrentPassword("");
+                                setNewPassword("");
+                                setConfirmNewPassword("");
+                                setIsPasswordFormOpen(
+                                    false,
+                                );
+                            }}
+                            className="min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] border border-[var(--border)] px-5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                        </>
+                    )}
                 </form>
 
                 <form
@@ -693,16 +711,6 @@ export function AccountSecurityPage() {
                     </h2>
 
                     <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-                        Current email:{" "}
-                        <strong className="text-[var(--foreground)]">
-                            {
-                                securitySummary
-                                    .email
-                            }
-                        </strong>
-                    </p>
-
-                    <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                         Verification:{" "}
                         {
                             securitySummary
@@ -710,6 +718,22 @@ export function AccountSecurityPage() {
                         }
                     </p>
 
+                    {!isEmailFormOpen ? (
+                        <button
+                            type="button"
+                            disabled={
+                                !securitySummary
+                                    .canRequestEmailChange
+                            }
+                            onClick={() =>
+                                setIsEmailFormOpen(true)
+                            }
+                            className="mt-5 min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            Start email change
+                        </button>
+                    ) : (
+                        <>
                     <div className="mt-5 grid gap-4">
                         <div>
                             <label
@@ -721,8 +745,11 @@ export function AccountSecurityPage() {
 
                             <input
                                 id="newEmail"
+                                name="newEmailAddress"
                                 type="email"
-                                autoComplete="email"
+                                autoComplete="off"
+                                data-1p-ignore="true"
+                                data-lpignore="true"
                                 value={newEmail}
                                 onChange={(
                                     event: ChangeEvent<HTMLInputElement>,
@@ -743,70 +770,64 @@ export function AccountSecurityPage() {
                                 Current password
                             </label>
 
-                            <div className="relative">
-                                <input
-                                    id="emailChangePassword"
-                                    name="emailChangePasswordConfirmation"
-                                    type={
-                                        showEmailChangePassword
-                                            ? "text"
-                                            : "password"
-                                    }
-                                    autoComplete="off"
-                                    data-1p-ignore="true"
-                                    data-lpignore="true"
-                                    value={
-                                        emailChangePassword
-                                    }
-                                    onChange={(
-                                        event: ChangeEvent<HTMLInputElement>,
-                                    ): void =>
-                                        setEmailChangePassword(
-                                            event
-                                                .target
-                                                .value,
-                                        )
-                                    }
-                                    className={
-                                        passwordInputClassName
-                                    }
-                                />
-
-                                <PasswordVisibilityButton
-                                    isVisible={
-                                        showEmailChangePassword
-                                    }
-                                    label={
-                                        showEmailChangePassword
-                                            ? "Hide password for email change"
-                                            : "Show password for email change"
-                                    }
-                                    onToggle={() =>
-                                        setShowEmailChangePassword(
-                                            (
-                                                current,
-                                            ) =>
-                                                !current,
-                                        )
-                                    }
-                                />
-                            </div>
+                            <input
+                                id="emailChangePassword"
+                                name="emailChangePasswordConfirmation"
+                                type="password"
+                                autoComplete="off"
+                                data-1p-ignore="true"
+                                data-lpignore="true"
+                                value={
+                                    emailChangePassword
+                                }
+                                onChange={(
+                                    event: ChangeEvent<HTMLInputElement>,
+                                ): void =>
+                                    setEmailChangePassword(
+                                        event
+                                            .target
+                                            .value,
+                                    )
+                                }
+                                className={
+                                    inputClassName
+                                }
+                            />
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={
-                            isRequestingEmailChange ||
-                            !securitySummary
-                                .canRequestEmailChange
-                        }
-                        className="mt-5 min-h-11 rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-60"
-                    >
-                        {isRequestingEmailChange
-                            ? "Submitting…"
-                            : "Request email change"}
-                    </button>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                        <button
+                            type="submit"
+                            disabled={
+                                isRequestingEmailChange ||
+                                !securitySummary
+                                    .canRequestEmailChange
+                            }
+                            className="min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {isRequestingEmailChange
+                                ? "Submitting…"
+                                : "Request email change"}
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={
+                                isRequestingEmailChange
+                            }
+                            onClick={() => {
+                                setNewEmail("");
+                                setEmailChangePassword("");
+                                setIsEmailFormOpen(false);
+                            }}
+                            className="min-h-11 cursor-pointer rounded-[var(--asancha-radius-md)] border border-[var(--border)] px-5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                        </>
+                    )}
                 </form>
             </section>
 

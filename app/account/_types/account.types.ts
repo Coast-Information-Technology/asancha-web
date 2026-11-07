@@ -90,7 +90,7 @@ export interface AccountGeneralProfile {
   phoneNumber: string | null;
   preferredContactMethod:
     "email" | "phone" | "whatsapp" | "platform_message" | null;
-  profileImageUrl: string | null;
+  profileImageDocumentPublicId: string | null;
 
   profileCompletionStatus: "not_started" | "in_progress" | "completed";
 
@@ -108,7 +108,7 @@ export interface AccountGeneralProfileFormValues {
 
   phoneNumber: string;
   preferredContactMethod: "email" | "phone" | "whatsapp" | "platform_message";
-  profileImageUrl: string;
+  profileImageDocumentPublicId: string;
 
   informationAccurateConfirmed: boolean;
 }
@@ -241,41 +241,6 @@ export interface AccountSecurityResponse {
   loginActivity: AccountLoginActivity[];
 
   securityNotifications: AccountSecurityNotification[];
-}
-
-export interface AccountNotificationPreference {
-  preferenceKey: string;
-
-  label: string;
-  description: string;
-
-  category:
-    | "account"
-    | "security"
-    | "profiles"
-    | "documents"
-    | "verification"
-    | "listings"
-    | "reservations"
-    | "payments"
-    | "bookings"
-    | "conversations"
-    | "api"
-    | "recommendations"
-    | string;
-
-  inAppEnabled: boolean;
-  emailEnabled: boolean;
-
-  required: boolean;
-}
-
-export interface AccountNotificationPreferencesResponse {
-  items: AccountNotificationPreference[];
-
-  emailAddress: string;
-
-  safeUserMessage: string | null;
 }
 
 export interface AccountStatusResponse {
@@ -453,7 +418,7 @@ export interface UpdateAccountGeneralProfilePayload extends Record<
   displayName: string;
   phoneNumber: string;
   preferredContactMethod: "email" | "phone" | "whatsapp" | "platform_message";
-  profileImageUrl: string | null;
+  profileImageDocumentPublicId: string | null;
 }
 
 export type ChangePasswordPayload = Record<string, unknown> & {
@@ -464,16 +429,6 @@ export type ChangePasswordPayload = Record<string, unknown> & {
 export type RequestEmailChangePayload = Record<string, unknown> & {
   newEmail: string;
   password: string;
-};
-
-export type UpdateNotificationPreferencesPayload = Record<string, unknown> & {
-  data: {
-    preferences: Array<{
-      preferenceKey: string;
-      inAppEnabled: boolean;
-      emailEnabled: boolean;
-    }>;
-  };
 };
 
 export type CreateSupportRequestPayload = Record<string, unknown> & {

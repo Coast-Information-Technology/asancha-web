@@ -598,10 +598,19 @@ export function AddBusinessProfilePage() {
                 onSubmit={handleSubmit}
                 className="mt-6 grid gap-6"
             >
-                <section>
-                    <h2 className="text-xl font-bold">
+                <fieldset>
+                    <legend className="text-xl font-bold">
                         Choose profile type
-                    </h2>
+                    </legend>
+
+                    <p
+                        id="profile-type-guidance"
+                        className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]"
+                    >
+                        Select one available profile. You can
+                        use Tab to enter the group and the
+                        arrow keys to move between options.
+                    </p>
 
                     <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         {BUSINESS_PROFILE_TYPE_OPTIONS.map(
@@ -625,18 +634,34 @@ export function AddBusinessProfilePage() {
                                     values.profileType ===
                                     option.profileType;
 
+                                const descriptionId =
+                                    `profile-type-${option.profileType}-description`;
+                                const statusId =
+                                    `profile-type-${option.profileType}-status`;
+
+                                const describedBy = [
+                                    "profile-type-guidance",
+                                    descriptionId,
+                                    availability?.alreadyCreated ||
+                                    availability?.lockedReason
+                                        ? statusId
+                                        : null,
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ");
+
                                 return (
                                     <label
                                         key={
                                             option.profileType
                                         }
-                                        className={`rounded-[var(--asancha-radius-lg)] border p-5 ${
+                                        className={`group relative rounded-[var(--asancha-radius-lg)] border p-5 pr-12 transition duration-200 motion-reduce:transform-none ${
                                             selected
-                                                ? "border-[var(--primary)] bg-[var(--muted)]"
+                                                ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))] shadow-sm ring-1 ring-[var(--primary)]"
                                                 : "border-[var(--border)] bg-[var(--card)]"
                                         } ${
                                             available
-                                                ? "cursor-pointer"
+                                                ? "cursor-pointer hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-[var(--accent)] hover:shadow-md focus-within:border-[var(--primary)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--asancha-focus-ring)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--background)]"
                                                 : "cursor-not-allowed opacity-60"
                                         }`}
                                     >
@@ -652,6 +677,9 @@ export function AddBusinessProfilePage() {
                                             checked={
                                                 selected
                                             }
+                                            aria-describedby={
+                                                describedBy
+                                            }
                                             onChange={(): void =>
                                                 selectProfileType(
                                                     option.profileType,
@@ -660,13 +688,33 @@ export function AddBusinessProfilePage() {
                                             className="sr-only"
                                         />
 
+                                        <span
+                                            aria-hidden="true"
+                                            className={`absolute right-4 top-4 grid h-5 w-5 place-items-center rounded-full border transition ${
+                                                selected
+                                                    ? "border-[var(--primary)] bg-[var(--primary)]"
+                                                    : "border-[var(--muted-foreground)] bg-[var(--card)] group-hover:border-[var(--primary)]"
+                                            }`}
+                                        >
+                                            <span
+                                                className={`h-2 w-2 rounded-full bg-[var(--primary-foreground)] transition-opacity ${
+                                                    selected
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                }`}
+                                            />
+                                        </span>
+
                                         <h3 className="font-bold">
                                             {
                                                 option.label
                                             }
                                         </h3>
 
-                                        <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+                                        <p
+                                            id={descriptionId}
+                                            className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]"
+                                        >
                                             {
                                                 option.description
                                             }
@@ -674,14 +722,20 @@ export function AddBusinessProfilePage() {
 
                                         {availability
                                             ?.alreadyCreated ? (
-                                            <p className="mt-3 text-xs font-semibold text-[var(--muted-foreground)]">
+                                            <p
+                                                id={statusId}
+                                                className="mt-3 text-xs font-semibold text-[var(--muted-foreground)]"
+                                            >
                                                 Already created
                                             </p>
                                         ) : null}
 
-                                        {availability
-                                            ?.lockedReason ? (
-                                            <p className="mt-3 text-xs leading-5 text-[var(--destructive)]">
+                                        {availability?.lockedReason &&
+                                        !availability.alreadyCreated ? (
+                                            <p
+                                                id={statusId}
+                                                className="mt-3 text-xs leading-5 text-[var(--destructive)]"
+                                            >
                                                 {
                                                     availability.lockedReason
                                                 }
@@ -692,7 +746,7 @@ export function AddBusinessProfilePage() {
                             },
                         )}
                     </div>
-                </section>
+                </fieldset>
 
                 {selectedType ? (
                     <section className="rounded-[var(--asancha-radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7">

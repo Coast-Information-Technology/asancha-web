@@ -33,6 +33,8 @@ import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@/src/components/ui/toast/toast";
 import { appConfig } from "@/src/lib/env/env";
 
+import { AuthenticatedAppShell } from "./_components/authenticated-app-shell";
+
 import "./globals.css";
 
 interface RootLayoutProps {
@@ -104,7 +106,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </a>
 
         <ToastProvider>
-          <div className="asancha-app-root">{children}</div>
+          <div className="asancha-app-root">
+            <AuthenticatedAppShell>
+              {children}
+            </AuthenticatedAppShell>
+          </div>
         </ToastProvider>
       </body>
     </html>

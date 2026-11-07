@@ -83,7 +83,8 @@ export function DashboardTopBar({
               key={item.href}
             >
               {item.label}
-              {item.href === "/notifications" && notificationCount > 0 ? (
+              {item.href === "/account/notifications" &&
+              notificationCount > 0 ? (
                 <span className="ml-2 rounded-full bg-gray-950 px-2 py-0.5 text-xs text-white">
                   <span className="sr-only">Unread notifications: </span>
                   {notificationCount}

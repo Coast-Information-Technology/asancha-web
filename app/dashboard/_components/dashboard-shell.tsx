@@ -44,6 +44,7 @@ import {
     useRouter,
 } from "next/navigation";
 import {
+    ArrowRight,
     BadgeCheck,
     Bell,
     Bookmark,
@@ -105,6 +106,7 @@ import {
     type ServiceProviderNavigationItem,
 } from "../_config/service-provider-dashboard.config";
 import type {
+    DashboardAction,
     DashboardBusinessProfile,
     DashboardState,
     PublicBusinessProfileType,
@@ -1022,6 +1024,86 @@ function getUnreadNotificationCount(
     );
 }
 
+interface PendingActionsCardProps {
+    action: DashboardAction | null;
+    count: number;
+    headingId: string;
+}
+
+function PendingActionsCard({
+    action,
+    count,
+    headingId,
+}: PendingActionsCardProps) {
+    const actionAvailable = Boolean(
+        action?.actionPath &&
+        action.actionLabel,
+    );
+
+    const summary = `${count} account or profile ${
+        count === 1
+            ? "action requires"
+            : "actions require"
+    } attention.`;
+
+    const content = (
+        <>
+            <h2
+                id={headingId}
+                className="text-sm font-bold"
+            >
+                Pending actions
+            </h2>
+
+            <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+                {summary}
+            </p>
+
+            {actionAvailable && action ? (
+                <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--primary)] group-hover:underline">
+                    {action.actionLabel}
+                    <ArrowRight
+                        aria-hidden="true"
+                        className="transition-transform group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5 motion-reduce:transform-none"
+                        size={15}
+                        strokeWidth={2.5}
+                    />
+                </span>
+            ) : null}
+        </>
+    );
+
+    if (
+        actionAvailable &&
+        action?.actionPath &&
+        action.actionLabel
+    ) {
+        return (
+            <section
+                aria-labelledby={headingId}
+                className="mt-6"
+            >
+                <Link
+                    href={action.actionPath}
+                    aria-label={`${action.actionLabel}. ${summary}`}
+                    className="group block cursor-pointer rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--primary)] hover:bg-[var(--accent)] hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:border-[var(--primary)] focus-visible:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] motion-reduce:transform-none"
+                >
+                    {content}
+                </Link>
+            </section>
+        );
+    }
+
+    return (
+        <section
+            aria-labelledby={headingId}
+            className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4"
+        >
+            {content}
+        </section>
+    );
+}
+
 export function DashboardShell({
     children,
 }: DashboardShellProps) {
@@ -1704,47 +1786,15 @@ export function DashboardShell({
                 {dashboardState &&
                 dashboardState.pendingActions
                     .length > 0 ? (
-                    <section
-                        className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4"
-                        aria-labelledby="dashboard-pending-actions-heading"
-                    >
-                        <h2
-                            id="dashboard-pending-actions-heading"
-                            className="text-sm font-bold"
-                        >
-                            Pending actions
-                        </h2>
-
-                        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-                            {
-                                dashboardState
-                                    .pendingActions
-                                    .length
-                            }{" "}
-                            account or profile{" "}
-                            {dashboardState
+                    <PendingActionsCard
+                        action={firstPendingAction}
+                        count={
+                            dashboardState
                                 .pendingActions
-                                .length === 1
-                                ? "action requires"
-                                : "actions require"}{" "}
-                            attention.
-                        </p>
-
-                        {firstPendingAction
-                            ?.actionPath &&
-                        firstPendingAction
-                            .actionLabel ? (
-                            <Link
-                                href={firstPendingAction.actionPath}
-                                className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
-                            >
-                                {
-                                    firstPendingAction
-                                        .actionLabel
-                                }
-                            </Link>
-                        ) : null}
-                    </section>
+                                .length
+                        }
+                        headingId="dashboard-pending-actions-heading"
+                    />
                 ) : null}
             </aside>
 
@@ -1815,13 +1865,13 @@ export function DashboardShell({
                         className="flex flex-none items-center gap-1"
                     >
                         <Link
-                            href="/notifications"
+                            href="/account/notifications"
                             className="relative inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--asancha-focus-ring)]"
                             aria-label={
                                 unreadNotificationCount >
                                 0
-                                    ? `${unreadNotificationCount} unread notifications`
-                                    : "Notifications"
+                                    ? `Notification preferences. ${unreadNotificationCount} unread notifications.`
+                                    : "Notification preferences"
                             }
                         >
                             <Bell
@@ -2043,40 +2093,17 @@ export function DashboardShell({
                         dashboardState
                             .pendingActions
                             .length > 0 ? (
-                            <section className="mt-6 rounded-[var(--asancha-radius-md)] border border-[var(--border)] bg-[var(--muted)] p-4">
-                                <h2 className="text-sm font-bold">
-                                    Pending actions
-                                </h2>
-
-                                <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-                                    {
-                                        dashboardState
-                                            .pendingActions
-                                            .length
-                                    }{" "}
-                                    {dashboardState
+                            <PendingActionsCard
+                                action={
+                                    firstPendingAction
+                                }
+                                count={
+                                    dashboardState
                                         .pendingActions
-                                        .length === 1
-                                        ? "action requires"
-                                        : "actions require"}{" "}
-                                    attention.
-                                </p>
-
-                                {firstPendingAction
-                                    ?.actionPath &&
-                                firstPendingAction
-                                    .actionLabel ? (
-                                    <Link
-                                        href={firstPendingAction.actionPath}
-                                        className="mt-3 inline-flex text-sm font-semibold text-[var(--primary)] hover:underline"
-                                    >
-                                        {
-                                            firstPendingAction
-                                                .actionLabel
-                                        }
-                                    </Link>
-                                ) : null}
-                            </section>
+                                        .length
+                                }
+                                headingId="mobile-dashboard-pending-actions-heading"
+                            />
                         ) : null}
 
                         <div className="mt-6 grid gap-1 border-t border-[var(--border)] pt-4">
